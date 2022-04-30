@@ -1,7 +1,6 @@
 package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.Task
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 
 @Service
@@ -20,8 +19,8 @@ class TaskService {
             // Fill Array one by one
 
         //Test Values
-        taskArray[1] = Task("test", "test", true, "test")
-        taskArray[2] = Task("test1", "test1", true, "test1")
+        taskArray[0] = Task("Programmierung 1", "Content1", true, "Beschreibung1")
+        taskArray[1] = Task("Programmierung 2", "Content2", true, "Beschreibung2")
 
         // 200: OK
         return taskArray
