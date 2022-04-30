@@ -9,12 +9,14 @@ import org.springframework.web.bind.annotation.RestController
 //@RequestMapping(path = ["/tasks"])
 class TaskController(val taskService: TaskService) {
 
-    @GetMapping("/main")
+    // How to reach Task ID & User ID?
+
+    @GetMapping("/tasks/user") // TODO: add /User_ID
     fun loadTasks(/* userID: String */): Array<Task?> {
         return taskService.loadTasks()
     }
 
-    @GetMapping("/task")
+    @GetMapping("/tasks") // TODO: add /Task_ID
     fun getTask(/*taskID: Int*/): Task {
         return taskService.getTask()
     }
