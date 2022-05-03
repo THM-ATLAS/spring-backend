@@ -26,8 +26,8 @@ class TaskService {
             // Fill Array one by one
 
         //Test Values
-        taskArray[0] = Task("1", "Programmierung 1", "Content1", true, "USER ID TEST: $userID")
-        taskArray[1] = Task("2","Programmierung 2", "Content2", true, "USER ID TEST2: $userID")
+        taskArray[0] = Task(1, "USER ID TEST: $userID", "Content1", true)
+        taskArray[1] = Task(2,"USER ID TEST2: $userID", "Content2", true)
 
         // 200: OK
         return ResponseEntity<Array<Task?>>(taskArray, HttpStatus.OK)
@@ -37,16 +37,16 @@ class TaskService {
     fun getTask(@PathVariable taskID: Int): ResponseEntity<Task> {
 
         // Request Task from Database based on TASK_ID
-        // if TASK_ID not found
-        // return ResponseEntity<Array<Task?>>(taskArray, HttpStatus.NOT_FOUND)
-        // if no rights to access task
-        // return ResponseEntity<Array<Task?>>(taskArray, HttpStatus.FORBIDDEN)
+            // if TASK_ID not found
+                // return ResponseEntity<Array<Task?>>(taskArray, HttpStatus.NOT_FOUND)
+            // if no rights to access task
+                // return ResponseEntity<Array<Task?>>(taskArray, HttpStatus.FORBIDDEN)
 
-        return ResponseEntity<Task>(Task("2","test", "test", true, "TASK ID TEST: $taskID"), HttpStatus.OK)
+        return ResponseEntity<Task>(Task(taskID,"TASK ID TEST: $taskID", "test", true), HttpStatus.OK)
     }
 
     fun updateTask(task: Task): ResponseEntity<String> {
-        val id = task.exercise_id;
+        val id = task.task_id;
         //TODO: update auf die task mit der ID id und allen Werten aus task
         //TODO: falls Datensatz nicht gefunden wird:
         //    return ResponseEntity("Dataset with ID ${id} not found", HttpStatus.NOT_FOUND)
