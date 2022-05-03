@@ -57,4 +57,15 @@ class TaskService {
 
         return ResponseEntity("Update successful", HttpStatus.OK)
     }
+    fun createTask(task: Task): ResponseEntity<String> {
+        var id = task.task_id;
+        id = id+1;
+        //TODO: falls Datensatz nicht gefunden wird:
+        //    return ResponseEntity("Dataset with ID ${id} not found", HttpStatus.NOT_FOUND)
+        //TODO: falls Berechtigungen fehlen:
+        //    return ResponseEntity("You are not allowed to create task ${id}", HttpStatus.FORBIDDEN)
+        //TODO: sonstiger Fehler der Datenbank
+        //    return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
+        return ResponseEntity("Task number: "+id+"is created successfuly", HttpStatus.OK)
+    }
 }
