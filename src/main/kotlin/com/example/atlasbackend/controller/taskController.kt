@@ -27,4 +27,9 @@ class TaskController(val taskService: TaskService) {
     fun getTask(@PathVariable taskID: Int): ResponseEntity<Task> {
         return taskService.getTask(taskID)
     }
+    
+    @PostMapping("/tasks/")
+    fun postTask(@RequestBody task: Task): ResponseEntity<String> {
+        return taskService.createTask(task)
+    }
 }
