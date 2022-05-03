@@ -45,6 +45,7 @@ class TaskService {
         return ResponseEntity<Task>(Task(taskID,"TASK ID TEST: $taskID", "test", true), HttpStatus.OK)
     }
 
+    // Edit Task
     fun updateTask(task: Task): ResponseEntity<String> {
         val id = task.task_id;
         //TODO: update auf die task mit der ID id und allen Werten aus task
@@ -57,15 +58,25 @@ class TaskService {
 
         return ResponseEntity("Update successful", HttpStatus.OK)
     }
+
+    // Create new Task
     fun createTask(task: Task): ResponseEntity<String> {
         var id = task.task_id;
-        id = id+1;
         //TODO: falls Datensatz nicht gefunden wird:
         //    return ResponseEntity("Dataset with ID ${id} not found", HttpStatus.NOT_FOUND)
         //TODO: falls Berechtigungen fehlen:
         //    return ResponseEntity("You are not allowed to create task ${id}", HttpStatus.FORBIDDEN)
         //TODO: sonstiger Fehler der Datenbank
         //    return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
-        return ResponseEntity("Task number: "+id+"is created successfuly", HttpStatus.OK)
+        return ResponseEntity("Task number: "+id+"is created successfully", HttpStatus.OK)
+    }
+
+    // Delete a Task
+    fun deleteTask(@PathVariable taskID: Int): ResponseEntity<String>{
+
+        //TODO: Fehler der Datenbank
+        //    return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
+
+        return ResponseEntity("Deletion successful", HttpStatus.OK)
     }
 }
