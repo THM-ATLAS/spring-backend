@@ -27,4 +27,10 @@ class TaskController(val taskService: TaskService) {
     fun getTask(@PathVariable taskID: Int): ResponseEntity<Task> {
         return taskService.getTask(taskID)
     }
+
+    @DeleteMapping("/{id}")
+    fun deleteTask(@PathVariable id: String): ResponseEntity<String>{
+        this.taskRepo.deleteById(id)
+        return ResponseEntity.ok(id)
+    }
 }
