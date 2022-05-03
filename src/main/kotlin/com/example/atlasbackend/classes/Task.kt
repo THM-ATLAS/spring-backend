@@ -1,5 +1,2 @@
 package com.example.atlasbackend.classes
-
-class Task(val exercise_id: Int, val title: String, val content: String, val public: Boolean) {
-
-}
+class Task(var exercise_id: String, var taskTitle: String, var taskContent: String, var isTaskPublic: Boolean, var taskDescription: String)
