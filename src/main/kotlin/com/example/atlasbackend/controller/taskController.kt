@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class TaskController(val taskService: TaskService) {
     @PutMapping("/tasks/")
-    fun editTask(@RequestBody body: Task): Task {
-        return body;
+    fun editTask(@RequestBody body: Task): ResponseEntity<String> {
+        return taskService.updateTask(body)
     }
 
     @GetMapping("/tasks/user/{userID}")
