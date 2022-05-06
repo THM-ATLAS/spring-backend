@@ -15,7 +15,7 @@ class UserService {
         //    return ResponseEntity("You are not allowed to modify task ${id}", HttpStatus.FORBIDDEN)
         //TODO: sonstiger Fehler der Datenbank
         //    return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
-        return ResponseEntity(AtlasUser(id, arrayOf("test", "test")), HttpStatus.OK)
+        return ResponseEntity(AtlasUser(id, "admin", "{}"), HttpStatus.OK)
     }
 
     fun editUser(user: AtlasUser): ResponseEntity<String> {
