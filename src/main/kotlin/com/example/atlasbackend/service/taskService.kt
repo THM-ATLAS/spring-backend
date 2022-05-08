@@ -47,7 +47,7 @@ class TaskService {
 
     // Edit Task
     fun updateTask(task: Task): ResponseEntity<String> {
-        val id = task.task_id;
+        val id = task.task_id
         //TODO: update auf die task mit der ID id und allen Werten aus task
         //TODO: falls Datensatz nicht gefunden wird:
         //    return ResponseEntity("Dataset with ID ${id} not found", HttpStatus.NOT_FOUND)
@@ -61,7 +61,7 @@ class TaskService {
 
     // Create new Task
     fun createTask(task: Task): ResponseEntity<String> {
-        var id = task.task_id;
+        var id = task.task_id
         //TODO: falls Datensatz nicht gefunden wird:
         //    return ResponseEntity("Dataset with ID ${id} not found", HttpStatus.NOT_FOUND)
         //TODO: falls Berechtigungen fehlen:
