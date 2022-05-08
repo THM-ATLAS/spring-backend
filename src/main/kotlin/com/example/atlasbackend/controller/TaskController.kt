@@ -29,7 +29,7 @@ class TaskController(val exerciseService: ExerciseService) {
         return exerciseService.createTask(exercise)
     }
 
-    @DeleteMapping("tasks/{taskID}")
+    @DeleteMapping("/tasks/{exerciseID}")
     fun deleteTask(@PathVariable exerciseID: Int): ResponseEntity<String>{
         return exerciseService.deleteTask(exerciseID)
     }

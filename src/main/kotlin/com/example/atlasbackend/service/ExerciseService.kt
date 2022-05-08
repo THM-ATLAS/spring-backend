@@ -38,48 +38,55 @@ class ExerciseService(val exerciseRepository: ExerciseRepository) {
     // Load a Single Task
     fun getTask(@PathVariable taskID: Int): ResponseEntity<Exercise> {
 
-        val task = exerciseRepository.findById(taskID).get();
-        // Request Task from Database based on TASK_ID
-            // if TASK_ID not found
-                // return ResponseEntity<Array<Task?>>(taskArray, HttpStatus.NOT_FOUND)
-            // if no rights to access task
-                // return ResponseEntity<Array<Task?>>(taskArray, HttpStatus.FORBIDDEN)
+        if (!exerciseRepository.existsById(taskID)) {
+            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+        }
+        val task = exerciseRepository.findById(taskID).get()
+            //TODO: if no rights to access task
+            //   return ResponseEntity<Array<Task?>>(taskArray, HttpStatus.FORBIDDEN)
+            //   erst wenn Spring security steht
 
-        return ResponseEntity<Exercise>(Exercise(taskID,"TASK ID TEST: $taskID", "test", true), HttpStatus.OK)
+        return ResponseEntity<Exercise>(task, HttpStatus.OK)
     }
 
     // Edit Task
     fun updateTask(exercise: Exercise): ResponseEntity<String> {
         val id = exercise.exercise_id;
-        //TODO: update auf die task mit der ID id und allen Werten aus task
-        //TODO: falls Datensatz nicht gefunden wird:
-        //    return ResponseEntity("Dataset with ID ${id} not found", HttpStatus.NOT_FOUND)
+        if (!exerciseRepository.existsById(id)) {
+            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+        }
         //TODO: falls Berechtigungen fehlen:
         //    return ResponseEntity("You are not allowed to modify task ${id}", HttpStatus.FORBIDDEN)
-        //TODO: sonstiger Fehler der Datenbank
-        //    return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
+        //    erst wenn security steht
+        exerciseRepository.save(exercise)
 
-        return ResponseEntity("Update successful", HttpStatus.OK)
+        return ResponseEntity(null, HttpStatus.OK)
     }
 
     // Create new Task
     fun createTask(exercise: Exercise): ResponseEntity<String> {
-        var id = exercise.exercise_id;
-        //TODO: falls Datensatz nicht gefunden wird:
-        //    return ResponseEntity("Dataset with ID ${id} not found", HttpStatus.NOT_FOUND)
+        if (exercise.exercise_id != 0) {
+            return ResponseEntity(null, HttpStatus.BAD_REQUEST)
+        }
         //TODO: falls Berechtigungen fehlen:
         //    return ResponseEntity("You are not allowed to create task ${id}", HttpStatus.FORBIDDEN)
-        //TODO: sonstiger Fehler der Datenbank
-        //    return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
-        return ResponseEntity("Task number: "+id+"is created successfully", HttpStatus.OK)
+        //    erst wenn Security steht
+        exerciseRepository.save(exercise);
+        return ResponseEntity(null, HttpStatus.OK)
     }
 
     // Delete a Task
-    fun deleteTask(@PathVariable exerciseID: Int): ResponseEntity<String>{
+    fun deleteTask(exerciseID: Int): ResponseEntity<String> {
 
-        //TODO: Fehler der Datenbank
-        //    return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
+        if (!exerciseRepository.existsById(exerciseID)) {
+            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+        }
+        //TODO: falls Berechtigungen fehlen:
+        //    return ResponseEntity("You are not allowed to create task ${id}", HttpStatus.FORBIDDEN)
+        //    erst wenn Security steht  return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
 
-        return ResponseEntity("Deletion successful", HttpStatus.OK)
+        exerciseRepository.deleteById(exerciseID)
+
+        return ResponseEntity(null, HttpStatus.OK)
     }
 }
