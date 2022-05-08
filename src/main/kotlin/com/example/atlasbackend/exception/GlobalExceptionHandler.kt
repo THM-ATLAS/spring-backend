@@ -11,6 +11,14 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(value = [TaskNotFoundException::class])
     fun exception(exception: TaskNotFoundException?): ResponseEntity<Any> {
-        return ResponseEntity("Task not found", HttpStatus.NOT_FOUND)
+
+        val errors: MutableList<String> = ArrayList()
+        errors.add("Error1")
+        val err = ApiError(HttpStatus.NOT_FOUND, "message1", errors)
+
+        return ResponseEntity<Any>("Product not found", HttpStatus.NOT_FOUND)
+
+        // TODO: fix empty object return
+        //return ResponseEntity<Any>(ApiError(HttpStatus.NOT_FOUND,"MESSAGE TEST", "test"), HttpStatus.NOT_FOUND)
     }
 }
