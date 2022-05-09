@@ -1,31 +1,32 @@
 package com.example.atlasbackend.controller
 
-import com.example.atlasbackend.classes.Task
-import com.example.atlasbackend.service.TaskService
+import com.example.atlasbackend.classes.Exercise
+import com.example.atlasbackend.service.ExerciseService
+import com.example.atlasbackend.service.userService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
 
 
+
 @RestController
-class TaskController(val taskService: TaskService) {
+class TaskController(val exerciseService: ExerciseService) {
     @PutMapping("/tasks/")
-    fun editTask(@RequestBody body: Task): ResponseEntity<String> {
-        return taskService.updateTask(body)
+    fun editTask(@RequestBody body: Exercise): ResponseEntity<String> {
+        return exerciseService.updateTask(body)
     }
 
     @GetMapping("/tasks/user/{userID}")
-    fun loadTasks(@PathVariable userID: String): ResponseEntity<Array<Task?>> {
-        return taskService.loadTasks(userID)
+    fun loadTasks(@PathVariable userID: String): ResponseEntity<Array<Exercise?>> {
+        return exerciseService.loadTasks(userID)
     }
 
     @GetMapping("/tasks/{taskID}")
-    fun getTask(@PathVariable taskID: Int): ResponseEntity<Task> {
-        return taskService.getTask(taskID)
+    fun getTask(@PathVariable taskID: Int): ResponseEntity<Exercise> {
+        return exerciseService.getTask(taskID)
     }
 
     @DeleteMapping("/{id}")
