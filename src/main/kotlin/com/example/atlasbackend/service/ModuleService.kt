@@ -14,18 +14,17 @@ class ModuleService(val moduleRepository: ModuleRepository){
 
     // Load Module Overview
     //
-    fun loadModules(): ResponseEntity<Array<AtlasModule?>>{
+    fun loadModules(): ResponseEntity<ArrayList<AtlasModule?>>{
 
         val moduleArrayList = moduleRepository.findAll() as ArrayList<AtlasModule?>
-        val moduleArray = moduleArrayList.toArray() as Array<AtlasModule?>
         //TODO: improvisiertes casten, unsicher wie wir daten zurückgeben wollen
         //      ( ob es ein Array sein soll oder auch ein Iterable/ Arraylist akzeptabel ist)
-        return  ResponseEntity<Array<AtlasModule?>>(moduleArray, HttpStatus.OK )
+        return  ResponseEntity<ArrayList<AtlasModule?>>(moduleArrayList, HttpStatus.OK )
 
     }
 
     //load a single Module
-    fun getModule(@PathVariable moduleID: String): ResponseEntity<AtlasModule>{
+    fun getModule(@PathVariable moduleID: Int): ResponseEntity<AtlasModule>{
 
         if (!moduleRepository.existsById(moduleID)) {
             return ResponseEntity(null, HttpStatus.NOT_FOUND)
@@ -54,7 +53,7 @@ class ModuleService(val moduleRepository: ModuleRepository){
 
     //Create new Module
     fun CreateModule(module: AtlasModule): ResponseEntity<String>{
-        if(module.module_id == ""){
+        if(module.module_id != 0){
             return ResponseEntity(null, HttpStatus.BAD_REQUEST)
         }
         //TODO: falls Berechtigungen fehlen:
@@ -64,7 +63,7 @@ class ModuleService(val moduleRepository: ModuleRepository){
         return ResponseEntity(null,HttpStatus.OK)
     }
     //Delete a Module
-    fun deleteModule(moduleID: String):ResponseEntity<AtlasModule>{
+    fun deleteModule(moduleID: Int):ResponseEntity<AtlasModule>{
         val module = moduleRepository.findById(moduleID).get()
         if (!moduleRepository.existsById(moduleID)) {
             return ResponseEntity(null, HttpStatus.NOT_FOUND)

@@ -4,6 +4,7 @@ COPY ./ /home/gradle/project
 RUN gradle build
 
 FROM openjdk:17-jdk-alpine  as app
+ENV db_source=brueckenkurs-programmieren.thm.de:5432/atlas db_username=postgres db_password=Hzl46aVHQ5u6O*W01wVs
 WORKDIR /home/gradle/project
 EXPOSE 8080
 VOLUME /tmp
