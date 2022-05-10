@@ -13,12 +13,24 @@ class GlobalExceptionHandler {
     fun exception(exception: TaskNotFoundException?): ResponseEntity<Any> {
 
         val errors: MutableList<String> = ArrayList()
-        errors.add("Error1")
-        val err = ApiError(HttpStatus.NOT_FOUND, "message1", errors)
+        errors.add("Task not found")
+        val err = ApiError(HttpStatus.NOT_FOUND, "Task couldn't be found", errors)
 
-        return ResponseEntity<Any>("Product not found", HttpStatus.NOT_FOUND)
+        return ResponseEntity<Any>("Task not found", HttpStatus.NOT_FOUND)
 
-        // TODO: fix empty object return
-        //return ResponseEntity<Any>(ApiError(HttpStatus.NOT_FOUND,"MESSAGE TEST", "test"), HttpStatus.NOT_FOUND)
+        // TODO: Fix empty object return
+        //return ResponseEntity<Any>(ApiError(HttpStatus.NOT_FOUND,"Task not found", "Task couldn't be found"), HttpStatus.NOT_FOUND)
     }
+
+    @ExceptionHandler(value = [InternalServerErrorException::class])
+    fun exception(exception: InternalServerErrorException?): ResponseEntity<Any> {
+
+        return ResponseEntity<Any>("Internal Server Error", HttpStatus.NOT_FOUND)
+
+        // TODO: Fix empty object return
+        //return ResponseEntity<Any>(ApiError(HttpStatus.NOT_FOUND,"Task not found", "Task couldn't be found"), HttpStatus.NOT_FOUND)
+    }
+
+    // TODO: Add more errors
+
 }
