@@ -2,6 +2,7 @@ package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.Exercise
 import com.example.atlasbackend.repository.ExerciseRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
@@ -21,10 +22,10 @@ class ExerciseService(val exerciseRepository: ExerciseRepository) {
         val taskArray = arrayOfNulls<Exercise>(taskLimit)
 
         // Load all tasks connected to USER_ID from Database
-        // if USER_ID not found
-        // return ResponseEntity<Array<Task?>>(taskArray, HttpStatus.NOT_FOUND)
-        // getTask() for every TASK_ID found
-        // Fill Array one by one
+            // if USER_ID not found
+                // return ResponseEntity<Array<Task?>>(taskArray, HttpStatus.NOT_FOUND)
+            // getTask() for every TASK_ID found
+            // Fill Array one by one
 
         //Test Values
         taskArray[0] = Exercise(1, "USER ID TEST: $userID", "Content1", true)
@@ -41,9 +42,9 @@ class ExerciseService(val exerciseRepository: ExerciseRepository) {
             return ResponseEntity(null, HttpStatus.NOT_FOUND)
         }
         val task = exerciseRepository.findById(taskID).get()
-        //TODO: if no rights to access task
-        //   return ResponseEntity<Array<Task?>>(taskArray, HttpStatus.FORBIDDEN)
-        //   erst wenn Spring security steht
+            //TODO: if no rights to access task
+            //   return ResponseEntity<Array<Task?>>(taskArray, HttpStatus.FORBIDDEN)
+            //   erst wenn Spring security steht
 
         return ResponseEntity<Exercise>(task, HttpStatus.OK)
     }
