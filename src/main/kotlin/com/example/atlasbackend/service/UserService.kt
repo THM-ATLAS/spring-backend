@@ -1,13 +1,14 @@
 package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.AtlasUser
+import com.example.atlasbackend.repository.ExerciseRepository
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import com.example.atlasbackend.repository.UserRepository
 
 @Service
-class UserService {
+class UserService(val userRepository: UserRepository) {
     fun getUser(user_id: String): ResponseEntity<AtlasUser> {
 
 
@@ -21,13 +22,13 @@ class UserService {
         //    return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
 
 
-        if (!UserRepository.existsById(user_id)) {
+        if (!userRepository.existsById(user_id)) {
             return ResponseEntity(null, HttpStatus.NOT_FOUND)
         }
 
 
 
-        val user = UserRepository.findById(user_id).get()
+        val user = userRepository.findById(user_id).get()
         //TODO: if no rights to access task
         //   return ResponseEntity<Array<Task?>>(taskArray, HttpStatus.FORBIDDEN)
         //   erst wenn Spring security steht
@@ -45,10 +46,10 @@ class UserService {
         //    return ResponseEntity("You are not allowed to modify task ${id}", HttpStatus.FORBIDDEN)
         //TODO: sonstiger Fehler der Datenbank
         //    return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
-        if (!UserRepository.existsById(id)) {
+        if (!userRepository.existsById(id)) {
             return ResponseEntity("Dataset with ID ${id} not found", HttpStatus.NOT_FOUND)
         }
-        UserRepository.save(user)
+        userRepository.save(user)
         return ResponseEntity("edit successful", HttpStatus.OK)
     }
 
@@ -61,10 +62,10 @@ class UserService {
         //TODO: sonstiger Fehler der Datenbank
         //    return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
 
-        if (!UserRepository.existsById(user_id)) {
+        if (!userRepository.existsById(user_id)) {
             return ResponseEntity(null, HttpStatus.NOT_FOUND)
         }
-        UserRepository.deleteById(user_id)
+        userRepository.deleteById(user_id)
         return ResponseEntity("delete successful", HttpStatus.OK)
 
     }
@@ -75,7 +76,7 @@ class UserService {
         //    return ResponseEntity("You are not allowed to modify task ${id}", HttpStatus.FORBIDDEN)
         //TODO: sonstiger Fehler der Datenbank
         //    return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
-        UserRepository.save(user)
+        userRepository.save(user)
         return ResponseEntity("insert successful", HttpStatus.OK)
     }
 }
