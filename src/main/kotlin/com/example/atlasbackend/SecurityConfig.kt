@@ -57,6 +57,7 @@ class SecurityConfig: WebSecurityConfigurerAdapter() {
 
     // hash code generator: the function is yet to be changed, it returns nothing for now
     @Bean
+
     fun getPasswordEncoder(): PasswordEncoder {
         return NoOpPasswordEncoder.getInstance();
     }
