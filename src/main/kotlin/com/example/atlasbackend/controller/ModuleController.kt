@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RestController
 class ModuleController(val moduleService: ModuleService) {
 
     @GetMapping("/modules")
-    fun loadModules(): ResponseEntity<Array<AtlasModule?>>{
+    fun loadModules(): ResponseEntity<ArrayList<AtlasModule?>>{
         return moduleService.loadModules()
     }
 
     @GetMapping("/modules/{moduleID}")
-    fun getModule(@PathVariable moduleID: String): ResponseEntity<AtlasModule>{
+    fun getModule(@PathVariable moduleID: Int): ResponseEntity<AtlasModule>{
         return moduleService.getModule(moduleID)
     }
 
@@ -36,7 +36,7 @@ class ModuleController(val moduleService: ModuleService) {
     }
 
     @DeleteMapping("/modules/{moduleID}")
-    fun deleteModule(@PathVariable moduleID: String): ResponseEntity<AtlasModule>{
+    fun deleteModule(@PathVariable moduleID: Int): ResponseEntity<AtlasModule>{
         return moduleService.deleteModule(moduleID)
     }
 }

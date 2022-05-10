@@ -5,5 +5,5 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface ModuleRepository: CrudRepository<AtlasModule,String> {
+interface ModuleRepository: CrudRepository<AtlasModule,Int> {
 }

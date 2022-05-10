@@ -1,7 +1,8 @@
 package com.example.atlasbackend.classes
 
+import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
 
 @Table("module")
-class AtlasModule(var module_id: String, var name: String) {
+class AtlasModule(@Id var module_id: Int, var name: String) {
 }

@@ -4,6 +4,7 @@ COPY ./ /home/gradle/project
 RUN gradle build
 
 FROM openjdk:17-jdk-alpine  as app
+***REMOVED***
 WORKDIR /home/gradle/project
 EXPOSE 8080
 VOLUME /tmp
