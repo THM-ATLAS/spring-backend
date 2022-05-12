@@ -1,6 +1,6 @@
 package com.example.atlasbackend.exception
 
-object TaskNotFoundException : RuntimeException() {
+object ExerciseNotFoundException : RuntimeException() {
     private const val serialVersionUID = 1L
 }
 
