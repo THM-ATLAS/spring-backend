@@ -12,19 +12,19 @@ class UserService {
         //TODO: falls Datensatz nicht gefunden wird:
         //    return ResponseEntity("Dataset with ID ${id} not found", HttpStatus.NOT_FOUND)
         //TODO: falls Berechtigungen fehlen:
-        //    return ResponseEntity("You are not allowed to modify task ${id}", HttpStatus.FORBIDDEN)
+        //    return ResponseEntity("You are not allowed to retrieve exercise ${id}", HttpStatus.FORBIDDEN)
         //TODO: sonstiger Fehler der Datenbank
         //    return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
         return ResponseEntity(AtlasUser(id, "admin", "{}"), HttpStatus.OK)
     }
 
     fun editUser(user: AtlasUser): ResponseEntity<String> {
-        val id:String = user.user_id
+        val id = user.user_id
         //TODO: update auf den user mit der ID id und allen Werten aus user
         //TODO: falls Datensatz nicht gefunden wird:
         //    return ResponseEntity("Dataset with ID ${id} not found", HttpStatus.NOT_FOUND)
         //TODO: falls Berechtigungen fehlen:
-        //    return ResponseEntity("You are not allowed to modify task ${id}", HttpStatus.FORBIDDEN)
+        //    return ResponseEntity("You are not allowed to modify exercise ${id}", HttpStatus.FORBIDDEN)
         //TODO: sonstiger Fehler der Datenbank
         //    return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
         return ResponseEntity("edit successful", HttpStatus.OK)
@@ -35,7 +35,7 @@ class UserService {
         //TODO: falls Datensatz nicht gefunden wird:
         //    return ResponseEntity("Dataset with ID ${id} not found", HttpStatus.NOT_FOUND)
         //TODO: falls Berechtigungen fehlen:
-        //    return ResponseEntity("You are not allowed to modify task ${id}", HttpStatus.FORBIDDEN)
+        //    return ResponseEntity("You are not allowed to delete exercise ${id}", HttpStatus.FORBIDDEN)
         //TODO: sonstiger Fehler der Datenbank
         //    return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
         return ResponseEntity("delete successful", HttpStatus.OK)
@@ -44,7 +44,7 @@ class UserService {
     fun addUser(user: AtlasUser): ResponseEntity<String> {
         //TODO: insert mit user
         //TODO: falls Berechtigungen fehlen:
-        //    return ResponseEntity("You are not allowed to modify task ${id}", HttpStatus.FORBIDDEN)
+        //    return ResponseEntity("You are not allowed to add exercise ${id}", HttpStatus.FORBIDDEN)
         //TODO: sonstiger Fehler der Datenbank
         //    return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
         return ResponseEntity("insert successful", HttpStatus.OK)
