@@ -9,6 +9,10 @@ import com.example.atlasbackend.repository.UserRepository
 
 @Service
 class UserService(val userRepository: UserRepository) {
+
+    fun getAllUsers(): ResponseEntity<List<AtlasUser>> {
+        return ResponseEntity(userRepository.findAll().toList(), HttpStatus.OK);
+    }
     fun getUser(user_id: String): ResponseEntity<AtlasUser> {
 
         //TODO: select auf den user mit der ID id
