@@ -13,6 +13,12 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class UserController(val userService: UserService) {
+
+    @GetMapping("/users/")
+    fun getAllUsers(): ResponseEntity<List<AtlasUser>> {
+        return userService.getAllUsers();
+    }
+
     @GetMapping("/users/{id}")
     fun getUser(@PathVariable id: String): ResponseEntity<AtlasUser> {
         return userService.getUser(id)
