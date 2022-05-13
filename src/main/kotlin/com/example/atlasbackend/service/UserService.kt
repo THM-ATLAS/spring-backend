@@ -11,7 +11,16 @@ import com.example.atlasbackend.repository.UserRepository
 
 @Service
 class UserService(val userRepository: UserRepository, val roleRepository: RoleRepository) {
+    /*fun getAllUsers(): ResponseEntity<List<UserRet>> {
+        var users = userRepository.findAll().toList();
+        return users.map { u -> UserRet}
+    }*/
     fun getUser(user_id: Int): ResponseEntity<UserRet> {
+
+
+        //TODO: falls Berechtigungen fehlen:
+        //    return ResponseEntity("You are not allowed to modify exercise ${id}", HttpStatus.FORBIDDEN)
+
         if (!userRepository.existsById(user_id)) {
             return ResponseEntity(null, HttpStatus.NOT_FOUND)
         }
@@ -26,9 +35,12 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
         val id: Int = user.user_id
         //TODO: falls Berechtigungen fehlen:
         //    return ResponseEntity("You are not allowed to modify task ${id}", HttpStatus.FORBIDDEN)
+
+
         if (!userRepository.existsById(id)) {
-            return ResponseEntity("Dataset with ID ${id} not found", HttpStatus.NOT_FOUND)
+            return ResponseEntity("Dataset with ID $id not found", HttpStatus.NOT_FOUND)
         }
+
         userRepository.save(user)
         return ResponseEntity("edit successful", HttpStatus.OK)
     }
@@ -37,9 +49,11 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
         //TODO: falls Berechtigungen fehlen:
         //    return ResponseEntity("You are not allowed to modify task ${id}", HttpStatus.FORBIDDEN)
 
+
         if (!userRepository.existsById(user_id)) {
             return ResponseEntity(null, HttpStatus.NOT_FOUND)
         }
+
         userRepository.deleteById(user_id)
         return ResponseEntity("delete successful", HttpStatus.OK)
 
@@ -48,7 +62,6 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
     fun addUser(user: AtlasUser): ResponseEntity<String> {
 
         //TODO: falls Berechtigungen fehlen:
-        //    return ResponseEntity("You are not allowed to modify task ${id}", HttpStatus.FORBIDDEN)
         userRepository.save(user)
         return ResponseEntity("insert successful", HttpStatus.OK)
     }
