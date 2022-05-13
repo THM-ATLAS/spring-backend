@@ -1,7 +1,9 @@
 package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.Exercise
+import com.example.atlasbackend.classes.ExerciseRet
 import com.example.atlasbackend.repository.ExerciseRepository
+import com.example.atlasbackend.repository.ModuleRepository
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
@@ -9,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable
 
 
 @Service
-class ExerciseService(val exerciseRepository: ExerciseRepository) {
+class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepository: ModuleRepository) {
 
     // Errorcode Reference: https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/http/HttpStatus.html
 
@@ -27,15 +29,15 @@ class ExerciseService(val exerciseRepository: ExerciseRepository) {
             // Fill Array one by one
 
         //Test Values
-        exerciseArray[0] = Exercise(1, "USER ID TEST: $userID", "Content1", true)
-        exerciseArray[1] = Exercise(2,"USER ID TEST2: $userID", "Content2", true)
+        //exerciseArray[0] = Exercise(1, "USER ID TEST: $userID", "Content1", true)
+        //exerciseArray[1] = Exercise(2,"USER ID TEST2: $userID", "Content2", true)
 
         // 200: OK
         return ResponseEntity<Array<Exercise?>>(exerciseArray, HttpStatus.OK)
     }
 
     // Load a Single Exercise
-    fun getExercise(@PathVariable exerciseID: Int): ResponseEntity<Exercise> {
+    fun getExercise(@PathVariable exerciseID: Int): ResponseEntity<ExerciseRet> {
 
         if (!exerciseRepository.existsById(exerciseID)) {
             return ResponseEntity(null, HttpStatus.NOT_FOUND)
@@ -44,8 +46,9 @@ class ExerciseService(val exerciseRepository: ExerciseRepository) {
             //TODO: if no rights to access exercise
             //   return ResponseEntity<Array<Exercise?>>(exerciseArray, HttpStatus.FORBIDDEN)
             //   erst wenn Spring security steht
+        val ret = ExerciseRet(exercise.exercise_id, moduleRepository.findById(exercise.module_id).get(), exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
 
-        return ResponseEntity<Exercise>(exercise, HttpStatus.OK)
+        return ResponseEntity<ExerciseRet>(ret, HttpStatus.OK)
     }
 
     // Edit Exercise

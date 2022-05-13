@@ -1,6 +1,7 @@
 package com.example.atlasbackend.controller
 
 import com.example.atlasbackend.classes.Exercise
+import com.example.atlasbackend.classes.ExerciseRet
 import com.example.atlasbackend.service.ExerciseService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -15,7 +16,7 @@ class ExerciseController(val exerciseService: ExerciseService) {
     }
 
     @GetMapping("/exercises/{exerciseID}")
-    fun getExercise(@PathVariable exerciseID: Int): ResponseEntity<Exercise> {
+    fun getExercise(@PathVariable exerciseID: Int): ResponseEntity<ExerciseRet> {
         return exerciseService.getExercise(exerciseID)
     }
 
