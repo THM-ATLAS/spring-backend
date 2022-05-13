@@ -11,4 +11,8 @@ interface RoleRepository: CrudRepository<Role, Int> {
 
     @Query("SELECT role.role_id, name FROM user_role JOIN role ON user_role.role_id = role.role_id WHERE user_role.user_id = :id")
     fun getRolesByUser(@Param("id") id: Int): List<Role>;
+
+    @Query("INSERT INTO user_role (user_id, role_id) VALUES (:user, :role)")
+    fun giveRole(@Param("user") user: Int, @Param("role") role: Int)
+
 }

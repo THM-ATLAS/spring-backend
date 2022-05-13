@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 class UserController(val userService: UserService) {
 
     @GetMapping("/users/")
-    fun getAllUsers(): ResponseEntity<List<AtlasUser>> {
+    fun getAllUsers(): ResponseEntity<List<UserRet>> {
         return userService.getAllUsers();
     }
 
@@ -31,7 +31,7 @@ class UserController(val userService: UserService) {
     }
 
     @PutMapping("/users/")
-    fun editUser(@RequestBody body: AtlasUser): ResponseEntity<String> {
+    fun editUser(@RequestBody body: UserRet): ResponseEntity<String> {
         return userService.editUser(body)
     }
 

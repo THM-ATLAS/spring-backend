@@ -11,10 +11,12 @@ import com.example.atlasbackend.repository.UserRepository
 
 @Service
 class UserService(val userRepository: UserRepository, val roleRepository: RoleRepository) {
-    /*fun getAllUsers(): ResponseEntity<List<UserRet>> {
+    fun getAllUsers(): ResponseEntity<List<UserRet>> {
         var users = userRepository.findAll().toList();
-        return users.map { u -> UserRet}
-    }*/
+        return ResponseEntity(users.map {
+                u -> UserRet(u.user_id, roleRepository.getRolesByUser(u.user_id), u.name, u.username, u.email) },
+            HttpStatus.OK)
+    }
     fun getUser(user_id: Int): ResponseEntity<UserRet> {
 
 
@@ -31,7 +33,7 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
         return ResponseEntity<UserRet>(ret, HttpStatus.OK)
     }
 
-    fun editUser(user: AtlasUser): ResponseEntity<String> {
+    fun editUser(user: UserRet): ResponseEntity<String> {
         val id: Int = user.user_id
         //TODO: falls Berechtigungen fehlen:
         //    return ResponseEntity("You are not allowed to modify task ${id}", HttpStatus.FORBIDDEN)
@@ -41,7 +43,16 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
             return ResponseEntity("Dataset with ID $id not found", HttpStatus.NOT_FOUND)
         }
 
-        userRepository.save(user)
+        user.roles.forEach { r ->
+            if (!roleRepository.existsById(r.role_id)) return ResponseEntity("Role with ID ${r.role_id} not found", HttpStatus.NOT_FOUND)
+            if (roleRepository.getRolesByUser(user.user_id).contains(r).not()) {
+                roleRepository.giveRole(user.user_id, r.role_id)
+            }
+        }
+
+        val ret = AtlasUser(user.user_id, user.name, user.username, user.email)
+
+        userRepository.save(ret)
         return ResponseEntity("edit successful", HttpStatus.OK)
     }
 
