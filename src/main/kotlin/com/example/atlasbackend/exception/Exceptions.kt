@@ -7,3 +7,4 @@ object ExerciseNotFoundException : RuntimeException() {
 object InternalServerErrorException : RuntimeException() {
     private const val serialVersionUID = 1L
 }
+

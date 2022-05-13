@@ -1,6 +1,7 @@
 package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.Exercise
+import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.ExerciseRepository
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -38,7 +39,7 @@ class ExerciseService(val exerciseRepository: ExerciseRepository) {
     fun getExercise(@PathVariable exerciseID: Int): ResponseEntity<Exercise> {
 
         if (!exerciseRepository.existsById(exerciseID)) {
-            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+            throw ExerciseNotFoundException
         }
         val exercise = exerciseRepository.findById(exerciseID).get()
             //TODO: if no rights to access exercise
