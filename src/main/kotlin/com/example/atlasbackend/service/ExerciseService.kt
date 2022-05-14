@@ -2,7 +2,7 @@ package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.Exercise
 import com.example.atlasbackend.classes.ExerciseRet
-import com.example.atlasbackend.exception.ExerciseNotFoundException
+import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.ExerciseRepository
 import com.example.atlasbackend.repository.ModuleRepository
 import com.example.atlasbackend.repository.UserRepository

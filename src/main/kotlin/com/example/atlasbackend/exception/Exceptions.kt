@@ -68,6 +68,11 @@ object UserNotFoundException : RuntimeException()
 object ModuleNotFoundException : RuntimeException()
 
 
+/** [422] UNPROCESSABLE ENTITY **/
+
+// Entity couldn't be processed
+object UnprocessableEntityException : RuntimeException()
+
 
 /***** [5xx] SERVER ERRORS *****/
 
