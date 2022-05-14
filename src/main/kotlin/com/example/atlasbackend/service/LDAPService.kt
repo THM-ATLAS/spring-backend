@@ -82,7 +82,7 @@ class LDAPService(val userService: UserService) {
             initLdap().contextSource.getContext(findUserDn(user), user.password)
             auth = true
         } catch (e: Exception) {
-            return ResponseEntity(null, HttpStatus.FORBIDDEN)
+            return ResponseEntity(null, HttpStatus.UNPROCESSABLE_ENTITY)
         }
 
         if(auth) {
