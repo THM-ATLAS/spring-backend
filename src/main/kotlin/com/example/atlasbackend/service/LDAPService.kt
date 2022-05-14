@@ -1,10 +1,14 @@
 package com.example.atlasbackend.service
 
+import com.example.atlasbackend.classes.AtlasUser
+import com.example.atlasbackend.classes.Role
+import com.example.atlasbackend.classes.UserRet
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.ldap.core.AttributesMapper
 import org.springframework.stereotype.Service
 import org.springframework.ldap.core.LdapTemplate
 import org.springframework.ldap.core.NameClassPairCallbackHandler
@@ -26,7 +30,7 @@ class LdapParams() {
 }
 
 @Service
-class LDAPService {
+class LDAPService(val userService: UserService) {
     // Initialize and load LDAP params
     @Autowired
     var ldapParams = LdapParams()
@@ -61,13 +65,42 @@ class LDAPService {
         return userDn
     }
 
-    // Authenticate user with LDAP Server and return username if successful
-    fun authenticate(user: LdapUser): ResponseEntity<String> {
-        initLdap().contextSource.getContext(findUserDn(user), user.password)
+    fun getUserProperties(user: LdapUser): AtlasUser {
+        var atlasUser = AtlasUser(0, "", "", "")
+        initLdap().search(
+            query().where("objectclass").`is`("gifb-person").and("uid").`is`(user.username),
+            AttributesMapper { attributes -> atlasUser.name = attributes.get("cn").get().toString(); atlasUser.email = attributes.get("mail").get().toString() }
+        )
 
-        return ResponseEntity(user.username, HttpStatus.OK)
-        //TODO return UserRet on successful auth
-        //TODO check Database for existing user and add if new
-        //TODO Fetch Name and Email from LDAP and add to DB
+        return atlasUser
+    }
+
+    // Authenticate user with LDAP Server and return username if successful
+    fun authenticate(user: LdapUser): ResponseEntity<UserRet> {
+        var auth: Boolean = false
+        try {
+            initLdap().contextSource.getContext(findUserDn(user), user.password)
+            auth = true
+        } catch (e: Exception) {
+            return ResponseEntity(null, HttpStatus.FORBIDDEN)
+        }
+
+        if(auth) {
+            val userList = userService.userRepository.testForUser(user.username)
+
+            if(userList.isEmpty()) {
+                val atlasUser = getUserProperties(user)
+                userService.addUser(UserRet(0, listOf(Role(2, "Student")), atlasUser.name, user.username, atlasUser.email))
+            }
+
+            if(!userList.isEmpty()) {
+                val atlasUser = getUserProperties(user)
+                userService.editUser(UserRet(0, userService.getUser(userList[0].user_id).body!!.roles, atlasUser.name, user.username, atlasUser.email))
+            }
+        }
+
+        val userList = userService.userRepository.testForUser(user.username)
+
+        return ResponseEntity(userService.getUser(userList[0].user_id).body, HttpStatus.OK)
     }
 }
