@@ -17,6 +17,7 @@ class LdapUser(var username: String, val password: String) {}
 
 @Component
 class LdapParams() {
+    // This class loads values from application.properties to use them later
     @Value("\${spring.ldap.url}")
     lateinit var url: String
 
@@ -26,9 +27,11 @@ class LdapParams() {
 
 @Service
 class LDAPService {
+    // Initialize and load LDAP params
     @Autowired
     var ldapParams = LdapParams()
 
+    // Initialize LDAP Template to fetch user DNs and authenticate them
     @Bean
     fun initLdap(): LdapTemplate {
         val ldapContextSource: LdapContextSource = LdapContextSource()
@@ -46,6 +49,7 @@ class LDAPService {
         return ldapTemplate
     }
 
+    // Find user DN only from userid by searching LDAP
     fun findUserDn(user: LdapUser): String {
         var userDn = ""
 
@@ -57,9 +61,13 @@ class LDAPService {
         return userDn
     }
 
+    // Authenticate user with LDAP Server and return username if successful
     fun authenticate(user: LdapUser): ResponseEntity<String> {
         initLdap().contextSource.getContext(findUserDn(user), user.password)
 
         return ResponseEntity(user.username, HttpStatus.OK)
+        //TODO return UserRet on successful auth
+        //TODO check Database for existing user and add if new
+        //TODO Fetch Name and Email from LDAP and add to DB
     }
 }
