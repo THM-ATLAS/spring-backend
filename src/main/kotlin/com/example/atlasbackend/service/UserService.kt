@@ -70,10 +70,17 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
 
     }
 
-    fun addUser(user: AtlasUser): ResponseEntity<String> {
+    fun addUser(user: UserRet): ResponseEntity<String> {
+        if (user.user_id != 0) {
+            return ResponseEntity(null, HttpStatus.BAD_REQUEST)
+        }
+        var ret = AtlasUser(user.user_id, user.name, user.username, user.email)
+        ret = userRepository.save(ret)
+        user.roles.forEach { r ->
+            roleRepository.giveRole(ret.user_id, r.role_id)
+        }
 
         //TODO: falls Berechtigungen fehlen:
-        userRepository.save(user)
         return ResponseEntity("insert successful", HttpStatus.OK)
     }
 }

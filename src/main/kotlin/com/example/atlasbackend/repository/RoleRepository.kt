@@ -1,6 +1,7 @@
 package com.example.atlasbackend.repository
 
 import com.example.atlasbackend.classes.Role
+import org.springframework.data.jdbc.repository.query.Modifying
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
@@ -13,6 +14,7 @@ interface RoleRepository: CrudRepository<Role, Int> {
     fun getRolesByUser(@Param("id") id: Int): List<Role>;
 
     @Query("INSERT INTO user_role (user_id, role_id) VALUES (:user, :role)")
+    @Modifying
     fun giveRole(@Param("user") user: Int, @Param("role") role: Int)
 
 }

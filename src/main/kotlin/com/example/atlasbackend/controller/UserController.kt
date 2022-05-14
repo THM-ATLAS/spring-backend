@@ -36,7 +36,7 @@ class UserController(val userService: UserService) {
     }
 
     @PostMapping("/users/")
-    fun addUser(@RequestBody body: AtlasUser): ResponseEntity<String> {
+    fun addUser(@RequestBody body: UserRet): ResponseEntity<String> {
         return userService.addUser(body)
     }
 }
