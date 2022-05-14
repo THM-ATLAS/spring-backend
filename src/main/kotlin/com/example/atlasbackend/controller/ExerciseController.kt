@@ -11,8 +11,18 @@ import org.springframework.web.bind.annotation.*
 class ExerciseController(val exerciseService: ExerciseService) {
 
     @GetMapping("/exercises/user/{userID}")
-    fun loadExercises(@PathVariable userID: String): ResponseEntity<Array<Exercise?>> {
-        return exerciseService.loadExercises(userID)
+    fun loadExercises(@PathVariable userID: Int): ResponseEntity<Array<Exercise?>> {
+        return exerciseService.loadExercisesUser(userID)
+    }
+
+    @GetMapping("/exercises/")
+    fun loadExercises(): ResponseEntity<List<ExerciseRet>> {
+        return exerciseService.loadExercises()
+    }
+
+    @GetMapping("/exercises/module/{modID}")
+    fun loadExercisesModule(@PathVariable modID: Int): ResponseEntity<List<ExerciseRet>> {
+        return exerciseService.loadExercisesModule(modID)
     }
 
     @GetMapping("/exercises/{exerciseID}")
@@ -21,12 +31,12 @@ class ExerciseController(val exerciseService: ExerciseService) {
     }
 
     @PutMapping("/exercises/")
-    fun editExercise(@RequestBody body: Exercise): ResponseEntity<String> {
+    fun editExercise(@RequestBody body: ExerciseRet): ResponseEntity<String> {
         return exerciseService.updateExercise(body)
     }
 
     @PostMapping("/exercises/")
-    fun postExercise(@RequestBody exercise: Exercise): ResponseEntity<String> {
+    fun postExercise(@RequestBody exercise: ExerciseRet): ResponseEntity<String> {
         return exerciseService.createExercise(exercise)
     }
 
