@@ -4,6 +4,7 @@ import com.example.atlasbackend.classes.Exercise
 import com.example.atlasbackend.classes.ExerciseRet
 import com.example.atlasbackend.repository.ExerciseRepository
 import com.example.atlasbackend.repository.ModuleRepository
+import com.example.atlasbackend.repository.UserRepository
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
@@ -11,13 +12,21 @@ import org.springframework.web.bind.annotation.PathVariable
 
 
 @Service
-class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepository: ModuleRepository) {
+class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepository: ModuleRepository, val userRepository: UserRepository) {
 
     // Errorcode Reference: https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/http/HttpStatus.html
 
     // Load Exercise Overview
     // TODO: Load exercises based on User ID (Currently loading every single exercise)
-    fun loadExercisesUser(@PathVariable userId: Int): ResponseEntity<Array<Exercise?>> {
+    fun loadExercisesUser(@PathVariable userId: Int): ResponseEntity<Set<ExerciseRet>> {
+
+        if (!userRepository.existsById(userId)) {
+            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+        }
+
+        val ret = exerciseRepository.getExercisesByUser(userId).map {  e->
+            ExerciseRet(e.exercise_id, moduleRepository.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic)
+        }.toSet()
 
         // Load all exercises connected to USER_ID from Database
         // if USER_ID not found
@@ -30,7 +39,7 @@ class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepo
         //exerciseArray[1] = Exercise(2,"USER ID TEST2: $userID", "Content2", true)
 
         // 200: OK
-        return ResponseEntity<Array<Exercise?>>(null, HttpStatus.OK)
+        return ResponseEntity<Set<ExerciseRet>>(ret, HttpStatus.OK)
     }
 
     fun loadExercises(): ResponseEntity<List<ExerciseRet>> {

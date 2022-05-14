@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*
 class ExerciseController(val exerciseService: ExerciseService) {
 
     @GetMapping("/exercises/user/{userID}")
-    fun loadExercises(@PathVariable userID: Int): ResponseEntity<Array<Exercise?>> {
+    fun loadExercises(@PathVariable userID: Int): ResponseEntity<Set<ExerciseRet>> {
         return exerciseService.loadExercisesUser(userID)
     }
 
