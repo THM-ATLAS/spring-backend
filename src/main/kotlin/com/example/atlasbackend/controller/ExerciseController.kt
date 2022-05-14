@@ -1,6 +1,7 @@
 package com.example.atlasbackend.controller
 
 import com.example.atlasbackend.classes.Exercise
+import com.example.atlasbackend.classes.ExerciseRet
 import com.example.atlasbackend.service.ExerciseService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -10,22 +11,32 @@ import org.springframework.web.bind.annotation.*
 class ExerciseController(val exerciseService: ExerciseService) {
 
     @GetMapping("/exercises/user/{userID}")
-    fun loadExercises(@PathVariable userID: String): ResponseEntity<Array<Exercise?>> {
-        return exerciseService.loadExercises(userID)
+    fun loadExercises(@PathVariable userID: Int): ResponseEntity<Set<ExerciseRet>> {
+        return exerciseService.loadExercisesUser(userID)
+    }
+
+    @GetMapping("/exercises/")
+    fun loadExercises(): ResponseEntity<List<ExerciseRet>> {
+        return exerciseService.loadExercises()
+    }
+
+    @GetMapping("/exercises/module/{modID}")
+    fun loadExercisesModule(@PathVariable modID: Int): ResponseEntity<List<ExerciseRet>> {
+        return exerciseService.loadExercisesModule(modID)
     }
 
     @GetMapping("/exercises/{exerciseID}")
-    fun getExercise(@PathVariable exerciseID: Int): ResponseEntity<Exercise> {
+    fun getExercise(@PathVariable exerciseID: Int): ResponseEntity<ExerciseRet> {
         return exerciseService.getExercise(exerciseID)
     }
 
     @PutMapping("/exercises/")
-    fun editExercise(@RequestBody body: Exercise): ResponseEntity<String> {
+    fun editExercise(@RequestBody body: ExerciseRet): ResponseEntity<String> {
         return exerciseService.updateExercise(body)
     }
 
     @PostMapping("/exercises/")
-    fun postExercise(@RequestBody exercise: Exercise): ResponseEntity<String> {
+    fun postExercise(@RequestBody exercise: ExerciseRet): ResponseEntity<String> {
         return exerciseService.createExercise(exercise)
     }
 
