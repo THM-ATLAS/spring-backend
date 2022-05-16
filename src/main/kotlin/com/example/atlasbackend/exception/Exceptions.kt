@@ -3,7 +3,6 @@ package com.example.atlasbackend.exception
 // TODO: Try to combine similar functions
 
 
-
 /***** [4xx] CLIENT ERRORS *****/
 
 
@@ -83,7 +82,7 @@ object UnprocessableEntityException : RuntimeException()
 object InternalServerErrorException : RuntimeException()
 
 
-/** [500] INTERNAL SERVER ERROR **/
+/** [501] NOT IMPLEMENTED **/
 
 // Method not implemented yet
 object NotImplementedException : RuntimeException()
@@ -92,4 +91,4 @@ object NotImplementedException : RuntimeException()
 /** [???] UNEXPECTED ERROR **/
 
 // Completely Unexpected
-object UnexceptedError : RuntimeException()
+object UnexpectedError : RuntimeException()
