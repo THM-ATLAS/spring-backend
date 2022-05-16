@@ -34,22 +34,22 @@ object TokenMissingException : RuntimeException()
 object AccessDeniedException : RuntimeException()
 
 // User is not allowed to delete this exercise
-object NotAllowedToDeleteExerciseException : RuntimeException()
+object NoPermissionToDeleteExerciseException : RuntimeException()
 
 // User is not allowed to delete this module
-object NotAllowedToDeleteModuleException : RuntimeException()
+object NoPermissionToDeleteModuleException : RuntimeException()
 
 // User is not allowed to delete this user
-object NotAllowedToDeleteUserException : RuntimeException()
+object NoPermissionToDeleteUserException : RuntimeException()
 
 // User is not allowed to edit this exercise
-object NotAllowedToEditExerciseException : RuntimeException()
+object NoPermissionToEditExerciseException : RuntimeException()
 
 // User is not allowed to edit this module
-object NotAllowedToEditModuleException : RuntimeException()
+object NoPermissionToEditModuleException : RuntimeException()
 
 // User is not allowed to edit this user
-object NotAllowedToEditUserException : RuntimeException()
+object NoPermissionToEditUserException : RuntimeException()
 
 
 /** [404] NOT FOUND **/
@@ -79,16 +79,10 @@ object UnprocessableEntityException : RuntimeException()
 /** [500] INTERNAL SERVER ERROR **/
 
 // Unexpected Server Errors
-object InternalServerErrorException : RuntimeException()
+object InternalServerError : RuntimeException()
 
 
 /** [501] NOT IMPLEMENTED **/
 
 // Method not implemented yet
-object NotImplementedException : RuntimeException()
-
-
-/** [???] UNEXPECTED ERROR **/
-
-// Completely Unexpected
-object UnexpectedError : RuntimeException()
+object NotYetImplementedException : RuntimeException()

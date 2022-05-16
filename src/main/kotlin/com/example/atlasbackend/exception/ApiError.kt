@@ -10,13 +10,14 @@ class ApiError {
     // TODO: See how these can be made private and still be accessible
     var code: Int
     var status: HttpStatus
-    var message: String
-    // var errors: List<String>
+    var errors: List<String>
+    lateinit var message: String
 
     // Error
-    constructor(code: Int, status: HttpStatus, message: String) : super() {
+    constructor(code: Int, status: HttpStatus, error: String, message: String) : super() {
         this.code = code
         this.status = status
+        errors = listOf(error)
         this.message = message
     }
 
@@ -24,23 +25,6 @@ class ApiError {
     constructor(code: Int, status: HttpStatus) : super() {
         this.code = code
         this.status = status
-        this.message = "Unexpected Error"
+        errors = listOf("Unexpected Error")
     }
-
-
-    /* Need this later maybe
-
-    constructor(code: Int, status: HttpStatus, message: String, errors: List<String>) : super() {
-        this.code = code
-        this.status = status
-        this.message = message
-        this.errors = errors
-    }
-
-    constructor(code: Int, status: HttpStatus, message: String, error: String) : super() {
-        this.code = code
-        this.status = status
-        this.message = message
-        errors = listOf(error)
-    }*/
 }
