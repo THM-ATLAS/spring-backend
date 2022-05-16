@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*
 
 
 @RestController
+@RequestMapping("/rest/")
 class ExerciseController(val exerciseService: ExerciseService) {
 
     @GetMapping("/exercises/user/{userID}")
