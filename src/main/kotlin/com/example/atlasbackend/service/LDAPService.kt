@@ -79,7 +79,7 @@ class LDAPService(val userService: UserService) {
 
     // Authenticate user with LDAP Server and return username if successful
     fun authenticate(user: LdapUser): UserRet {
-        var auth: Boolean = false
+        var auth = false
         try {
             initLdap().contextSource.getContext(findUserDn(user), user.password)
             auth = true
@@ -97,7 +97,7 @@ class LDAPService(val userService: UserService) {
 
             if(!userList.isEmpty()) {
                 val atlasUser = getUserProperties(user)
-                userService.editUser(UserRet(0, userService.getUser(userList[0].user_id)!!.roles, atlasUser.name, user.username, atlasUser.email))
+                userService.editUser(UserRet(0, userService.getUser(userList[0].user_id).roles, atlasUser.name, user.username, atlasUser.email))
             }
         }
 
