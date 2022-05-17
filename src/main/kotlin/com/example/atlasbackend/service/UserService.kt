@@ -2,85 +2,87 @@ package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.classes.UserRet
-import com.example.atlasbackend.repository.ExerciseRepository
-import com.example.atlasbackend.repository.RoleRepository
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
+import com.example.atlasbackend.exception.*
+import com.example.atlasbackend.repository.*
 import org.springframework.stereotype.Service
-import com.example.atlasbackend.repository.UserRepository
 
 @Service
 class UserService(val userRepository: UserRepository, val roleRepository: RoleRepository) {
-    fun getAllUsers(): ResponseEntity<List<UserRet>> {
-        var users = userRepository.findAll().toList();
-        return ResponseEntity(users.map {
-                u -> UserRet(u.user_id, roleRepository.getRolesByUser(u.user_id), u.name, u.username, u.email) },
-            HttpStatus.OK)
-    }
-    fun getUser(user_id: Int): ResponseEntity<UserRet> {
-
+    fun getAllUsers(): List<UserRet> {
 
         //TODO: falls Berechtigungen fehlen:
-        //    return ResponseEntity("You are not allowed to modify exercise ${id}", HttpStatus.FORBIDDEN)
+        // throw AccessDeniedException
+
+        val users = userRepository.findAll().toList()
+        return users.map {
+                u -> UserRet(u.user_id, roleRepository.getRolesByUser(u.user_id), u.name, u.username, u.email) }
+    }
+    fun getUser(user_id: Int): UserRet {
+
+        //TODO: falls Berechtigungen fehlen:
+        // throw AccessDeniedException
 
         if (!userRepository.existsById(user_id)) {
-            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+            throw UserNotFoundException
         }
 
         val user = userRepository.findById(user_id).get()
-        val ret = UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
 
-        return ResponseEntity<UserRet>(ret, HttpStatus.OK)
+        return UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
     }
 
-    fun editUser(user: UserRet): ResponseEntity<String> {
-        val id: Int = user.user_id
-        //TODO: falls Berechtigungen fehlen:
-        //    return ResponseEntity("You are not allowed to modify task ${id}", HttpStatus.FORBIDDEN)
+    fun editUser(user: UserRet): UserRet {
+        //TODO: falls Berechtigungen fehlen (nicht user selbst oder admin):
+        //    return NoPermissionToEditUserException
 
 
-        if (!userRepository.existsById(id)) {
-            return ResponseEntity("Dataset with ID $id not found", HttpStatus.NOT_FOUND)
+        if (!userRepository.existsById(user.user_id)) {
+            throw UserNotFoundException
         }
 
         user.roles.forEach { r ->
-            if (!roleRepository.existsById(r.role_id)) return ResponseEntity("Role with ID ${r.role_id} not found", HttpStatus.NOT_FOUND)
+            if (!roleRepository.existsById(r.role_id)) throw RoleNotFoundException
             if (roleRepository.getRolesByUser(user.user_id).contains(r).not()) {
                 roleRepository.giveRole(user.user_id, r.role_id)
             }
         }
 
-        val ret = AtlasUser(user.user_id, user.name, user.username, user.email)
+        val atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email)
+        val ret = UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
 
-        userRepository.save(ret)
-        return ResponseEntity("edit successful", HttpStatus.OK)
+        userRepository.save(atlasUser)
+        return ret
     }
 
-    fun delUser(user_id: Int): ResponseEntity<String> {
-        //TODO: falls Berechtigungen fehlen:
-        //    return ResponseEntity("You are not allowed to modify task ${id}", HttpStatus.FORBIDDEN)
+    fun delUser(user_id: Int): UserRet {
+
+        //TODO: falls Berechtigungen fehlen (Nicht User selbst oder Admin):
+        //    throw NoPermissionToDeleteUserException
+
+        val user = userRepository.findById(user_id).get()
+        val ret = UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
 
 
         if (!userRepository.existsById(user_id)) {
-            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+            throw UserNotFoundException
         }
 
         userRepository.deleteById(user_id)
-        return ResponseEntity("delete successful", HttpStatus.OK)
-
+        return ret
     }
 
-    fun addUser(user: UserRet): ResponseEntity<String> {
+    fun addUser(user: UserRet): UserRet {
         if (user.user_id != 0) {
-            return ResponseEntity(null, HttpStatus.BAD_REQUEST)
+            throw InvalidUserIDException
         }
-        var ret = AtlasUser(user.user_id, user.name, user.username, user.email)
-        ret = userRepository.save(ret)
+        var atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email)
+        atlasUser = userRepository.save(atlasUser)
+
         user.roles.forEach { r ->
-            roleRepository.giveRole(ret.user_id, r.role_id)
+            roleRepository.giveRole(atlasUser.user_id, r.role_id)
         }
 
         //TODO: falls Berechtigungen fehlen:
-        return ResponseEntity("insert successful", HttpStatus.OK)
+        return UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
     }
 }
