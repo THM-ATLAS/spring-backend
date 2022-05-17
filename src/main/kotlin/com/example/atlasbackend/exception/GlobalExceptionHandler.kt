@@ -38,6 +38,19 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
+    // Invalid User ID when creating user
+    @ExceptionHandler(value = [InvalidUserIDException::class])
+    fun exception(exception: InvalidUserIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidUserIDException", "User ID must be zero when creating new user.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
+    // Invalid Module ID when creating user
+    @ExceptionHandler(value = [InvalidModuleIDException::class])
+    fun exception(exception: InvalidModuleIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidModuleIDException", "Module ID must be zero when creating new moduke.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
 
     /** [401] UNAUTHORIZED **/
 
@@ -142,6 +155,14 @@ class GlobalExceptionHandler {
         val err = ApiError(404, HttpStatus.NOT_FOUND, "ModuleNotFoundException", "Couldn't find module.")
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
+
+    // Role ID doesn't exist
+    @ExceptionHandler(value = [RoleNotFoundException::class])
+    fun exception(exception: RoleNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "RoleNotFoundException", "Couldn't find role.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
 
 
     /** [422] UNPROCESSABLE ENTITY **/

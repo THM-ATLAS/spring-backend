@@ -17,6 +17,12 @@ object InvalidParameterTypeException : RuntimeException()
 // One/multiple requested/posted parameters are too long/short
 object InvalidParameterLengthException : RuntimeException()
 
+// Invalid User ID when creating user
+object InvalidUserIDException : RuntimeException()
+
+// Invalid Module ID when creating user
+object InvalidModuleIDException : RuntimeException()
+
 
 /** [401] UNAUTHORIZED **/
 
@@ -65,6 +71,9 @@ object UserNotFoundException : RuntimeException()
 
 // Module ID doesn't exist
 object ModuleNotFoundException : RuntimeException()
+
+// Role ID doesn't exist
+object RoleNotFoundException : RuntimeException()
 
 
 /** [422] UNPROCESSABLE ENTITY **/

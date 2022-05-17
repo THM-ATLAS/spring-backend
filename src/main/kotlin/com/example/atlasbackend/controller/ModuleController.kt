@@ -16,27 +16,27 @@ import org.springframework.web.bind.annotation.RestController
 class ModuleController(val moduleService: ModuleService) {
 
     @GetMapping("/modules")
-    fun loadModules(): ResponseEntity<ArrayList<AtlasModule?>>{
+    fun loadModules(): List<AtlasModule>{
         return moduleService.loadModules()
     }
 
     @GetMapping("/modules/{moduleID}")
-    fun getModule(@PathVariable moduleID: Int): ResponseEntity<AtlasModule>{
+    fun getModule(@PathVariable moduleID: Int): AtlasModule{
         return moduleService.getModule(moduleID)
     }
 
-    @PutMapping("/modules/")
-    fun editModule(@RequestBody body: AtlasModule): ResponseEntity<String>{
-        return moduleService.updateModule(body)
+    @PutMapping("/modules")
+    fun editModule(@RequestBody body: AtlasModule): AtlasModule{
+        return moduleService.editModule(body)
     }
 
-    @PostMapping("/modules/")
-    fun postModule(@RequestBody module: AtlasModule): ResponseEntity<String>{
+    @PostMapping("/modules")
+    fun postModule(@RequestBody module: AtlasModule): AtlasModule{
         return moduleService.CreateModule(module)
     }
 
     @DeleteMapping("/modules/{moduleID}")
-    fun deleteModule(@PathVariable moduleID: Int): ResponseEntity<AtlasModule>{
+    fun deleteModule(@PathVariable moduleID: Int): AtlasModule{
         return moduleService.deleteModule(moduleID)
     }
 }

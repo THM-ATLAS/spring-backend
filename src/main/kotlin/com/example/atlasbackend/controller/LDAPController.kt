@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class LDAPController(val ldapService: LDAPService) {
     @PostMapping("/authenticate")
-    fun authenticate(@RequestBody user: LdapUser): ResponseEntity<UserRet> {
+    fun authenticate(@RequestBody user: LdapUser): UserRet {
         return ldapService.authenticate(user)
     }
 }
