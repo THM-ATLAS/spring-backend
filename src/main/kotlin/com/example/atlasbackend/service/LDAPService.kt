@@ -97,13 +97,13 @@ class LDAPService(val userService: UserService) {
 
             if(!userList.isEmpty()) {
                 val atlasUser = getUserProperties(user)
-                userService.editUser(UserRet(0, userService.getUser(userList[0].user_id).body!!.roles, atlasUser.name, user.username, atlasUser.email))
+                userService.editUser(UserRet(0, userService.getUser(userList[0].user_id)!!.roles, atlasUser.name, user.username, atlasUser.email))
             }
         }
 
         val userList = userService.userRepository.testForUser(user.username)
 
-        val user = userService.getUser(userList[0].user_id).body
+        val user = userService.getUser(userList[0].user_id)
 
         return if (user != null) user else throw InternalServerError
     }
