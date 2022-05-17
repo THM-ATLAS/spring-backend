@@ -2,6 +2,7 @@ package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.Exercise
 import com.example.atlasbackend.classes.ExerciseRet
+import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.ExerciseRepository
 import com.example.atlasbackend.repository.ModuleRepository
 import com.example.atlasbackend.repository.UserRepository
@@ -21,7 +22,7 @@ class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepo
     fun loadExercisesUser(@PathVariable userId: Int): ResponseEntity<Set<ExerciseRet>> {
 
         if (!userRepository.existsById(userId)) {
-            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+            throw ExerciseNotFoundException
         }
 
         val ret = exerciseRepository.getExercisesByUser(userId).map {  e->
