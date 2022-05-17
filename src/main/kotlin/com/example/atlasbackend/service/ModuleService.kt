@@ -1,6 +1,7 @@
 package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.AtlasModule
+import com.example.atlasbackend.exception.ModuleNotFoundException
 import com.example.atlasbackend.repository.ModuleRepository
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -14,47 +15,44 @@ class ModuleService(val moduleRepository: ModuleRepository){
 
     // Load Module Overview
     //
-    fun loadModules(): ResponseEntity<ArrayList<AtlasModule?>>{
+    fun loadModules(): List<AtlasModule>{
 
-        val moduleArrayList = moduleRepository.findAll() as ArrayList<AtlasModule?>
-        //TODO: improvisiertes casten, unsicher wie wir daten zurückgeben wollen
-        //      ( ob es ein Array sein soll oder auch ein Iterable/ Arraylist akzeptabel ist)
-        return  ResponseEntity<ArrayList<AtlasModule?>>(moduleArrayList, HttpStatus.OK )
+        val moduleList = moduleRepository.findAll().toList()
+        return moduleList
 
     }
 
     //load a single Module
-    fun getModule(@PathVariable moduleID: Int): ResponseEntity<AtlasModule>{
+    fun getModule(@PathVariable moduleID: Int): AtlasModule{
 
         if (!moduleRepository.existsById(moduleID)) {
-            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+            throw ModuleNotFoundException
         }
         val module = moduleRepository.findById(moduleID).get()
         //TODO: falls Berechtigungen fehlen:
         //    return ResponseEntity("You are not allowed to view module ${moduleID}", HttpStatus.FORBIDDEN)
         //    erst wenn security steht
 
-
-        return ResponseEntity<AtlasModule>(module, HttpStatus.OK)
+        return module
     }
 
     //Edit Module
-    fun updateModule(module: AtlasModule):ResponseEntity<String>{
+    fun editModule(module: AtlasModule): AtlasModule{
         val moduleID = module.module_id
         if (!moduleRepository.existsById(moduleID)) {
-            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+            throw ModuleNotFoundException
         }
         //TODO: falls Berechtigungen fehlen:
         //    return ResponseEntity("You are not allowed to modify module ${moduleID}", HttpStatus.FORBIDDEN)
         //    erst wenn security steht
         moduleRepository.save(module)
-        return ResponseEntity(null, HttpStatus.OK)
+        return module
     }
 
     //Create new Module
-    fun CreateModule(module: AtlasModule): ResponseEntity<String>{
+    fun CreateModule(module: AtlasModule): AtlasModule{
         if(module.module_id != 0){
-            return ResponseEntity(null, HttpStatus.BAD_REQUEST)
+            throw InvalidModuleIDException
         }
         //TODO: falls Berechtigungen fehlen:
         //    return ResponseEntity("You are not allowed to create a module ", HttpStatus.FORBIDDEN)
