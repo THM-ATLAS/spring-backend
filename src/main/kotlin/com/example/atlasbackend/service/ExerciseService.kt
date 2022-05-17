@@ -1,8 +1,11 @@
 package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.Exercise
+import com.example.atlasbackend.classes.ExerciseRet
+import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.ExerciseRepository
-import org.springframework.data.repository.findByIdOrNull
+import com.example.atlasbackend.repository.ModuleRepository
+import com.example.atlasbackend.repository.UserRepository
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
@@ -10,79 +13,115 @@ import org.springframework.web.bind.annotation.PathVariable
 
 
 @Service
-class ExerciseService(val exerciseRepository: ExerciseRepository) {
+class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepository: ModuleRepository, val userRepository: UserRepository) {
 
     // Errorcode Reference: https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/http/HttpStatus.html
 
-    // Load Task Overview
-    // TODO: Load tasks based on User ID (Currently loading every single task)
-    fun loadTasks(@PathVariable userID: String): ResponseEntity<Array<Exercise?>> {
+    // Load Exercise Overview
+    // TODO: Load exercises based on User ID (Currently loading every single exercise)
+    fun loadExercisesUser(@PathVariable userId: Int): ResponseEntity<Set<ExerciseRet>> {
 
-        val taskLimit = 16 //Task limit per page
-        val taskArray = arrayOfNulls<Exercise>(taskLimit)
+        if (!userRepository.existsById(userId)) {
+            throw ExerciseNotFoundException
+        }
 
-        // Load all tasks connected to USER_ID from Database
-            // if USER_ID not found
-                // return ResponseEntity<Array<Task?>>(taskArray, HttpStatus.NOT_FOUND)
-            // getTask() for every TASK_ID found
-            // Fill Array one by one
+        val ret = exerciseRepository.getExercisesByUser(userId).map {  e->
+            ExerciseRet(e.exercise_id, moduleRepository.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic)
+        }.toSet()
+
+        // Load all exercises connected to USER_ID from Database
+        // if USER_ID not found
+        // return ResponseEntity<Array<Exercise?>>(exerciseArray, HttpStatus.NOT_FOUND)
+        // getExercise() for every exerciseID found
+        // Fill Array one by one
 
         //Test Values
-        taskArray[0] = Exercise(1, "USER ID TEST: $userID", "Content1", true)
-        taskArray[1] = Exercise(2,"USER ID TEST2: $userID", "Content2", true)
+        //exerciseArray[0] = Exercise(1, "USER ID TEST: $userID", "Content1", true)
+        //exerciseArray[1] = Exercise(2,"USER ID TEST2: $userID", "Content2", true)
 
         // 200: OK
-        return ResponseEntity<Array<Exercise?>>(taskArray, HttpStatus.OK)
+        return ResponseEntity<Set<ExerciseRet>>(ret, HttpStatus.OK)
     }
 
-    // Load a Single Task
-    fun getTask(@PathVariable taskID: Int): ResponseEntity<Exercise> {
+    fun loadExercises(): ResponseEntity<List<ExerciseRet>> {
+        val ret = exerciseRepository.findAll().map {  e ->
+            ExerciseRet(e.exercise_id, moduleRepository.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic)
+        }.toList()
+        return ResponseEntity(ret, HttpStatus.OK)
+    }
 
-        if (!exerciseRepository.existsById(taskID)) {
+    fun loadExercisesModule(moduleId: Int): ResponseEntity<List<ExerciseRet>> {
+        if (moduleRepository.existsById(moduleId).not()) {
             return ResponseEntity(null, HttpStatus.NOT_FOUND)
         }
-        val task = exerciseRepository.findById(taskID).get()
-            //TODO: if no rights to access task
-            //   return ResponseEntity<Array<Task?>>(taskArray, HttpStatus.FORBIDDEN)
-            //   erst wenn Spring security steht
+        val ret = exerciseRepository.getExercisesByModule(moduleId).map {  e ->
+            ExerciseRet(e.exercise_id, moduleRepository.findById(moduleId).get(), e.title, e.content, e.description, e.exercisePublic)
+        }.toList()
 
-        return ResponseEntity<Exercise>(task, HttpStatus.OK)
+        return ResponseEntity(ret, HttpStatus.OK)
     }
 
-    // Edit Task
-    fun updateTask(exercise: Exercise): ResponseEntity<String> {
-        val id = exercise.exercise_id;
-        if (!exerciseRepository.existsById(id)) {
-            return ResponseEntity(null, HttpStatus.NOT_FOUND)
-        }
-        //TODO: falls Berechtigungen fehlen:
-        //    return ResponseEntity("You are not allowed to modify task ${id}", HttpStatus.FORBIDDEN)
-        //    erst wenn security steht
-        exerciseRepository.save(exercise)
-
-        return ResponseEntity(null, HttpStatus.OK)
-    }
-
-    // Create new Task
-    fun createTask(exercise: Exercise): ResponseEntity<String> {
-        if (exercise.exercise_id != 0) {
-            return ResponseEntity(null, HttpStatus.BAD_REQUEST)
-        }
-        //TODO: falls Berechtigungen fehlen:
-        //    return ResponseEntity("You are not allowed to create task ${id}", HttpStatus.FORBIDDEN)
-        //    erst wenn Security steht
-        exerciseRepository.save(exercise);
-        return ResponseEntity(null, HttpStatus.OK)
-    }
-
-    // Delete a Task
-    fun deleteTask(exerciseID: Int): ResponseEntity<String> {
+    // Load a Single Exercise
+    fun getExercise(@PathVariable exerciseID: Int): ResponseEntity<ExerciseRet> {
 
         if (!exerciseRepository.existsById(exerciseID)) {
             return ResponseEntity(null, HttpStatus.NOT_FOUND)
         }
+        val exercise = exerciseRepository.findById(exerciseID).get()
+            //TODO: if no rights to access exercise
+            //   return ResponseEntity<Array<Exercise?>>(exerciseArray, HttpStatus.FORBIDDEN)
+            //   erst wenn Spring security steht
+        val ret = ExerciseRet(exercise.exercise_id, moduleRepository.findById(exercise.module_id).get(), exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
+
+        return ResponseEntity<ExerciseRet>(ret, HttpStatus.OK)
+    }
+
+    // Edit Exercise
+    fun updateExercise(exercise: ExerciseRet): ResponseEntity<String> {
+
+        if (!exerciseRepository.existsById(exercise.exercise_id)) {
+            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+        }
+
         //TODO: falls Berechtigungen fehlen:
-        //    return ResponseEntity("You are not allowed to create task ${id}", HttpStatus.FORBIDDEN)
+        //    return ResponseEntity("You are not allowed to modify exercise ${id}", HttpStatus.FORBIDDEN)
+        //    erst wenn security steht
+        val ret = Exercise(exercise.exercise_id, exercise.course.module_id, exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
+
+        exerciseRepository.save(ret)
+
+        return ResponseEntity(null, HttpStatus.OK)
+    }
+
+    // Create new Exercise
+    fun createExercise(exercise: ExerciseRet): ResponseEntity<String> {
+
+        if (exercise.exercise_id != 0) {
+            return ResponseEntity(null, HttpStatus.BAD_REQUEST)
+        }
+
+        if (moduleRepository.existsById(exercise.course.module_id).not()) {
+            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+        }
+
+        //TODO: falls Berechtigungen fehlen:
+        //    return ResponseEntity("You are not allowed to create exercise ${id}", HttpStatus.FORBIDDEN)
+        //    erst wenn Security steht
+        val ret = Exercise(exercise.exercise_id, exercise.course.module_id, exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
+
+        exerciseRepository.save(ret)
+        return ResponseEntity(null, HttpStatus.OK)
+    }
+
+    // Delete a Exercise
+    fun deleteExercise(exerciseID: Int): ResponseEntity<String> {
+
+        if (!exerciseRepository.existsById(exerciseID)) {
+            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+        }
+
+        //TODO: falls Berechtigungen fehlen:
+        //    return ResponseEntity("You are not allowed to create exercise ${id}", HttpStatus.FORBIDDEN)
         //    erst wenn Security steht  return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
 
         exerciseRepository.deleteById(exerciseID)
