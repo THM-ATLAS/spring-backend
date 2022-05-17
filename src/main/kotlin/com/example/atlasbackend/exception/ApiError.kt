@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 
 class ApiError {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
-    private val timestamp: LocalDateTime = LocalDateTime.now()
+    private val timestamp = LocalDateTime.now()
     // TODO: See how these can be made private and still be accessible
     var code: Int
     var status: HttpStatus
