@@ -19,10 +19,10 @@ class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepo
 
     // Load Exercise Overview
     // TODO: Load exercises based on User ID (Currently loading every single exercise)
-    fun loadExercisesUser(@PathVariable userId: Int): ResponseEntity<Set<ExerciseRet>> {
+    fun loadExercisesUser(@PathVariable userId: Int): Set<ExerciseRet> {
 
         if (!userRepository.existsById(userId)) {
-            throw ExerciseNotFoundException
+            throw UserNotFoundException
         }
 
         val ret = exerciseRepository.getExercisesByUser(userId).map {  e->
@@ -40,32 +40,32 @@ class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepo
         //exerciseArray[1] = Exercise(2,"USER ID TEST2: $userID", "Content2", true)
 
         // 200: OK
-        return ResponseEntity<Set<ExerciseRet>>(ret, HttpStatus.OK)
+        return ret
     }
 
-    fun loadExercises(): ResponseEntity<List<ExerciseRet>> {
+    fun loadExercises(): List<ExerciseRet> {
         val ret = exerciseRepository.findAll().map {  e ->
             ExerciseRet(e.exercise_id, moduleRepository.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic)
         }.toList()
-        return ResponseEntity(ret, HttpStatus.OK)
+        return ret
     }
 
-    fun loadExercisesModule(moduleId: Int): ResponseEntity<List<ExerciseRet>> {
+    fun loadExercisesModule(moduleId: Int): List<ExerciseRet> {
         if (moduleRepository.existsById(moduleId).not()) {
-            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+            throw ExerciseNotFoundException
         }
         val ret = exerciseRepository.getExercisesByModule(moduleId).map {  e ->
             ExerciseRet(e.exercise_id, moduleRepository.findById(moduleId).get(), e.title, e.content, e.description, e.exercisePublic)
         }.toList()
 
-        return ResponseEntity(ret, HttpStatus.OK)
+        return ret
     }
 
     // Load a Single Exercise
-    fun getExercise(@PathVariable exerciseID: Int): ResponseEntity<ExerciseRet> {
+    fun getExercise(@PathVariable exerciseID: Int): ExerciseRet {
 
         if (!exerciseRepository.existsById(exerciseID)) {
-            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+            throw ExerciseNotFoundException
         }
         val exercise = exerciseRepository.findById(exerciseID).get()
             //TODO: if no rights to access exercise
@@ -73,14 +73,14 @@ class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepo
             //   erst wenn Spring security steht
         val ret = ExerciseRet(exercise.exercise_id, moduleRepository.findById(exercise.module_id).get(), exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
 
-        return ResponseEntity<ExerciseRet>(ret, HttpStatus.OK)
+        return ret
     }
 
     // Edit Exercise
-    fun updateExercise(exercise: ExerciseRet): ResponseEntity<String> {
+    fun updateExercise(exercise: ExerciseRet): ExerciseRet {
 
         if (!exerciseRepository.existsById(exercise.exercise_id)) {
-            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+            throw ExerciseNotFoundException
         }
 
         //TODO: falls Berechtigungen fehlen:
@@ -90,18 +90,18 @@ class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepo
 
         exerciseRepository.save(ret)
 
-        return ResponseEntity(null, HttpStatus.OK)
+        return exercise
     }
 
     // Create new Exercise
-    fun createExercise(exercise: ExerciseRet): ResponseEntity<String> {
+    fun createExercise(exercise: ExerciseRet): ExerciseRet {
 
         if (exercise.exercise_id != 0) {
-            return ResponseEntity(null, HttpStatus.BAD_REQUEST)
+            throw InvalidParameterTypeException
         }
 
         if (moduleRepository.existsById(exercise.course.module_id).not()) {
-            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+            throw ModuleNotFoundException
         }
 
         //TODO: falls Berechtigungen fehlen:
@@ -110,22 +110,28 @@ class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepo
         val ret = Exercise(exercise.exercise_id, exercise.course.module_id, exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
 
         exerciseRepository.save(ret)
-        return ResponseEntity(null, HttpStatus.OK)
+        return exercise
     }
 
     // Delete a Exercise
-    fun deleteExercise(exerciseID: Int): ResponseEntity<String> {
+    fun deleteExercise(exerciseID: Int): ExerciseRet {
 
         if (!exerciseRepository.existsById(exerciseID)) {
-            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+            throw ExerciseNotFoundException
         }
 
         //TODO: falls Berechtigungen fehlen:
         //    return ResponseEntity("You are not allowed to create exercise ${id}", HttpStatus.FORBIDDEN)
         //    erst wenn Security steht  return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
 
+        val exercise = exerciseRepository.findById(exerciseID).get()
+        //TODO: if no rights to access exercise
+        //   return ResponseEntity<Array<Exercise?>>(exerciseArray, HttpStatus.FORBIDDEN)
+        //   erst wenn Spring security steht
+        val ret = ExerciseRet(exercise.exercise_id, moduleRepository.findById(exercise.module_id).get(), exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
+
         exerciseRepository.deleteById(exerciseID)
 
-        return ResponseEntity(null, HttpStatus.OK)
+        return ret
     }
 }
