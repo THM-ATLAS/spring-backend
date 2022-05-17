@@ -18,15 +18,4 @@ class SecurityConfig: WebSecurityConfigurerAdapter() {
         //TODO: https://docs.spring.io/spring-security/site/docs/5.0.x/reference/html/csrf.html wir sollten drüber reden, ob wir das brauchen
     }
 
-
-    override fun configure(web: WebSecurity) {
-        web.ignoring().antMatchers(
-            "/v3/api-docs",
-            "/configuration/ui",
-            "/swagger-resources/**",
-            "/configuration/security",
-            "/swagger-ui.html",
-            "/swagger-ui/**",
-        )
-    }
 }
