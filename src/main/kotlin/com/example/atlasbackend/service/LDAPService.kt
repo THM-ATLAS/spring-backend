@@ -105,7 +105,7 @@ class LDAPService(val userService: UserService) {
                 val atlasUser = getUserProperties(user)
                 userService.editUser(
                     UserRet(
-                        0,
+                        userList[0].user_id,
                         userService.getUser(userList[0].user_id).roles,
                         atlasUser.name,
                         user.username,
