@@ -11,37 +11,37 @@ import org.springframework.web.bind.annotation.*
 class ExerciseController(val exerciseService: ExerciseService) {
 
     @GetMapping("/exercises/user/{userID}")
-    fun loadExercises(@PathVariable userID: Int): ResponseEntity<Set<ExerciseRet>> {
+    fun loadExercises(@PathVariable userID: Int): Set<ExerciseRet> {
         return exerciseService.loadExercisesUser(userID)
     }
 
     @GetMapping("/exercises/")
-    fun loadExercises(): ResponseEntity<List<ExerciseRet>> {
+    fun loadExercises(): List<ExerciseRet> {
         return exerciseService.loadExercises()
     }
 
     @GetMapping("/exercises/module/{modID}")
-    fun loadExercisesModule(@PathVariable modID: Int): ResponseEntity<List<ExerciseRet>> {
+    fun loadExercisesModule(@PathVariable modID: Int): List<ExerciseRet> {
         return exerciseService.loadExercisesModule(modID)
     }
 
     @GetMapping("/exercises/{exerciseID}")
-    fun getExercise(@PathVariable exerciseID: Int): ResponseEntity<ExerciseRet> {
+    fun getExercise(@PathVariable exerciseID: Int): ExerciseRet {
         return exerciseService.getExercise(exerciseID)
     }
 
     @PutMapping("/exercises/")
-    fun editExercise(@RequestBody body: ExerciseRet): ResponseEntity<String> {
+    fun editExercise(@RequestBody body: ExerciseRet): ExerciseRet {
         return exerciseService.updateExercise(body)
     }
 
     @PostMapping("/exercises/")
-    fun postExercise(@RequestBody exercise: ExerciseRet): ResponseEntity<String> {
+    fun postExercise(@RequestBody exercise: ExerciseRet): ExerciseRet {
         return exerciseService.createExercise(exercise)
     }
 
     @DeleteMapping("/exercises/{exerciseID}")
-    fun deleteExercise(@PathVariable exerciseID: Int): ResponseEntity<String>{
+    fun deleteExercise(@PathVariable exerciseID: Int): ExerciseRet {
         return exerciseService.deleteExercise(exerciseID)
     }
 }

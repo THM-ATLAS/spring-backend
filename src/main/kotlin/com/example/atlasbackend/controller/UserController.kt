@@ -16,27 +16,27 @@ import org.springframework.web.bind.annotation.RestController
 class UserController(val userService: UserService) {
 
     @GetMapping("/users/")
-    fun getAllUsers(): ResponseEntity<List<UserRet>> {
-        return userService.getAllUsers();
+    fun getAllUsers(): List<UserRet> {
+        return userService.getAllUsers()
     }
 
     @GetMapping("/users/{id}")
-    fun getUser(@PathVariable id: Int): ResponseEntity<UserRet> {
+    fun getUser(@PathVariable id: Int): UserRet {
         return userService.getUser(id)
     }
 
     @DeleteMapping("/users/{id}")
-    fun delUser(@PathVariable id: Int): ResponseEntity<String> {
+    fun delUser(@PathVariable id: Int): UserRet {
         return userService.delUser(id)
     }
 
     @PutMapping("/users/")
-    fun editUser(@RequestBody body: UserRet): ResponseEntity<String> {
+    fun editUser(@RequestBody body: UserRet): UserRet {
         return userService.editUser(body)
     }
 
     @PostMapping("/users/")
-    fun addUser(@RequestBody body: UserRet): ResponseEntity<String> {
+    fun addUser(@RequestBody body: UserRet): UserRet {
         return userService.addUser(body)
     }
 }
