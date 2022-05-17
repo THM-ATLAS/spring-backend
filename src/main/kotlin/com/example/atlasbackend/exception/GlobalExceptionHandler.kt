@@ -45,6 +45,12 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
+    // Invalid Module ID when creating user
+    @ExceptionHandler(value = [InvalidModuleIDException::class])
+    fun exception(exception: InvalidModuleIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidModuleIDException", "Module ID must be zero when creating new moduke.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
 
     /** [401] UNAUTHORIZED **/
 
