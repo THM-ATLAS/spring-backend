@@ -20,6 +20,9 @@ object InvalidParameterLengthException : RuntimeException()
 // Invalid User ID when creating user
 object InvalidUserIDException : RuntimeException()
 
+// Invalid Module ID when creating user
+object InvalidModuleIDException : RuntimeException()
+
 
 /** [401] UNAUTHORIZED **/
 
