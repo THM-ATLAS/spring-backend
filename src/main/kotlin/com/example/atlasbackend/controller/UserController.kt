@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class UserController(val userService: UserService) {
 
-    @GetMapping("/users/")
+    @GetMapping("/users")
     fun getAllUsers(): List<UserRet> {
         return userService.getAllUsers()
     }
@@ -30,12 +30,12 @@ class UserController(val userService: UserService) {
         return userService.delUser(id)
     }
 
-    @PutMapping("/users/")
+    @PutMapping("/users")
     fun editUser(@RequestBody body: UserRet): UserRet {
         return userService.editUser(body)
     }
 
-    @PostMapping("/users/")
+    @PostMapping("/users")
     fun addUser(@RequestBody body: UserRet): UserRet {
         return userService.addUser(body)
     }

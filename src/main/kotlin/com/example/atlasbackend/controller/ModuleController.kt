@@ -25,12 +25,12 @@ class ModuleController(val moduleService: ModuleService) {
         return moduleService.getModule(moduleID)
     }
 
-    @PutMapping("/modules/")
+    @PutMapping("/modules")
     fun editModule(@RequestBody body: AtlasModule): ResponseEntity<String>{
         return moduleService.updateModule(body)
     }
 
-    @PostMapping("/modules/")
+    @PostMapping("/modules")
     fun postModule(@RequestBody module: AtlasModule): ResponseEntity<String>{
         return moduleService.CreateModule(module)
     }

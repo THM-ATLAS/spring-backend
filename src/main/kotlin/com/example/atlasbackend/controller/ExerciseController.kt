@@ -15,7 +15,7 @@ class ExerciseController(val exerciseService: ExerciseService) {
         return exerciseService.loadExercisesUser(userID)
     }
 
-    @GetMapping("/exercises/")
+    @GetMapping("/exercises")
     fun loadExercises(): List<ExerciseRet> {
         return exerciseService.loadExercises()
     }
@@ -30,12 +30,12 @@ class ExerciseController(val exerciseService: ExerciseService) {
         return exerciseService.getExercise(exerciseID)
     }
 
-    @PutMapping("/exercises/")
+    @PutMapping("/exercises")
     fun editExercise(@RequestBody body: ExerciseRet): ExerciseRet {
         return exerciseService.updateExercise(body)
     }
 
-    @PostMapping("/exercises/")
+    @PostMapping("/exercises")
     fun postExercise(@RequestBody exercise: ExerciseRet): ExerciseRet {
         return exerciseService.createExercise(exercise)
     }
