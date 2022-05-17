@@ -2,6 +2,7 @@ package com.example.atlasbackend
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 
@@ -12,6 +13,15 @@ class SecurityConfig: WebSecurityConfigurerAdapter() {
         http.csrf().disable()
             .authorizeRequests().anyRequest().permitAll()
         http.cors().disable()
+
+        http.authorizeRequests()
         //TODO: https://docs.spring.io/spring-security/site/docs/5.0.x/reference/html/csrf.html wir sollten drüber reden, ob wir das brauchen
+    }
+
+
+    override fun configure(web: WebSecurity) {
+        web.ignoring().antMatchers(
+            "/swagger-ui/**",
+        )
     }
 }
