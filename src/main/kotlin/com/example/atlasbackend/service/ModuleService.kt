@@ -1,10 +1,9 @@
 package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.AtlasModule
+import com.example.atlasbackend.exception.InvalidModuleIDException
 import com.example.atlasbackend.exception.ModuleNotFoundException
 import com.example.atlasbackend.repository.ModuleRepository
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.PathVariable
 
@@ -58,19 +57,19 @@ class ModuleService(val moduleRepository: ModuleRepository){
         //    return ResponseEntity("You are not allowed to create a module ", HttpStatus.FORBIDDEN)
         //    erst wenn Security steht
         moduleRepository.save(module)
-        return ResponseEntity(null,HttpStatus.OK)
+        return module
     }
     //Delete a Module
-    fun deleteModule(moduleID: Int):ResponseEntity<AtlasModule>{
+    fun deleteModule(moduleID: Int): AtlasModule{
         val module = moduleRepository.findById(moduleID).get()
         if (!moduleRepository.existsById(moduleID)) {
-            return ResponseEntity(null, HttpStatus.NOT_FOUND)
+            throw ModuleNotFoundException
         }
         //TODO: falls Berechtigungen fehlen:
         //    return ResponseEntity("You are not allowed to modify delete ${moduleID}", HttpStatus.FORBIDDEN)
         //    erst wenn security steht
         moduleRepository.deleteById(moduleID)
-        return ResponseEntity<AtlasModule>(module,HttpStatus.OK)
+        return module
         // module zurückgeben um löschen "abzubrechen"
 
     }
