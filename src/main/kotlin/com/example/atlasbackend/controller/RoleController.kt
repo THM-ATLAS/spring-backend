@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class RoleController(val roleService: RoleService) {
-    @GetMapping("/roles/")
+    @GetMapping("/roles")
     fun getRoles(): List<Role> {
         return roleService.getRoles()
     }
