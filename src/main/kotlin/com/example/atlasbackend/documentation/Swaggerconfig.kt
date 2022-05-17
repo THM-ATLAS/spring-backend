@@ -1,6 +1,6 @@
 package com.example.atlasbackend.documentation
 
-//import jdk.internal.joptsimple.util.RegexMatcher.regex
+/*//import jdk.internal.joptsimple.util.RegexMatcher.regex
 //import io.swagger.models.Contact
 import springfox.documentation.builders.PathSelectors.regex
 import springfox.documentation.builders.RequestHandlerSelectors
@@ -21,13 +21,13 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 @EnableSwagger2
 @Configuration
 class SwaggerConfig {
-    fun productApi(): Docket? {
+    /*fun productApi(): Docket? {
         return Docket(DocumentationType.SWAGGER_2)
             .select()
             .apis(RequestHandlerSelectors.basePackage("com.example.altasbackend"))
             .paths(regex("/rest.*"))
             .build()
 
-    }
+    }*/
 
-}
+}*/
