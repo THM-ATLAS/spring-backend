@@ -3,6 +3,8 @@ package com.example.atlasbackend.service
 import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.classes.Role
 import com.example.atlasbackend.classes.UserRet
+import com.example.atlasbackend.exception.InternalServerError
+import com.example.atlasbackend.exception.UnprocessableEntityException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -76,13 +78,13 @@ class LDAPService(val userService: UserService) {
     }
 
     // Authenticate user with LDAP Server and return username if successful
-    fun authenticate(user: LdapUser): ResponseEntity<UserRet> {
+    fun authenticate(user: LdapUser): UserRet {
         var auth: Boolean = false
         try {
             initLdap().contextSource.getContext(findUserDn(user), user.password)
             auth = true
         } catch (e: Exception) {
-            return ResponseEntity(null, HttpStatus.UNPROCESSABLE_ENTITY)
+            throw UnprocessableEntityException
         }
 
         if(auth) {
@@ -101,6 +103,8 @@ class LDAPService(val userService: UserService) {
 
         val userList = userService.userRepository.testForUser(user.username)
 
-        return ResponseEntity(userService.getUser(userList[0].user_id).body, HttpStatus.OK)
+        val user = userService.getUser(userList[0].user_id).body
+
+        return if (user != null) user else throw InternalServerError
     }
 }
