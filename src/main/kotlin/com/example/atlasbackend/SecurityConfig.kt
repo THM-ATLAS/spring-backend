@@ -21,6 +21,11 @@ class SecurityConfig: WebSecurityConfigurerAdapter() {
 
     override fun configure(web: WebSecurity) {
         web.ignoring().antMatchers(
+            "/v3/api-docs",
+            "/configuration/ui",
+            "/swagger-resources/**",
+            "/configuration/security",
+            "/swagger-ui.html",
             "/swagger-ui/**",
         )
     }
