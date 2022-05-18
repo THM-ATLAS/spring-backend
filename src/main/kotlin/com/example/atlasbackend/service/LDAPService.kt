@@ -8,8 +8,6 @@ import com.example.atlasbackend.exception.UnprocessableEntityException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.ldap.core.AttributesMapper
 import org.springframework.stereotype.Service
 import org.springframework.ldap.core.LdapTemplate
@@ -19,10 +17,10 @@ import org.springframework.ldap.query.LdapQueryBuilder.query
 import org.springframework.stereotype.Component
 
 
-class LdapUser(var username: String, val password: String) {}
+class LdapUser(var username: String, val password: String)
 
 @Component
-class LdapParams() {
+class LdapParams {
     // This class loads values from application.properties to use them later
     @Value("\${spring.ldap.url}")
     lateinit var url: String
@@ -40,7 +38,7 @@ class LDAPService(val userService: UserService) {
     // Initialize LDAP Template to fetch user DNs and authenticate them
     @Bean
     fun initLdap(): LdapTemplate {
-        val ldapContextSource: LdapContextSource = LdapContextSource()
+        val ldapContextSource = LdapContextSource()
 
         ldapContextSource.setUrl(ldapParams.url)
         ldapContextSource.setBase(ldapParams.baseDn)
@@ -59,7 +57,7 @@ class LDAPService(val userService: UserService) {
     fun findUserDn(user: LdapUser): String {
         var userDn = ""
 
-        val search = initLdap().search(
+        initLdap().search(
             query().where("objectclass").`is`("gifb-person").and("uid").`is`(user.username),
             NameClassPairCallbackHandler { nameClassPair -> userDn = nameClassPair.nameInNamespace }
         )
@@ -68,7 +66,7 @@ class LDAPService(val userService: UserService) {
     }
 
     fun getUserProperties(user: LdapUser): AtlasUser {
-        var atlasUser = AtlasUser(0, "", "", "")
+        val atlasUser = AtlasUser(0, "", "", "")
         initLdap().search(
             query().where("objectclass").`is`("gifb-person").and("uid").`is`(user.username),
             AttributesMapper { attributes -> atlasUser.name = attributes.get("cn").get().toString(); atlasUser.email = attributes.get("mail").get().toString() }
@@ -79,7 +77,7 @@ class LDAPService(val userService: UserService) {
 
     // Authenticate user with LDAP Server and return username if successful
     fun authenticate(user: LdapUser): UserRet {
-        var auth = false
+        val auth: Boolean
         try {
             initLdap().contextSource.getContext(findUserDn(user), user.password)
             auth = true
@@ -87,24 +85,38 @@ class LDAPService(val userService: UserService) {
             throw UnprocessableEntityException
         }
 
-        if(auth) {
+        if (auth) {
             val userList = userService.userRepository.testForUser(user.username)
 
-            if(userList.isEmpty()) {
+            if (userList.isEmpty()) {
                 val atlasUser = getUserProperties(user)
-                userService.addUser(UserRet(0, listOf(Role(2, "Student")), atlasUser.name, user.username, atlasUser.email))
+                userService.addUser(
+                    UserRet(
+                        0,
+                        listOf(Role(2, "Student")),
+                        atlasUser.name,
+                        user.username,
+                        atlasUser.email
+                    )
+                )
             }
 
-            if(!userList.isEmpty()) {
+            if (!userList.isEmpty()) {
                 val atlasUser = getUserProperties(user)
-                userService.editUser(UserRet(0, userService.getUser(userList[0].user_id).roles, atlasUser.name, user.username, atlasUser.email))
+                userService.editUser(
+                    UserRet(
+                        userList[0].user_id,
+                        userService.getUser(userList[0].user_id).roles,
+                        atlasUser.name,
+                        user.username,
+                        atlasUser.email
+                    )
+                )
             }
         }
 
         val userList = userService.userRepository.testForUser(user.username)
 
-        val user = userService.getUser(userList[0].user_id)
-
-        return if (user != null) user else throw InternalServerError
+        return userService.getUser(userList[0].user_id) ?: throw InternalServerError
     }
 }

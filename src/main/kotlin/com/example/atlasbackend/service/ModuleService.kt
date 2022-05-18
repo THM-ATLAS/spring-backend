@@ -14,25 +14,23 @@ class ModuleService(val moduleRepository: ModuleRepository){
 
     // Load Module Overview
     //
-    fun loadModules(): List<AtlasModule>{
+    fun loadModules(): List<AtlasModule> {
 
-        val moduleList = moduleRepository.findAll().toList()
-        return moduleList
+        return moduleRepository.findAll().toList()
 
     }
 
     //load a single Module
-    fun getModule(@PathVariable moduleID: Int): AtlasModule{
+    fun getModule(@PathVariable moduleID: Int): AtlasModule {
 
         if (!moduleRepository.existsById(moduleID)) {
             throw ModuleNotFoundException
         }
-        val module = moduleRepository.findById(moduleID).get()
         //TODO: falls Berechtigungen fehlen:
         //    return ResponseEntity("You are not allowed to view module ${moduleID}", HttpStatus.FORBIDDEN)
         //    erst wenn security steht
 
-        return module
+        return moduleRepository.findById(moduleID).get()
     }
 
     //Edit Module

@@ -2,7 +2,6 @@ package com.example.atlasbackend.controller
 
 import com.example.atlasbackend.classes.AtlasModule
 import com.example.atlasbackend.service.ModuleService
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
