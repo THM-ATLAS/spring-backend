@@ -6,8 +6,6 @@ import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.ExerciseRepository
 import com.example.atlasbackend.repository.ModuleRepository
 import com.example.atlasbackend.repository.UserRepository
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.PathVariable
 
