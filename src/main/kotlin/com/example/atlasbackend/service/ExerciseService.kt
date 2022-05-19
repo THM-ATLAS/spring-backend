@@ -84,7 +84,7 @@ class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepo
         //TODO: falls Berechtigungen fehlen:
         //    return ResponseEntity("You are not allowed to modify exercise ${id}", HttpStatus.FORBIDDEN)
         //    erst wenn security steht
-        val ret = Exercise(exercise.exercise_id, exercise.course.module_id, exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
+        val ret = Exercise(exercise.exercise_id, exercise.module.module_id, exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
 
         exerciseRepository.save(ret)
 
@@ -98,14 +98,14 @@ class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepo
             throw InvalidParameterTypeException
         }
 
-        if (moduleRepository.existsById(exercise.course.module_id).not()) {
+        if (moduleRepository.existsById(exercise.module.module_id).not()) {
             throw ModuleNotFoundException
         }
 
         //TODO: falls Berechtigungen fehlen:
         //    return ResponseEntity("You are not allowed to create exercise ${id}", HttpStatus.FORBIDDEN)
         //    erst wenn Security steht
-        val ret = Exercise(exercise.exercise_id, exercise.course.module_id, exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
+        val ret = Exercise(exercise.exercise_id, exercise.module.module_id, exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
 
         exerciseRepository.save(ret)
         return exercise
