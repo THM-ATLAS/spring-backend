@@ -14,9 +14,17 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
         // throw AccessDeniedException
 
         val users = userRepository.findAll().toList()
-        return users.map {
-                u -> UserRet(u.user_id, roleRepository.getRolesByUser(u.user_id), u.name, u.username, u.email) }
+        return users.map { u ->
+            UserRet(
+                u.user_id,
+                roleRepository.getRolesByUser(u.user_id),
+                u.name,
+                u.username,
+                u.email
+            )
+        }
     }
+
     fun getUser(user_id: Int): UserRet {
 
         //TODO: falls Berechtigungen fehlen:
@@ -47,8 +55,15 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
             }
         }
 
+        roleRepository.getRolesByUser(user.user_id).forEach { r ->
+            if (user.roles.contains(r).not()) {
+                roleRepository.removeRole(user.user_id, r.role_id)
+            }
+        }
+
         val atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email)
-        val ret = UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
+        val ret =
+            UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
 
         userRepository.save(atlasUser)
         return ret
@@ -60,7 +75,8 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
         //    throw NoPermissionToDeleteUserException
 
         val user = userRepository.findById(user_id).get()
-        val ret = UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
+        val ret =
+            UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
 
 
         if (!userRepository.existsById(user_id)) {
