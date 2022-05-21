@@ -105,10 +105,11 @@ class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepo
         //TODO: falls Berechtigungen fehlen:
         //    return ResponseEntity("You are not allowed to create exercise ${id}", HttpStatus.FORBIDDEN)
         //    erst wenn Security steht
-        val ret = Exercise(exercise.exercise_id, exercise.course.module_id, exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
+        val saved = Exercise(exercise.exercise_id, exercise.course.module_id, exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
 
-        exerciseRepository.save(ret)
-        return exercise
+        exerciseRepository.save(saved)
+        val ret = ExerciseRet(saved.exercise_id, exercise.course, saved.title, saved.content, saved.description, saved.exercisePublic)
+        return ret
     }
 
     // Delete a Exercise
