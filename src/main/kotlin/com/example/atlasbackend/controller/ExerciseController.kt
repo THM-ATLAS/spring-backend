@@ -5,7 +5,6 @@ import com.example.atlasbackend.classes.ExerciseRet
 import com.example.atlasbackend.service.ExerciseService
 import org.springframework.web.bind.annotation.*
 
-
 @RestController
 class ExerciseController(val exerciseService: ExerciseService) {
 
