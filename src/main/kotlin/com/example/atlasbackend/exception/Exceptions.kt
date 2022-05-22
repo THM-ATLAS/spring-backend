@@ -20,9 +20,14 @@ object InvalidParameterLengthException : RuntimeException()
 // Invalid User ID when creating user
 object InvalidUserIDException : RuntimeException()
 
-// Invalid Module ID when creating user
+// Invalid Module ID when creating module
 object InvalidModuleIDException : RuntimeException()
 
+// Invalid Tag ID when creating tag
+object InvalidTagIDException : RuntimeException()
+
+// Invalid Setting ID when assigning setting
+object InvalidSettingIDException : RuntimeException()
 
 /** [401] UNAUTHORIZED **/
 
@@ -57,6 +62,12 @@ object NoPermissionToEditModuleException : RuntimeException()
 // User is not allowed to edit this user
 object NoPermissionToEditUserException : RuntimeException()
 
+// User is not allowed to create/edit/delete tags
+object NoPermissionToModifyTagsException : RuntimeException()
+
+// User is not allowed to assign/remove tags for this exercise
+object NoPermissionToModifyExerciseTagsException : RuntimeException()
+
 
 /** [404] NOT FOUND **/
 
@@ -74,6 +85,9 @@ object ModuleNotFoundException : RuntimeException()
 
 // Role ID doesn't exist
 object RoleNotFoundException : RuntimeException()
+
+// Tag ID doesn't exist
+object TagNotFoundException : RuntimeException()
 
 
 /** [422] UNPROCESSABLE ENTITY **/
