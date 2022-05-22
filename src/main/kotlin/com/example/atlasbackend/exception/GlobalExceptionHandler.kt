@@ -12,6 +12,7 @@ class GlobalExceptionHandler {
     /***** [4xx] CLIENT ERRORS *****/
 
 
+
     /** [400] BAD REQUEST **/
 
     // One/multiple requested/posted parameters are empty
@@ -51,6 +52,21 @@ class GlobalExceptionHandler {
         val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidModuleIDException", "Module ID must be zero when creating new module.")
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
+
+    // Invalid Tag ID when creating tag
+    @ExceptionHandler(value = [InvalidTagIDException::class])
+    fun exception(exception: InvalidTagIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidTagIDException", "Tag ID must be zero when creating new tag.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
+    // Invalid Setting ID when assigning setting
+    @ExceptionHandler(value = [InvalidSettingIDException::class])
+    fun exception(exception: InvalidSettingIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidSettingIDException", "Assigned setting doesn't exist.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
 
     /** [401] UNAUTHORIZED **/
 
@@ -124,6 +140,22 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
+    // User is not allowed to create/edit/delete tags
+    @ExceptionHandler(value = [NoPermissionToModifyTagsException::class])
+    fun exception(exception: NoPermissionToModifyTagsException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyTagsException", "Insufficient permission to modify list of tags.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+
+    // User is not allowed to assign/remove tags for this exercise
+    @ExceptionHandler(value = [NoPermissionToModifyExerciseTagsException::class])
+    fun exception(exception: NoPermissionToModifyExerciseTagsException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyExerciseTagsException", "Insufficient permission to modify the tags of this exercise.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+
     /** [404] NOT FOUND **/
 
     // Accessed Page doesn't exist
@@ -145,24 +177,30 @@ class GlobalExceptionHandler {
     // User ID doesn't exist
     @ExceptionHandler(value = [UserNotFoundException::class])
     fun exception(exception: UserNotFoundException): ResponseEntity<ApiError> {
-        val err = ApiError(404, HttpStatus.NOT_FOUND, "UserNotFoundException", "Couldn't find user.")
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "UserNotFoundException", "Couldn't find requested user.")
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 
     // Module ID doesn't exist
     @ExceptionHandler(value = [ModuleNotFoundException::class])
     fun exception(exception: ModuleNotFoundException): ResponseEntity<ApiError> {
-        val err = ApiError(404, HttpStatus.NOT_FOUND, "ModuleNotFoundException", "Couldn't find module.")
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "ModuleNotFoundException", "Couldn't find requested module.")
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 
     // Role ID doesn't exist
     @ExceptionHandler(value = [RoleNotFoundException::class])
     fun exception(exception: RoleNotFoundException): ResponseEntity<ApiError> {
-        val err = ApiError(404, HttpStatus.NOT_FOUND, "RoleNotFoundException", "Couldn't find role.")
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "RoleNotFoundException", "Couldn't find requested role.")
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 
+    // Tag ID doesn't exist
+    @ExceptionHandler(value = [TagNotFoundException::class])
+    fun exception(exception: TagNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "TagNotFoundException", "Couldn't find requested tag.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
 
 
     /** [422] UNPROCESSABLE ENTITY **/
@@ -173,6 +211,7 @@ class GlobalExceptionHandler {
         val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "Not able to process one of the provided entities.")
         return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
     }
+
 
 
     /***** [5xx] SERVER ERRORS *****/
@@ -191,7 +230,6 @@ class GlobalExceptionHandler {
     /** [501] NOT IMPLEMENTED **/
 
     // Method not implemented yet
-    object NotImplementedException : RuntimeException()
     @ExceptionHandler(value = [NotYetImplementedException::class])
     fun exception(exception: NotYetImplementedException): ResponseEntity<ApiError> {
         val err = ApiError(501, HttpStatus.NOT_IMPLEMENTED, "NotYetImplementedException", "This function hasn't been implemented yet, please try again later.")
