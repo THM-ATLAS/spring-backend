@@ -1,9 +1,9 @@
 package com.example.atlasbackend.controller
 
+import com.example.atlasbackend.classes.Exercise
 import com.example.atlasbackend.classes.ExerciseRet
 import com.example.atlasbackend.service.ExerciseService
 import org.springframework.web.bind.annotation.*
-
 
 @RestController
 class ExerciseController(val exerciseService: ExerciseService) {
@@ -34,7 +34,7 @@ class ExerciseController(val exerciseService: ExerciseService) {
     }
 
     @PostMapping("/exercises")
-    fun postExercise(@RequestBody exercise: ExerciseRet): ExerciseRet {
+    fun postExercise(@RequestBody exercise: Exercise): ExerciseRet {
         return exerciseService.createExercise(exercise)
     }
 
