@@ -41,9 +41,9 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
     }
 
     fun editUser(user: UserRet): UserRet {
+
         //TODO: falls Berechtigungen fehlen (nicht user selbst oder admin):
         //    return NoPermissionToEditUserException
-
 
         if (!userRepository.existsById(user.user_id)) {
             throw UserNotFoundException
@@ -70,6 +70,23 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
         return ret
     }
 
+    fun addUser(user: UserRet): UserRet {
+        if (user.user_id != 0) {
+            throw InvalidUserIDException
+        }
+        var atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email)
+        atlasUser = userRepository.save(atlasUser)
+
+        user.roles.forEach { r ->
+            roleRepository.giveRole(atlasUser.user_id, r.role_id)
+        }
+
+        settingsRepository.createSettings(atlasUser.user_id)
+
+        //TODO: falls Berechtigungen fehlen:
+        return UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
+    }
+
     fun delUser(user_id: Int): UserRet {
 
         //TODO: falls Berechtigungen fehlen (Nicht User selbst oder Admin):
@@ -86,22 +103,5 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
 
         userRepository.deleteById(user_id)
         return ret
-    }
-
-    fun addUser(user: UserRet): UserRet {
-        if (user.user_id != 0) {
-            throw InvalidUserIDException
-        }
-        var atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email)
-        atlasUser = userRepository.save(atlasUser)
-
-        user.roles.forEach { r ->
-            roleRepository.giveRole(atlasUser.user_id, r.role_id)
-        }
-
-        settingsRepository.createSettings(atlasUser.user_id)
-
-        //TODO: falls Berechtigungen fehlen:
-        return UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
     }
 }
