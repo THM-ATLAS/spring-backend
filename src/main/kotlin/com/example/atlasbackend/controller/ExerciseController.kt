@@ -29,7 +29,7 @@ class ExerciseController(val exerciseService: ExerciseService) {
     }
 
     @PutMapping("/exercises")
-    fun editExercise(@RequestBody body: ExerciseRet): ExerciseRet {
+    fun editExercise(@RequestBody body: Exercise): ExerciseRet {
         return exerciseService.updateExercise(body)
     }
 

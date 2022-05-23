@@ -75,7 +75,7 @@ class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepo
     }
 
     // Edit Exercise
-    fun updateExercise(exercise: ExerciseRet): ExerciseRet {
+    fun updateExercise(exercise: Exercise): ExerciseRet {
 
         if (!exerciseRepository.existsById(exercise.exercise_id)) {
             throw ExerciseNotFoundException
@@ -84,11 +84,12 @@ class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepo
         //TODO: falls Berechtigungen fehlen:
         //    return ResponseEntity("You are not allowed to modify exercise ${id}", HttpStatus.FORBIDDEN)
         //    erst wenn security steht
-        val ret = Exercise(exercise.exercise_id, exercise.module.module_id, exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
 
-        exerciseRepository.save(ret)
+        exerciseRepository.save(exercise)
 
-        return exercise
+        val ret = ExerciseRet(exercise.exercise_id, moduleRepository.findById(exercise.module_id).get(), exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
+
+        return ret
     }
 
     // Create new Exercise
