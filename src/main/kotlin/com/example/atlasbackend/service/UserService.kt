@@ -2,7 +2,6 @@ package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.classes.UserRet
-import com.example.atlasbackend.classes.UserSettings
 import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.*
 import org.springframework.stereotype.Service

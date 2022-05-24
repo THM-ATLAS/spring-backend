@@ -1,10 +1,8 @@
 package com.example.atlasbackend.service
 
-import com.example.atlasbackend.classes.AtlasUser
-import com.example.atlasbackend.classes.Role
-import com.example.atlasbackend.classes.UserRet
-import com.example.atlasbackend.exception.InternalServerError
+import com.example.atlasbackend.classes.*
 import com.example.atlasbackend.exception.UnprocessableEntityException
+import com.example.atlasbackend.repository.TokenRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -15,7 +13,7 @@ import org.springframework.ldap.core.NameClassPairCallbackHandler
 import org.springframework.ldap.core.support.LdapContextSource
 import org.springframework.ldap.query.LdapQueryBuilder.query
 import org.springframework.stereotype.Component
-
+import kotlin.random.Random
 
 class LdapUser(var username: String, val password: String)
 
@@ -30,7 +28,7 @@ class LdapParams {
 }
 
 @Service
-class LDAPService(val userService: UserService) {
+class LDAPService(val userService: UserService, val tokenRepository: TokenRepository) {
     // Initialize and load LDAP params
     @Autowired
     var ldapParams = LdapParams()
@@ -75,8 +73,20 @@ class LDAPService(val userService: UserService) {
         return atlasUser
     }
 
+    fun getRandomToken(): String {
+        val characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+        var token = ""
+
+        for(i in 1..80) {
+            token += characters[Random.nextInt(0, characters.length)]
+        }
+
+        return token
+    }
+
     // Authenticate user with LDAP Server and return username if successful
-    fun authenticate(user: LdapUser): UserRet {
+    fun authenticate(user: LdapUser): TokenRet {
         val auth: Boolean
         try {
             initLdap().contextSource.getContext(findUserDn(user), user.password)
@@ -85,38 +95,36 @@ class LDAPService(val userService: UserService) {
             throw UnprocessableEntityException
         }
 
-        if (auth) {
-            val userList = userService.userRepository.testForUser(user.username)
-
-            if (userList.isEmpty()) {
-                val atlasUser = getUserProperties(user)
-                userService.addUser(
-                    UserRet(
-                        0,
-                        listOf(Role(2, "Student")),
-                        atlasUser.name,
-                        user.username,
-                        atlasUser.email
-                    )
-                )
-            }
-
-            if (!userList.isEmpty()) {
-                val atlasUser = getUserProperties(user)
-                userService.editUser(
-                    UserRet(
-                        userList[0].user_id,
-                        userService.getUser(userList[0].user_id).roles,
-                        atlasUser.name,
-                        user.username,
-                        atlasUser.email
-                    )
-                )
-            }
-        }
-
         val userList = userService.userRepository.testForUser(user.username)
 
-        return userService.getUser(userList[0].user_id) ?: throw InternalServerError
+        if (userList.isEmpty()) {
+            val atlasUser = getUserProperties(user)
+            userService.addUser(
+                UserRet(
+                    0,
+                    listOf(Role(2, "Student")),
+                    atlasUser.name,
+                    user.username,
+                    atlasUser.email
+                )
+            )
+        } else {
+            val atlasUser = getUserProperties(user)
+            userService.editUser(
+                UserRet(
+                    userList[0].user_id,
+                    userService.getUser(userList[0].user_id).roles,
+                    atlasUser.name,
+                    user.username,
+                    atlasUser.email
+                )
+            )
+        }
+
+        val tokenRet = TokenRet(getRandomToken())
+
+        tokenRepository.createToken(userList[0].user_id, tokenRet.token)
+
+        return tokenRet
     }
 }
