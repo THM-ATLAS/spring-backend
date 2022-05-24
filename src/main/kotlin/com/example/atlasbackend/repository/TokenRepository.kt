@@ -25,4 +25,7 @@ interface TokenRepository: CrudRepository<Token, Int> {
     @Query("DELETE FROM \"user_token\" WHERE \"user_id\" = :user_id")
     @Modifying
     fun revokeAllTokens(@Param("user_id") user_id: Int)
+
+    @Query("SELECT * FROM user_token WHERE token = :token")
+    fun testForToken(@Param("token") token: String): List<Token>
 }

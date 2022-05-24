@@ -76,10 +76,18 @@ class LDAPService(val userService: UserService, val tokenRepository: TokenReposi
     fun getRandomToken(): String {
         val characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-        var token = ""
+        var token: String
 
-        for(i in 1..80) {
-            token += characters[Random.nextInt(0, characters.length)]
+        run genToken@{
+            token = ""
+
+            for (i in 1..80) {
+                token += characters[Random.nextInt(0, characters.length)]
+            }
+
+            if(!tokenRepository.testForToken(token).isEmpty()) {
+                return@genToken
+            }
         }
 
         return token
@@ -87,10 +95,8 @@ class LDAPService(val userService: UserService, val tokenRepository: TokenReposi
 
     // Authenticate user with LDAP Server and return username if successful
     fun authenticate(user: LdapUser): TokenRet {
-        val auth: Boolean
         try {
             initLdap().contextSource.getContext(findUserDn(user), user.password)
-            auth = true
         } catch (e: Exception) {
             throw UnprocessableEntityException
         }
