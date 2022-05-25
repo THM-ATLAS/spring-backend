@@ -23,6 +23,10 @@ object InvalidUserIDException : RuntimeException()
 // Invalid Module ID when creating user
 object InvalidModuleIDException : RuntimeException()
 
+object InvalidRoleIDException: RuntimeException()
+
+object UserNotInModuleException: RuntimeException()
+
 
 /** [401] UNAUTHORIZED **/
 
@@ -56,6 +60,10 @@ object NoPermissionToEditModuleException : RuntimeException()
 
 // User is not allowed to edit this user
 object NoPermissionToEditUserException : RuntimeException()
+
+//User cannot be added to module
+
+object UserCannotBeAddedToModuleException: RuntimeException()
 
 
 /** [404] NOT FOUND **/

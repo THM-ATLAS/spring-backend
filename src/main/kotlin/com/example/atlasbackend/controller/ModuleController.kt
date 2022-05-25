@@ -1,6 +1,7 @@
 package com.example.atlasbackend.controller
 
 import com.example.atlasbackend.classes.AtlasModule
+import com.example.atlasbackend.classes.ModuleUser
 import com.example.atlasbackend.service.ModuleService
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -37,5 +38,25 @@ class ModuleController(val moduleService: ModuleService) {
     @DeleteMapping("/modules/{moduleID}")
     fun deleteModule(@PathVariable moduleID: Int): AtlasModule{
         return moduleService.deleteModule(moduleID)
+    }
+
+    @PostMapping("/modules/users/{moduleID}")
+    fun addUser(@RequestBody user: ModuleUser, @PathVariable moduleID: Int): List<ModuleUser> {
+        return moduleService.addUser(user, moduleID)
+    }
+
+    @GetMapping("/modules/users/{moduleID}")
+    fun getUsers(@PathVariable moduleID: Int): List<ModuleUser> {
+        return moduleService.getUsers(moduleID)
+    }
+
+    @DeleteMapping("/modules/users/{moduleID}/{userID}")
+    fun removeUsers(@PathVariable moduleID: Int, @PathVariable userID: Int): List<ModuleUser> {
+        return moduleService.removeUser(userID, moduleID)
+    }
+
+    @PutMapping("/modules/users/{moduleID}")
+    fun editUserModuleRoles(@RequestBody user: ModuleUser, @PathVariable moduleID: Int): ModuleUser {
+        return moduleService.editModuleRoles(user, moduleID)
     }
 }
