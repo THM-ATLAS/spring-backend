@@ -1,6 +1,5 @@
 package com.example.atlasbackend.controller
 
-import com.example.atlasbackend.classes.Token
 import com.example.atlasbackend.classes.TokenRet
 import com.example.atlasbackend.classes.UserRet
 import com.example.atlasbackend.repository.TokenRepository

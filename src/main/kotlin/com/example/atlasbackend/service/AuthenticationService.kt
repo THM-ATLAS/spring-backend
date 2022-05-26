@@ -66,6 +66,7 @@ class AuthenticationService(val userService: UserService, val tokenRepository: T
         return userDn
     }
 
+    // Get a users properties from an LDAP search
     fun getUserProperties(user: LdapUser): AtlasUser {
         val atlasUser = AtlasUser(0, "", "", "")
         initLdap().search(
@@ -76,6 +77,7 @@ class AuthenticationService(val userService: UserService, val tokenRepository: T
         return atlasUser
     }
 
+    // Generate a random Token
     fun getRandomToken(): String {
         val characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -92,6 +94,7 @@ class AuthenticationService(val userService: UserService, val tokenRepository: T
         return token
     }
 
+    // Validate that a token is still valid
     fun validateToken(token: String): AtlasUser {
         if(tokenRepository.getUserFromToken(token).isEmpty()) {
             throw TokenMissingException
@@ -107,7 +110,7 @@ class AuthenticationService(val userService: UserService, val tokenRepository: T
         return tokenRepository.getUserFromToken(token)[0]
     }
 
-    // Authenticate user with LDAP Server and return username if successful
+    // Authenticate user with LDAP Server and return token if successful
     fun authenticate(user: LdapUser): TokenRet {
         try {
             initLdap().contextSource.getContext(findUserDn(user), user.password)
