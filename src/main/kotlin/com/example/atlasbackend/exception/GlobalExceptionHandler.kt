@@ -54,7 +54,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(value = [InvalidRoleIDException::class])
     fun exception(exception: InvalidRoleIDException): ResponseEntity<ApiError> {
-        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidRoleIDException", "Module Roles can only be: 2: student, 3: tutor, or 4: teacher")
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidRoleIDException", "Module Roles can only be: 2: student, 3: tutor, or 4: teacher, 3: tutor cannot be a global role")
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 

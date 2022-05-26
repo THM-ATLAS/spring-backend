@@ -16,27 +16,27 @@ import org.springframework.web.bind.annotation.RestController
 class ModuleController(val moduleService: ModuleService) {
 
     @GetMapping("/modules")
-    fun loadModules(): List<AtlasModule>{
+    fun loadModules(): List<AtlasModule> {
         return moduleService.loadModules()
     }
 
     @GetMapping("/modules/{moduleID}")
-    fun getModule(@PathVariable moduleID: Int): AtlasModule{
+    fun getModule(@PathVariable moduleID: Int): AtlasModule {
         return moduleService.getModule(moduleID)
     }
 
     @PutMapping("/modules")
-    fun editModule(@RequestBody body: AtlasModule): AtlasModule{
+    fun editModule(@RequestBody body: AtlasModule): AtlasModule {
         return moduleService.editModule(body)
     }
 
     @PostMapping("/modules")
-    fun postModule(@RequestBody module: AtlasModule): AtlasModule{
+    fun postModule(@RequestBody module: AtlasModule): AtlasModule {
         return moduleService.CreateModule(module)
     }
 
     @DeleteMapping("/modules/{moduleID}")
-    fun deleteModule(@PathVariable moduleID: Int): AtlasModule{
+    fun deleteModule(@PathVariable moduleID: Int): AtlasModule {
         return moduleService.deleteModule(moduleID)
     }
 
@@ -45,18 +45,28 @@ class ModuleController(val moduleService: ModuleService) {
         return moduleService.addUser(user, moduleID)
     }
 
+    @PostMapping("/modules/users/multiple/{moduleID}")
+    fun addUser(@RequestBody users: List<ModuleUser>, @PathVariable moduleID: Int): List<ModuleUser> {
+        return moduleService.addUsers(users, moduleID)
+    }
+
     @GetMapping("/modules/users/{moduleID}")
     fun getUsers(@PathVariable moduleID: Int): List<ModuleUser> {
         return moduleService.getUsers(moduleID)
     }
 
     @DeleteMapping("/modules/users/{moduleID}/{userID}")
-    fun removeUsers(@PathVariable moduleID: Int, @PathVariable userID: Int): List<ModuleUser> {
+    fun removeUser(@PathVariable moduleID: Int, @PathVariable userID: Int): List<ModuleUser> {
         return moduleService.removeUser(userID, moduleID)
     }
 
     @PutMapping("/modules/users/{moduleID}")
     fun editUserModuleRoles(@RequestBody user: ModuleUser, @PathVariable moduleID: Int): ModuleUser {
         return moduleService.editModuleRoles(user, moduleID)
+    }
+
+    @DeleteMapping("/modules/users/{moduleID}")
+    fun removeUsers(@PathVariable moduleID: Int, @RequestBody users: List<ModuleUser>): List<ModuleUser> {
+        return moduleService.removeUsers(users, moduleID)
     }
 }
