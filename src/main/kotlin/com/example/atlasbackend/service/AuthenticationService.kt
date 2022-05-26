@@ -1,6 +1,9 @@
 package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.*
+import com.example.atlasbackend.exception.TokenCreationError
+import com.example.atlasbackend.exception.TokenExpiredException
+import com.example.atlasbackend.exception.TokenMissingException
 import com.example.atlasbackend.exception.UnprocessableEntityException
 import com.example.atlasbackend.repository.TokenRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,7 +31,7 @@ class LdapParams {
 }
 
 @Service
-class LDAPService(val userService: UserService, val tokenRepository: TokenRepository) {
+class AuthenticationService(val userService: UserService, val tokenRepository: TokenRepository) {
     // Initialize and load LDAP params
     @Autowired
     var ldapParams = LdapParams()
@@ -78,19 +81,30 @@ class LDAPService(val userService: UserService, val tokenRepository: TokenReposi
 
         var token: String
 
-        run genToken@{
+        do {
             token = ""
 
             for (i in 1..80) {
                 token += characters[Random.nextInt(0, characters.length)]
             }
-
-            if(!tokenRepository.testForToken(token).isEmpty()) {
-                return@genToken
-            }
-        }
+        } while(!tokenRepository.testForToken(token).isEmpty())
 
         return token
+    }
+
+    fun validateToken(token: String): AtlasUser {
+        if(tokenRepository.getUserFromToken(token).isEmpty()) {
+            throw TokenMissingException
+        }
+
+        if(tokenRepository.getTime().time - tokenRepository.testForToken(token)[0].last_used.time >= 14400000) { // Time is in milliseconds, 14400000ms = 4 hours
+            tokenRepository.revokeToken(token)
+            throw TokenExpiredException
+        }
+
+        tokenRepository.updateLastUsed(token)
+
+        return tokenRepository.getUserFromToken(token)[0]
     }
 
     // Authenticate user with LDAP Server and return username if successful
@@ -130,6 +144,12 @@ class LDAPService(val userService: UserService, val tokenRepository: TokenReposi
         val tokenRet = TokenRet(getRandomToken())
 
         tokenRepository.createToken(userList[0].user_id, tokenRet.token)
+
+        try {
+            validateToken(tokenRet.token)
+        } catch (e: java.lang.Exception) {
+            throw TokenCreationError
+        }
 
         return tokenRet
     }
