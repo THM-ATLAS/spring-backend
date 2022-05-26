@@ -52,6 +52,9 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
         user.roles.forEach { r ->
             if (!roleRepository.existsById(r.role_id)) throw RoleNotFoundException
             if (roleRepository.getRolesByUser(user.user_id).contains(r).not()) {
+                if (r.role_id == 3) {
+                    throw InvalidRoleIDException
+                }
                 roleRepository.giveRole(user.user_id, r.role_id)
             }
         }
