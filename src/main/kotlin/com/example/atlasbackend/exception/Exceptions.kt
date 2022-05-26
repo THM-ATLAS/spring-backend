@@ -32,6 +32,9 @@ object TokenExpiredException : RuntimeException()
 // Access Token is missing (Only return how to authenticate)
 object TokenMissingException : RuntimeException()
 
+// Error during token creation
+object TokenCreationError : RuntimeException()
+
 
 /** [403] FORBIDDEN **/
 // User doesn't have the right to do this thing (Return needed privileges)
