@@ -31,7 +31,7 @@ class ModuleController(val moduleService: ModuleService) {
 
     @PostMapping("/modules")
     fun postModule(@RequestBody module: AtlasModule): AtlasModule{
-        return moduleService.CreateModule(module)
+        return moduleService.createModule(module)
     }
 
     @DeleteMapping("/modules/{moduleID}")

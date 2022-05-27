@@ -13,9 +13,7 @@ class SettingsService(val settingsRepository: SettingsRepository) {
             throw UserNotFoundException
         }
 
-        val settings = settingsRepository.findById(userID).get()
-
-        return settings
+        return settingsRepository.findById(userID).get()
     }
 
     fun updateSettings(settings: UserSettings): UserSettings {
