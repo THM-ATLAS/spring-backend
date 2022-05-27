@@ -1,6 +1,5 @@
 package com.example.atlasbackend.controller
 
-import com.example.atlasbackend.classes.Exercise
 import com.example.atlasbackend.classes.Tag
 import com.example.atlasbackend.service.TagService
 import org.springframework.web.bind.annotation.DeleteMapping

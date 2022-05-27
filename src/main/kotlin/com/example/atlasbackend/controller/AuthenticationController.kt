@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class AuthenticationController(val authenticationService: AuthenticationService, val tokenRepository: TokenRepository) {
+
     @PostMapping("/authenticate")
     fun authenticate(@RequestBody user: LdapUser): TokenRet {
         return authenticationService.authenticate(user)

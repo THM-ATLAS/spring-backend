@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service
 class UserService(val userRepository: UserRepository, val roleRepository: RoleRepository, val settingsRepository: SettingsRepository) {
     fun getAllUsers(): List<UserRet> {
 
-        //TODO: falls Berechtigungen fehlen:
-        // throw AccessDeniedException
+        // TODO: falls Berechtigungen fehlen:
+        //    throw AccessDeniedException
 
         val users = userRepository.findAll().toList()
         return users.map { u ->
@@ -27,8 +27,8 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
 
     fun getUser(user_id: Int): UserRet {
 
-        //TODO: falls Berechtigungen fehlen:
-        // throw AccessDeniedException
+        // TODO: falls Berechtigungen fehlen:
+        //    throw AccessDeniedException
 
         if (!userRepository.existsById(user_id)) {
             throw UserNotFoundException
@@ -41,8 +41,8 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
 
     fun editUser(user: UserRet): UserRet {
 
-        //TODO: falls Berechtigungen fehlen (nicht user selbst oder admin):
-        //    return NoPermissionToEditUserException
+        // TODO: falls Berechtigungen fehlen (nicht user selbst oder admin):
+        //    throw NoPermissionToEditUserException
 
         if (!userRepository.existsById(user.user_id)) {
             throw UserNotFoundException
@@ -82,13 +82,13 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
 
         settingsRepository.createSettings(atlasUser.user_id)
 
-        //TODO: falls Berechtigungen fehlen:
+        // TODO: falls Berechtigungen fehlen:
         return UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
     }
 
     fun delUser(user_id: Int): UserRet {
 
-        //TODO: falls Berechtigungen fehlen (Nicht User selbst oder Admin):
+        // TODO: falls Berechtigungen fehlen (Nicht User selbst oder Admin):
         //    throw NoPermissionToDeleteUserException
 
         val user = userRepository.findById(user_id).get()

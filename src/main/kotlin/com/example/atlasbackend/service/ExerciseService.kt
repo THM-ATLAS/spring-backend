@@ -50,12 +50,11 @@ class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepo
             throw ExerciseNotFoundException
         }
         val exercise = exerciseRepository.findById(exerciseID).get()
-            //TODO: if no rights to access exercise
-            //   return ResponseEntity<Array<Exercise?>>(exerciseArray, HttpStatus.FORBIDDEN)
-            //   erst wenn Spring security steht
-        val ret = ExerciseRet(exercise.exercise_id, moduleRepository.findById(exercise.module_id).get(), exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
 
-        return ret
+        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
+        //   throw AccessDeniedException
+
+        return ExerciseRet(exercise.exercise_id, moduleRepository.findById(exercise.module_id).get(), exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
     }
 
     fun updateExercise(exercise: ExerciseRet): ExerciseRet {
@@ -64,9 +63,9 @@ class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepo
             throw ExerciseNotFoundException
         }
 
-        //TODO: falls Berechtigungen fehlen:
-        //    return ResponseEntity("You are not allowed to modify exercise ${id}", HttpStatus.FORBIDDEN)
-        //    erst wenn security steht
+        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
+        //    throw NoPermissionToEditExerciseException
+
         val ret = Exercise(exercise.exercise_id, exercise.module.module_id, exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
 
         exerciseRepository.save(ret)
@@ -84,13 +83,11 @@ class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepo
             throw ModuleNotFoundException
         }
 
-        //TODO: falls Berechtigungen fehlen:
-        //    return ResponseEntity("You are not allowed to create exercise ${id}", HttpStatus.FORBIDDEN)
-        //    erst wenn Security steht
+        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
+        //    throw NoPermissionToEditExerciseException
 
         exerciseRepository.save(exercise)
-        val ret = ExerciseRet(exercise.exercise_id, moduleRepository.findById(exercise.module_id).get(), exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
-        return ret
+        return ExerciseRet(exercise.exercise_id, moduleRepository.findById(exercise.module_id).get(), exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
     }
 
     fun deleteExercise(exerciseID: Int): ExerciseRet {
@@ -99,14 +96,16 @@ class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepo
             throw ExerciseNotFoundException
         }
 
-        //TODO: falls Berechtigungen fehlen:
-        //    return ResponseEntity("You are not allowed to create exercise ${id}", HttpStatus.FORBIDDEN)
-        //    erst wenn Security steht  return ResponseEntity("Error", HttpStatus.INTERNAL_SERVER_ERROR)
+        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
+        //    throw NoPermissionToDeleteExerciseException
+
+        // TODO: throw InternalServerError
 
         val exercise = exerciseRepository.findById(exerciseID).get()
-        //TODO: if no rights to access exercise
-        //   return ResponseEntity<Array<Exercise?>>(exerciseArray, HttpStatus.FORBIDDEN)
-        //   erst wenn Spring security steht
+
+        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
+        //   throw AccessDeniedException
+
         val ret = ExerciseRet(exercise.exercise_id, moduleRepository.findById(exercise.module_id).get(), exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
 
         exerciseRepository.deleteById(exerciseID)
