@@ -1,5 +1,6 @@
 package com.example.atlasbackend.service
 
+import com.example.atlasbackend.classes.Exercise
 import com.example.atlasbackend.classes.Tag
 import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.TagRepository
@@ -13,6 +14,10 @@ class TagService(val tagRepository: TagRepository) {
         throw NotYetImplementedException
     }
 
+    fun loadExerciseTags(@PathVariable exerciseID: Int): List<Tag> {
+        throw NotYetImplementedException
+    }
+
     fun editTag(@RequestBody body: Tag): Tag {
         throw NotYetImplementedException
     }
@@ -21,7 +26,15 @@ class TagService(val tagRepository: TagRepository) {
         throw NotYetImplementedException
     }
 
+    fun addExerciseTag(@PathVariable("exerciseID") exerciseID: Int, @PathVariable("tagID") tagID: Int): Exercise {
+        throw NotYetImplementedException
+    }
+
     fun deleteTag(@PathVariable tagID: Int): Tag {
+        throw NotYetImplementedException
+    }
+
+    fun deleteExerciseTag(@PathVariable("exerciseID") exerciseID: Int, @PathVariable("tagID") tagID: Int): Exercise {
         throw NotYetImplementedException
     }
 }

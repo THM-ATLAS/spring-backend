@@ -1,5 +1,6 @@
 package com.example.atlasbackend.controller
 
+import com.example.atlasbackend.classes.Exercise
 import com.example.atlasbackend.classes.Tag
 import com.example.atlasbackend.service.TagService
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -19,6 +20,11 @@ class TagController(val tagService: TagService) {
         return tagService.getAllTags()
     }
 
+    @GetMapping("/exercises/{exerciseID}/tags")
+    fun loadExerciseTags(@PathVariable exerciseID: Int): List<Tag> {
+        return tagService.loadExerciseTags(exerciseID)
+    }
+
     @PutMapping("/tags")
     fun editTag(@RequestBody body: Tag): Tag{
         return tagService.editTag(body)
@@ -29,29 +35,18 @@ class TagController(val tagService: TagService) {
         return tagService.postTag(body)
     }
 
+    @PostMapping("/exercises/{exerciseID}/{tagID}")
+    fun addExerciseTag(@PathVariable("exerciseID") exerciseID: Int, @PathVariable("tagID") tagID: Int): Exercise {
+        return tagService.addExerciseTag(exerciseID, tagID)
+    }
+
     @DeleteMapping("/tags/{tagID}")
     fun deleteTag(@PathVariable tagID: Int): Tag{
         return tagService.deleteTag(tagID)
     }
 
-
-    // TODO: Exercise Tags in ExerciseController or TagController or add ExerciseTags Classes?
-
-    /*
-    @GetMapping("/exercises/{exerciseID}/tags")
-    fun loadExerciseTags(@PathVariable exerciseID: Int): List<Tag> {
-        return _Service.loadExerciseTags(exerciseID)
-    }
-
-    @PostMapping("/exercises/{exerciseID}/{tagID}")
-    fun addExerciseTag(@PathVariable("exerciseID") exerciseID: Int, @PathVariable("tagID") tagID: Int): Exercise {
-        // return _Service.addExerciseTag(exerciseID, tagID)
-    }
-
     @DeleteMapping("/exercises/{exerciseID}/{tagID}")
     fun deleteExerciseTag(@PathVariable("exerciseID") exerciseID: Int, @PathVariable("tagID") tagID: Int): Exercise {
-        // return _Service.deleteExerciseTag(exerciseID, tagID)
+        return tagService.deleteExerciseTag(exerciseID, tagID)
     }
-
-    */
 }
