@@ -86,6 +86,13 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.UNAUTHORIZED)
     }
 
+    // Error during Token creation
+    @ExceptionHandler(value = [TokenCreationError::class])
+    fun exception(exception: TokenCreationError): ResponseEntity<ApiError> {
+        val err = ApiError(401, HttpStatus.UNAUTHORIZED,"TokenCreationError", "There was an Error during token creation, please try again")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNAUTHORIZED)
+    }
+
 
     /** [403] FORBIDDEN **/
     // User doesn't have the right to do this thing
