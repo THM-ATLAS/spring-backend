@@ -30,6 +30,9 @@ object InvalidTagIDException : RuntimeException()
 // Invalid Submission ID when creating submission
 object InvalidSubmissionIDException : RuntimeException()
 
+// Invalid Rating ID when creating rating
+object InvalidRatingIDException : RuntimeException()
+
 
 /** [401] UNAUTHORIZED **/
 
@@ -61,6 +64,9 @@ object NoPermissionToDeleteUserException : RuntimeException()
 // User is not allowed to delete this submission
 object NoPermissionToDeleteSubmissionException : RuntimeException()
 
+// User is not allowed to delete this exercise rating
+object NoPermissionToDeleteRatingException : RuntimeException()
+
 // User is not allowed to edit this exercise
 object NoPermissionToEditExerciseException : RuntimeException()
 
@@ -72,6 +78,9 @@ object NoPermissionToEditUserException : RuntimeException()
 
 // User is not allowed to edit this submission
 object NoPermissionToEditSubmissionException : RuntimeException()
+
+// User is not allowed to edit this exercise rating
+object NoPermissionToEditRatingException : RuntimeException()
 
 // User is not allowed to create/edit/delete tags
 object NoPermissionToModifyTagsException : RuntimeException()
@@ -105,6 +114,9 @@ object TagNotFoundException : RuntimeException()
 
 // Submission ID doesn't exist
 object SubmissionNotFoundException : RuntimeException()
+
+// Rating ID doesn't exist
+object RatingNotFoundException : RuntimeException()
 
 // Setting ID doesn't exist
 object SettingNotFoundException : RuntimeException()

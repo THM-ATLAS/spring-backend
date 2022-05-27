@@ -67,6 +67,13 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
+    // Invalid Rating ID when rating an exercise
+    @ExceptionHandler(value = [InvalidRatingIDException::class])
+    fun exception(exception: InvalidRatingIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidRatingIDException", "Rating ID must be zero when rating an exercise.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
 
     /** [401] UNAUTHORIZED **/
 
@@ -133,6 +140,13 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
+    // User is not allowed to delete this exercise rating
+    @ExceptionHandler(value = [NoPermissionToDeleteRatingException::class])
+    fun exception(exception: NoPermissionToDeleteRatingException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToDeleteRatingException","Insufficient permission to delete this exercise rating.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
     // User is not allowed to edit this exercise
     @ExceptionHandler(value = [NoPermissionToEditExerciseException::class])
     fun exception(exception: NoPermissionToEditExerciseException): ResponseEntity<ApiError> {
@@ -158,6 +172,13 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = [NoPermissionToEditSubmissionException::class])
     fun exception(exception: NoPermissionToEditSubmissionException): ResponseEntity<ApiError> {
         val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToEditSubmissionException", "Insufficient permission to edit requested submission.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to edit this exercise rating
+    @ExceptionHandler(value = [NoPermissionToEditRatingException::class])
+    fun exception(exception: NoPermissionToEditRatingException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToEditRatingException","Insufficient permission to edit this exercise rating.")
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
@@ -234,6 +255,13 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = [SubmissionNotFoundException::class])
     fun exception(exception: SubmissionNotFoundException): ResponseEntity<ApiError> {
         val err = ApiError(404, HttpStatus.NOT_FOUND, "SubmissionNotFoundException", "Couldn't find requested submission.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
+    // Rating ID doesn't exist
+    @ExceptionHandler(value = [RatingNotFoundException::class])
+    fun exception(exception: RatingNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "RatingNotFoundException", "Couldn't find requested exercise rating.")
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 
