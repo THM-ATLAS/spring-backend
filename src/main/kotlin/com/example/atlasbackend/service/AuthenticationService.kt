@@ -9,6 +9,7 @@ import com.example.atlasbackend.repository.TokenRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
+import org.springframework.ldap.AuthenticationException
 import org.springframework.ldap.core.AttributesMapper
 import org.springframework.stereotype.Service
 import org.springframework.ldap.core.LdapTemplate
@@ -110,12 +111,18 @@ class AuthenticationService(val userService: UserService, val tokenRepository: T
         return tokenRepository.getUserFromToken(token)[0]
     }
 
+    fun dbAuthenticate(user: LdapUser): Boolean {
+        return false
+    }
+
     // Authenticate user with LDAP Server and return token if successful
     fun authenticate(user: LdapUser): TokenRet {
         try {
             initLdap().contextSource.getContext(findUserDn(user), user.password)
-        } catch (e: Exception) {
-            throw UnprocessableEntityException
+        } catch (e: AuthenticationException) {
+            if(!dbAuthenticate(user)) {
+                throw UnprocessableEntityException
+            }
         }
 
         val userList = userService.userRepository.testForUser(user.username)
