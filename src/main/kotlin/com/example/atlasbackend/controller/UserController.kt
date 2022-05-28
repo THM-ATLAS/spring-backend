@@ -1,9 +1,7 @@
 package com.example.atlasbackend.controller
 
 import com.example.atlasbackend.service.UserService
-import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.classes.UserRet
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -25,11 +23,6 @@ class UserController(val userService: UserService) {
         return userService.getUser(id)
     }
 
-    @DeleteMapping("/users/{id}")
-    fun delUser(@PathVariable id: Int): UserRet {
-        return userService.delUser(id)
-    }
-
     @PutMapping("/users")
     fun editUser(@RequestBody body: UserRet): UserRet {
         return userService.editUser(body)
@@ -38,5 +31,10 @@ class UserController(val userService: UserService) {
     @PostMapping("/users")
     fun addUser(@RequestBody body: UserRet): UserRet {
         return userService.addUser(body)
+    }
+
+    @DeleteMapping("/users/{id}")
+    fun delUser(@PathVariable id: Int): UserRet {
+        return userService.delUser(id)
     }
 }
