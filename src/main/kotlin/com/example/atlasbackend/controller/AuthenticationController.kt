@@ -1,9 +1,9 @@
 package com.example.atlasbackend.controller
 
+import com.example.atlasbackend.classes.LdapUser
 import com.example.atlasbackend.classes.TokenRet
 import com.example.atlasbackend.classes.UserRet
 import com.example.atlasbackend.repository.TokenRepository
-import com.example.atlasbackend.service.LdapUser
 import com.example.atlasbackend.service.AuthenticationService
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody

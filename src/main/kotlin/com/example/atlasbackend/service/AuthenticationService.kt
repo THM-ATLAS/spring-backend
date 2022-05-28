@@ -8,7 +8,6 @@ import com.example.atlasbackend.exception.UnprocessableEntityException
 import com.example.atlasbackend.repository.TokenRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.annotation.Bean
 import org.springframework.ldap.core.AttributesMapper
 import org.springframework.stereotype.Service
 import org.springframework.ldap.core.LdapTemplate
@@ -17,8 +16,6 @@ import org.springframework.ldap.core.support.LdapContextSource
 import org.springframework.ldap.query.LdapQueryBuilder.query
 import org.springframework.stereotype.Component
 import kotlin.random.Random
-
-class LdapUser(var username: String, val password: String)
 
 @Component
 class LdapParams {
@@ -37,7 +34,6 @@ class AuthenticationService(val userService: UserService, val tokenRepository: T
     var ldapParams = LdapParams()
 
     // Initialize LDAP Template to fetch user DNs and authenticate them
-    @Bean
     fun initLdap(): LdapTemplate {
         val ldapContextSource = LdapContextSource()
 
