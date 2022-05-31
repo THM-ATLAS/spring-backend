@@ -1,7 +1,6 @@
 package com.example.atlasbackend.controller
 
 import com.example.atlasbackend.classes.AtlasModule
-import com.example.atlasbackend.classes.ModuleUser
 import com.example.atlasbackend.service.ModuleService
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -31,8 +30,8 @@ class ModuleController(val moduleService: ModuleService) {
     }
 
     @PostMapping("/modules")
-    fun postModule(@RequestBody module: AtlasModule): AtlasModule {
-        return moduleService.CreateModule(module)
+    fun postModule(@RequestBody module: AtlasModule): AtlasModule{
+        return moduleService.createModule(module)
     }
 
     @DeleteMapping("/modules/{moduleID}")

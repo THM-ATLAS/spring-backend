@@ -13,65 +13,57 @@ import org.springframework.web.bind.annotation.PathVariable
 @Service
 class ModuleService(val moduleRepository: ModuleRepository, val roleRepository: RoleRepository, val userRepository: UserRepository){
 
-    // Errorcode Reference: https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/http/HttpStatus.html
-
-    // Load Module Overview
-    //
     fun loadModules(): List<AtlasModule> {
-
         return moduleRepository.findAll().toList()
-
     }
 
-    //load a single Module
     fun getModule(@PathVariable moduleID: Int): AtlasModule {
-
         if (!moduleRepository.existsById(moduleID)) {
             throw ModuleNotFoundException
         }
-        //TODO: falls Berechtigungen fehlen:
-        //    return ResponseEntity("You are not allowed to view module ${moduleID}", HttpStatus.FORBIDDEN)
-        //    erst wenn security steht
+
+        // TODO: falls Berechtigungen fehlen (Wenn Security steht):
+        //    throw AccessDeniedException
 
         return moduleRepository.findById(moduleID).get()
     }
 
-    //Edit Module
     fun editModule(module: AtlasModule): AtlasModule{
-        val moduleID = module.module_id
-        if (!moduleRepository.existsById(moduleID)) {
+        if (!moduleRepository.existsById(module.module_id)) {
             throw ModuleNotFoundException
         }
-        //TODO: falls Berechtigungen fehlen:
-        //    return ResponseEntity("You are not allowed to modify module ${moduleID}", HttpStatus.FORBIDDEN)
-        //    erst wenn security steht
+
+        // TODO: falls Berechtigungen fehlen (Wenn Security steht):
+        //    throw NoPermissionToEditModuleException
+
         moduleRepository.save(module)
         return module
     }
 
-    //Create new Module
-    fun CreateModule(module: AtlasModule): AtlasModule{
+    fun createModule(module: AtlasModule): AtlasModule{
         if(module.module_id != 0){
             throw InvalidModuleIDException
         }
-        //TODO: falls Berechtigungen fehlen:
-        //    return ResponseEntity("You are not allowed to create a module ", HttpStatus.FORBIDDEN)
-        //    erst wenn Security steht
+
+        // TODO: falls Berechtigungen fehlen (Wenn Security steht):
+        //    throw NoPermissionToEditModuleException
+
         moduleRepository.save(module)
         return module
     }
-    //Delete a Module
+
     fun deleteModule(moduleID: Int): AtlasModule{
         val module = moduleRepository.findById(moduleID).get()
         if (!moduleRepository.existsById(moduleID)) {
             throw ModuleNotFoundException
         }
-        //TODO: falls Berechtigungen fehlen:
-        //    return ResponseEntity("You are not allowed to modify delete ${moduleID}", HttpStatus.FORBIDDEN)
-        //    erst wenn security steht
+
+        // TODO: falls Berechtigungen fehlen (Wenn Security steht):
+        //    throw NoPermissionToDeleteModuleException
+
         moduleRepository.deleteById(moduleID)
         return module
-        // module zurückgeben um löschen "abzubrechen"
+        // Module zurückgeben um löschen "abzubrechen"
     }
 
     fun getUsers(moduleID: Int): List<ModuleUser> {
