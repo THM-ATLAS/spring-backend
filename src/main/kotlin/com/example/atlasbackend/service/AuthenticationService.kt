@@ -6,6 +6,7 @@ import com.example.atlasbackend.exception.TokenExpiredException
 import com.example.atlasbackend.exception.TokenMissingException
 import com.example.atlasbackend.exception.UnprocessableEntityException
 import com.example.atlasbackend.repository.TokenRepository
+import com.example.atlasbackend.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.ldap.AuthenticationException
@@ -15,6 +16,10 @@ import org.springframework.ldap.core.LdapTemplate
 import org.springframework.ldap.core.NameClassPairCallbackHandler
 import org.springframework.ldap.core.support.LdapContextSource
 import org.springframework.ldap.query.LdapQueryBuilder.query
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.User
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Component
 import kotlin.random.Random
 
@@ -28,6 +33,15 @@ class LdapParams {
     lateinit var baseDn: String
 }
 
+@Component
+class UserDetailsService(val userRepository: UserRepository): UserDetailsService {
+
+    override fun loadUserByUsername(username: String): UserDetails {
+        val user = userRepository.findByUsername(username)
+
+        return User(user.username, "", mutableListOf(SimpleGrantedAuthority(user.roles.first().name)))
+    }
+}
 @Service
 class AuthenticationService(val userService: UserService, val tokenRepository: TokenRepository) {
     // Initialize and load LDAP params
