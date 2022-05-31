@@ -104,7 +104,7 @@ class SubmissionService(val submissionRepository: SubmissionRepository, val exer
 
         val ret = Submission(submission.submission_id, submission.exercise_id, submission.user_id, submission.file, submission.grade)
 
-        exerciseRepository.deleteById(submissionID)
+        submissionRepository.deleteById(submissionID)
 
         return ret
     }
