@@ -50,7 +50,7 @@ class ExerciseService(val exerciseRepository: ExerciseRepository, val moduleRepo
 
     fun loadExercisesModule(moduleId: Int): List<ExerciseRet> {
         if (moduleRepository.existsById(moduleId).not()) {
-            throw ExerciseNotFoundException
+            throw ModuleNotFoundException
         }
         val ret = exerciseRepository.getExercisesByModule(moduleId).map {  e ->
             ExerciseRet(e.exercise_id, moduleRepository.findById(moduleId).get(), e.title, e.content, e.description, e.exercisePublic)
