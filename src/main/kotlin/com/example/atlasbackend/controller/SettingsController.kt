@@ -2,7 +2,6 @@ package com.example.atlasbackend.controller
 
 import com.example.atlasbackend.classes.UserSettings
 import com.example.atlasbackend.service.SettingsService
-import org.apache.catalina.User
 import org.springframework.web.bind.annotation.*
 
 @RestController

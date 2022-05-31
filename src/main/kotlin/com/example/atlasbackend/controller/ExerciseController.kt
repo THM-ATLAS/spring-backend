@@ -8,14 +8,14 @@ import org.springframework.web.bind.annotation.*
 @RestController
 class ExerciseController(val exerciseService: ExerciseService) {
 
-    @GetMapping("/exercises/user/{userID}")
-    fun loadExercises(@PathVariable userID: Int): Set<ExerciseRet> {
-        return exerciseService.loadExercisesUser(userID)
-    }
-
     @GetMapping("/exercises")
     fun loadExercises(): List<ExerciseRet> {
         return exerciseService.loadExercises()
+    }
+
+    @GetMapping("/exercises/user/{userID}")
+    fun loadExercises(@PathVariable userID: Int): Set<ExerciseRet> {
+        return exerciseService.loadExercisesUser(userID)
     }
 
     @GetMapping("/exercises/module/{modID}")
