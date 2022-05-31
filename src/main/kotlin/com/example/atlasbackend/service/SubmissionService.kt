@@ -37,7 +37,7 @@ class SubmissionService(val submissionRepository: SubmissionRepository, val exer
     }
 
     fun getSubmission(exerciseID: Int, submissionID: Int): Submission {
-        if (!submissionRepository.existsById(exerciseID)) {
+        if (!exerciseRepository.existsById(exerciseID)) {
             throw ExerciseNotFoundException
         }
 
