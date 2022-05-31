@@ -10,19 +10,21 @@ import org.springframework.web.bind.annotation.RequestBody
 @Service
 class SubmissionService(val submissionRepository: SubmissionRepository) {
 
-    fun getAllSubmissions(): List<Submission>{
+    fun getAllSubmissions(): List<Submission> {
+        return submissionRepository.findAll().map {  s ->
+            Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.grade)
+        }.toList()
+    }
+
+    fun getExerciseSubmissions(@PathVariable exerciseID: Int): List<Submission> {
         throw NotYetImplementedException
     }
 
-    fun getExerciseSubmissions(): List<Submission> {
+    fun getUserSubmissions(@PathVariable userID: Int): List<Submission> {
         throw NotYetImplementedException
     }
 
-    fun getUserSubmissions(): List<Submission> {
-        throw NotYetImplementedException
-    }
-
-    fun getSubmission(): Submission {
+    fun getSubmission(@PathVariable("exerciseID") exerciseID: Int, @PathVariable("submissionID") submissionID: Int): Submission {
         throw NotYetImplementedException
     }
 
