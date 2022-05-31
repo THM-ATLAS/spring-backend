@@ -12,19 +12,19 @@ class SubmissionController(val submissionService: SubmissionService) {
         return submissionService.getAllSubmissions()
     }
 
-    @GetMapping("/{exerciseID}/submissions")
-    fun getExerciseSubmissions(): List<Submission> {
-        return submissionService.getExerciseSubmissions()
+    @GetMapping("/exercises/{exerciseID}/submissions")
+    fun getExerciseSubmissions(@PathVariable exerciseID: Int): List<Submission> {
+        return submissionService.getExerciseSubmissions(exerciseID)
     }
 
-    @GetMapping("/{userID}/submissions")
-    fun getUserSubmissions(): List<Submission> {
-        return submissionService.getUserSubmissions()
+    @GetMapping("/users/{userID}/submissions")
+    fun getUserSubmissions(@PathVariable userID: Int): List<Submission> {
+        return submissionService.getUserSubmissions(userID)
     }
 
-    @GetMapping("/{exerciseID}/submissions/{submissionID}")
-    fun getSubmission(): Submission {
-        return submissionService.getSubmission()
+    @GetMapping("/exercises/{exerciseID}/submissions/{submissionID}")
+    fun getSubmission(@PathVariable("exerciseID") exerciseID: Int, @PathVariable("submissionID") submissionID: Int): Submission {
+        return submissionService.getSubmission(exerciseID, submissionID)
     }
 
     @PutMapping("/submissions")
