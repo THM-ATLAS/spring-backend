@@ -33,8 +33,18 @@ class UserController(val userService: UserService) {
         return userService.addUser(body)
     }
 
+    @PostMapping("/users/multiple")
+    fun addUsers(@RequestBody body: List<UserRet>): List<UserRet> {
+        return userService.addUsers(body)
+    }
+
     @DeleteMapping("/users/{id}")
     fun delUser(@PathVariable id: Int): UserRet {
         return userService.delUser(id)
+    }
+
+    @DeleteMapping("/users/multiple")
+    fun delUsers(@RequestBody body: List<UserRet>): List<UserRet> {
+        return userService.delUsers(body)
     }
 }
