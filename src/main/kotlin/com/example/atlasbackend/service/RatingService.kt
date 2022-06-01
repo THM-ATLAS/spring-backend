@@ -1,35 +1,57 @@
 package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.Rating
-import com.example.atlasbackend.exception.NotYetImplementedException
+import com.example.atlasbackend.exception.*
+import com.example.atlasbackend.repository.ExerciseRepository
 import com.example.atlasbackend.repository.RatingRepository
+import com.example.atlasbackend.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.*
+import java.security.InvalidParameterException
 
 @Service
-class RatingService(val ratingRepository: RatingRepository) {
+class RatingService(val ratingRepository: RatingRepository, val exerciseRepository: ExerciseRepository, val userRepository: UserRepository) {
 
-    fun getExerciseRatings(): List<Rating> {
-        throw NotYetImplementedException
+    fun getExerciseRatings(exerciseID: Int): List<Rating> {
+        if (exerciseRepository.existsById(exerciseID).not()) throw ExerciseNotFoundException
+
+        return ratingRepository.getByExerciseId(exerciseID)
     }
 
-    fun getUserRatings(): List<Rating> {
-        throw NotYetImplementedException
+    fun getUserRatings(userId: Int): List<Rating> {
+        if (userRepository.existsById(userId).not()) throw UserNotFoundException
+
+        return ratingRepository.getByUserId(userId)
     }
 
-    fun getRating(): Rating {
-        throw NotYetImplementedException
+    fun getRating(ratingID: Int): Rating {
+        if (ratingRepository.existsById(ratingID).not()) throw RatingNotFoundException
+
+        return ratingRepository.findById(ratingID).get()
     }
 
-    fun editRating(@RequestBody body: Rating): Rating {
-        throw NotYetImplementedException
+    fun editRating(body: Rating): Rating {
+        if (ratingRepository.existsById(body.rating_id).not()) throw RatingNotFoundException
+        if (exerciseRepository.existsById(body.exercise_id).not()) throw ExerciseNotFoundException
+        if (userRepository.existsById(body.user_id).not()) throw UserNotFoundException
+
+        return ratingRepository.save(body);
     }
 
-    fun postRating(@RequestBody body: Rating): Rating {
-        throw NotYetImplementedException
+    fun postRating(body: Rating): Rating {
+        if (body.rating_id != 0) throw InvalidParameterTypeException
+        if (exerciseRepository.existsById(body.exercise_id).not()) throw ExerciseNotFoundException
+        if (userRepository.existsById(body.user_id).not()) throw UserNotFoundException
+
+        return ratingRepository.save(body)
     }
 
-    fun deleteRating(@PathVariable ratingID: Int): Rating {
-        throw NotYetImplementedException
+    fun deleteRating(ratingID: Int): Rating {
+        if (ratingRepository.existsById(ratingID).not()) throw RatingNotFoundException
+
+        val ret = ratingRepository.findById(ratingID).get()
+        ratingRepository.deleteById(ratingID)
+
+        return ret
     }
 }

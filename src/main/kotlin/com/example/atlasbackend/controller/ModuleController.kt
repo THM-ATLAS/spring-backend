@@ -1,6 +1,7 @@
 package com.example.atlasbackend.controller
 
 import com.example.atlasbackend.classes.AtlasModule
+import com.example.atlasbackend.classes.ModuleUser
 import com.example.atlasbackend.service.ModuleService
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
