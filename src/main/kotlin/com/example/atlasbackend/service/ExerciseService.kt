@@ -68,11 +68,12 @@ class ExerciseService(val ratingRepository: RatingRepository, val exerciseReposi
         // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
         //    throw NoPermissionToEditExerciseException
 
-        val save = Exercise(exercise.exercise_id, exercise.module.module_id, exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
 
-        val ret = exerciseRepository.save(save)
+        val updatedExercise = Exercise(exercise.exercise_id, exercise.module.module_id, exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
 
-        return ExerciseRet(ret.exercise_id, moduleRepository.findById(ret.module_id).get(), ret.title, ret.content, ret.description, ret.exercisePublic, ratingRepository.averageExerciseRating(ret.exercise_id))
+        exerciseRepository.save(updatedExercise)
+
+        return ExerciseRet(exercise.exercise_id, moduleRepository.findById(exercise.module.module_id).get(), exercise.title, exercise.content, exercise.description, exercise.exercisePublic, ratingRepository.averageExerciseRating(exercise.exercise_id))
     }
 
     fun createExercise(exercise: Exercise): ExerciseRet {
