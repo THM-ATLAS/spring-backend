@@ -19,6 +19,6 @@ class UserDetails(val userRepository: UserRepository, val roleRepository: RoleRe
         val user = atlasUser.get()
         val roles = roleRepository.getRolesByUser(user.user_id)
 
-        return User(user.username, user.password, mutableListOf(SimpleGrantedAuthority(roles.first().name)))
+        return User(user.username, /*user.password*/"", mutableListOf(SimpleGrantedAuthority(roles.first().name)))
     }
 }

@@ -64,7 +64,7 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
             }
         }
 
-        val atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email, null)
+        val atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email)
         val ret =
             UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
 
@@ -76,7 +76,7 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
         if (user.user_id != 0) {
             throw InvalidUserIDException
         }
-        var atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email, null)
+        var atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email)
         atlasUser = userRepository.save(atlasUser)
 
         user.roles.forEach { r ->

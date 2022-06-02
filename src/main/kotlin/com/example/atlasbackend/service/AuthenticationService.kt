@@ -70,7 +70,7 @@ class AuthenticationService(val userService: UserService, val tokenRepository: T
 
     // Get a users properties from an LDAP search
     fun getUserProperties(user: LdapUser): AtlasUser {
-        val atlasUser = AtlasUser(0, "", "", "", null)
+        val atlasUser = AtlasUser(0, "", "", "")
         initLdap().search(
             query().where("objectclass").`is`("gifb-person").and("uid").`is`(user.username),
             AttributesMapper { attributes -> atlasUser.name = attributes.get("cn").get().toString(); atlasUser.email = attributes.get("mail").get().toString() }
