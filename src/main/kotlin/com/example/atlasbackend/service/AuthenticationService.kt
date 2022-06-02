@@ -33,15 +33,6 @@ class LdapParams {
     lateinit var baseDn: String
 }
 
-@Component
-class UserDetailsService(val userRepository: UserRepository): UserDetailsService {
-
-    override fun loadUserByUsername(username: String): UserDetails {
-        val user = userRepository.findByUsername(username)
-
-        return User(user.username, "", mutableListOf(SimpleGrantedAuthority(user.roles.first().name)))
-    }
-}
 @Service
 class AuthenticationService(val userService: UserService, val tokenRepository: TokenRepository) {
     // Initialize and load LDAP params
@@ -79,7 +70,7 @@ class AuthenticationService(val userService: UserService, val tokenRepository: T
 
     // Get a users properties from an LDAP search
     fun getUserProperties(user: LdapUser): AtlasUser {
-        val atlasUser = AtlasUser(0, "", "", "")
+        val atlasUser = AtlasUser(0, "", "", "", null)
         initLdap().search(
             query().where("objectclass").`is`("gifb-person").and("uid").`is`(user.username),
             AttributesMapper { attributes -> atlasUser.name = attributes.get("cn").get().toString(); atlasUser.email = attributes.get("mail").get().toString() }

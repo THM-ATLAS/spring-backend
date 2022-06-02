@@ -4,4 +4,4 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
 
 @Table("user")
-class AtlasUser(@Id var user_id: Int, var name: String, var username: String, var email: String)
+class AtlasUser(@Id var user_id: Int, var name: String, var username: String, var email: String, val password: String?)
