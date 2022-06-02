@@ -24,9 +24,6 @@ object InvalidUserIDException : RuntimeException()
 // Invalid Module ID when creating module
 object InvalidModuleIDException : RuntimeException()
 
-// Invalid Role ID when creating role
-object InvalidRoleIDException: RuntimeException()
-
 // Invalid Tag ID when creating tag
 object InvalidTagIDException : RuntimeException()
 
@@ -36,9 +33,8 @@ object InvalidSubmissionIDException : RuntimeException()
 // Invalid Rating ID when creating rating
 object InvalidRatingIDException : RuntimeException()
 
-// Invalid User ID, User is not in Module
-object UserNotInModuleException: RuntimeException()
-
+// Invalid Role ID when assigning role
+object InvalidRoleIDException: RuntimeException()
 
 /** [401] UNAUTHORIZED **/
 
@@ -94,11 +90,14 @@ object NoPermissionToModifyTagsException : RuntimeException()
 // User is not allowed to assign/remove tags for this exercise
 object NoPermissionToModifyExerciseTagsException : RuntimeException()
 
+// User is not allowed to be added to modules
+object UserCannotBeAddedToModuleException: RuntimeException()
+
+// User can't be found in module
+object UserNotInModuleException: RuntimeException()
+
 // Submission was too late
 object SubmissionAfterDeadlineException : RuntimeException()
-
-// User cannot be added to module
-object UserCannotBeAddedToModuleException: RuntimeException()
 
 
 /** [404] NOT FOUND **/
