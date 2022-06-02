@@ -7,19 +7,19 @@ import org.springframework.web.bind.annotation.*
 @RestController
 class RatingController(val ratingService: RatingService) {
 
-    @GetMapping("/{exerciseID}/ratings")
-    fun getExerciseRatings(): List<Rating> {
-        return ratingService.getExerciseRatings()
+    @GetMapping("/ratings/exercises/{exerciseID}")
+    fun getExerciseRatings(@PathVariable exerciseID: Int): List<Rating> {
+        return ratingService.getExerciseRatings(exerciseID)
     }
 
-    @GetMapping("/{userID}/ratings")
-    fun getUserRatings(): List<Rating> {
-        return ratingService.getUserRatings()
+    @GetMapping("/ratings/users/{userID}")
+    fun getUserRatings(@PathVariable userID: Int): List<Rating> {
+        return ratingService.getUserRatings(userID)
     }
 
-    @GetMapping("/{exerciseID}/ratings/{ratingID}")
-    fun getRating(): Rating {
-        return ratingService.getRating()
+    @GetMapping("/ratings/{ratingID}")
+    fun getRating(@PathVariable ratingID: Int): Rating {
+        return ratingService.getRating(ratingID)
     }
 
     @PutMapping("/ratings")

@@ -53,6 +53,12 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
+    @ExceptionHandler(value = [InvalidRoleIDException::class])
+    fun exception(exception: InvalidRoleIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidRoleIDException", "Module Roles can only be: 2: student, 3: tutor, or 4: teacher, 3: tutor cannot be a global role")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
     // Invalid Tag ID when creating tag
     @ExceptionHandler(value = [InvalidTagIDException::class])
     fun exception(exception: InvalidTagIDException): ResponseEntity<ApiError> {
@@ -165,6 +171,18 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = [NoPermissionToEditUserException::class])
     fun exception(exception: NoPermissionToEditUserException): ResponseEntity<ApiError> {
         val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToEditUserException", "Insufficient permission to edit the information of this user.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    @ExceptionHandler(value = [UserCannotBeAddedToModuleException::class])
+    fun exception(exception: UserCannotBeAddedToModuleException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "UserCannotBeAddedToModuleException", "Guests cannot be part of a module")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    @ExceptionHandler(value = [UserNotInModuleException::class])
+    fun exception(exception: UserNotInModuleException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "UserNotInModuleException", "Add the user to the module, before you can edit them.")
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
@@ -300,6 +318,7 @@ class GlobalExceptionHandler {
     /** [501] NOT IMPLEMENTED **/
 
     // Method not implemented yet
+    object NotImplementedException : RuntimeException()
     @ExceptionHandler(value = [NotYetImplementedException::class])
     fun exception(exception: NotYetImplementedException): ResponseEntity<ApiError> {
         val err = ApiError(501, HttpStatus.NOT_IMPLEMENTED, "NotYetImplementedException", "This function hasn't been implemented yet, please try again later.")

@@ -4,5 +4,4 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
 
 @Table("user")
-class UserRet(@Id val user_id: Int, val roles: List<Role>, val name: String, val username: String, val email: String) {
-}
+data class UserRet(@Id val user_id: Int, val roles: List<Role>, val name: String, val username: String, val email: String)
