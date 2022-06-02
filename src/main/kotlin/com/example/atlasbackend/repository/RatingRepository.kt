@@ -15,5 +15,5 @@ interface RatingRepository: CrudRepository<Rating, Int> {
     fun getByUserId(@Param("id") id: Int): List<Rating>
 
     @Query("SELECT AVG(value) FROM user_exercise_rating WHERE exercise_id = :id")
-    fun averageExerciseRating(@Param("id") id: Int): Float
+    fun averageExerciseRating(@Param("id") id: Int): Float?
 }
