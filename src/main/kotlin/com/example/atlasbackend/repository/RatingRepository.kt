@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface RatingRepository: CrudRepository<Rating, Int> {
+
     @Query("SELECT * FROM user_exercise_rating WHERE exercise_id = :id")
     fun getByExerciseId(@Param("id") id: Int): List<Rating>
 

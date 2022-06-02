@@ -41,7 +41,7 @@ class RatingService(val ratingRepository: RatingRepository, val exerciseReposito
         if (exerciseRepository.existsById(body.exercise_id).not()) throw ExerciseNotFoundException
         if (userRepository.existsById(body.user_id).not()) throw UserNotFoundException
 
-        return ratingRepository.save(body);
+        return ratingRepository.save(body)
     }
 
     fun postRating(body: Rating): Rating {

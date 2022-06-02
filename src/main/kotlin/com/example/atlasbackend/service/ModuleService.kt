@@ -73,7 +73,7 @@ class ModuleService(val moduleRepository: ModuleRepository, val roleRepository: 
         if (moduleRepository.existsById(moduleID).not()) throw ModuleNotFoundException
 
         // TODO: Berechtigungen prüfen
-            if (roleRepository.getRolesByUser(user.user_id).size <= 1 && roleRepository.getRolesByUser(user.user_id).get(0).role_id == 1) throw UserCannotBeAddedToModuleException
+            if (roleRepository.getRolesByUser(user.user_id).size <= 1 && roleRepository.getRolesByUser(user.user_id)[0].role_id == 1) throw UserCannotBeAddedToModuleException
 
             if (moduleRepository.getUsersByModule(moduleID).contains(userRepository.findById(user.user_id).get()).not()) {
                 moduleRepository.addUser(user.user_id, moduleID)
@@ -91,7 +91,7 @@ class ModuleService(val moduleRepository: ModuleRepository, val roleRepository: 
 
         // TODO: Berechtigungen prüfen
         users.forEach {  u ->
-            if (roleRepository.getRolesByUser(u.user_id).size <= 1 && roleRepository.getRolesByUser(u.user_id).get(0).role_id == 1) throw UserCannotBeAddedToModuleException
+            if (roleRepository.getRolesByUser(u.user_id).size <= 1 && roleRepository.getRolesByUser(u.user_id)[0].role_id == 1) throw UserCannotBeAddedToModuleException
 
             if (moduleRepository.getUsersByModule(moduleID).contains(userRepository.findById(u.user_id).get()).not()) {
                 moduleRepository.addUser(u.user_id, moduleID)
