@@ -12,12 +12,25 @@ import java.sql.Timestamp
 @Repository
 interface TokenRepository: CrudRepository<Token, Int> {
 
-    @Query("INSERT INTO \"user_token\" (token, last_used, user_id) VALUES (:token, now(), :user_id)")
-    @Modifying
-    fun createToken(@Param("user_id") user_id: Int, @Param("token") token: String)
+    @Query("SELECT * FROM user_token WHERE user_id = :user_id")
+    fun getAllTokens(@Param("user_id") user_id: Int): List<Token>
 
     @Query("SELECT * FROM \"user\" WHERE \"user\".user_id IN (SELECT \"user_id\" FROM \"user_token\" WHERE \"user_token\".token = :token)")
     fun getUserFromToken(@Param("token") token: String): List<AtlasUser>
+
+    @Query("SELECT * FROM user_token WHERE token = :token")
+    fun testForToken(@Param("token") token: String): List<Token>
+
+    @Query("SELECT * FROM now()")
+    fun getTime(): Timestamp
+
+    @Query("UPDATE user_token SET last_used = now() WHERE token = :token")
+    @Modifying
+    fun updateLastUsed(@Param("token") token: String)
+
+    @Query("INSERT INTO \"user_token\" (token, last_used, user_id) VALUES (:token, now(), :user_id)")
+    @Modifying
+    fun createToken(@Param("user_id") user_id: Int, @Param("token") token: String)
 
     @Query("DELETE FROM \"user_token\" WHERE \"token\" = :token")
     @Modifying
@@ -26,17 +39,4 @@ interface TokenRepository: CrudRepository<Token, Int> {
     @Query("DELETE FROM \"user_token\" WHERE \"user_id\" = :user_id")
     @Modifying
     fun revokeAllTokens(@Param("user_id") user_id: Int)
-
-    @Query("SELECT * FROM user_token WHERE token = :token")
-    fun testForToken(@Param("token") token: String): List<Token>
-
-    @Query("SELECT * FROM now()")
-    fun getTime(): Timestamp
-
-    @Query("SELECT * FROM user_token WHERE user_id = :user_id")
-    fun getAllTokens(@Param("user_id") user_id: Int): List<Token>
-
-    @Query("UPDATE user_token SET last_used = now() WHERE token = :token")
-    @Modifying
-    fun updateLastUsed(@Param("token") token: String)
 }
