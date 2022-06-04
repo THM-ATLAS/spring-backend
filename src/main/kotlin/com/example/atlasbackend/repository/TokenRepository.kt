@@ -33,6 +33,9 @@ interface TokenRepository: CrudRepository<Token, Int> {
     @Query("SELECT * FROM now()")
     fun getTime(): Timestamp
 
+    @Query("SELECT * FROM user_token WHERE user_id = :user_id")
+    fun getAllTokens(@Param("user_id") user_id: Int): List<Token>
+
     @Query("UPDATE user_token SET last_used = now() WHERE token = :token")
     @Modifying
     fun updateLastUsed(@Param("token") token: String)
