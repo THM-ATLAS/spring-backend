@@ -9,6 +9,7 @@ import com.example.atlasbackend.repository.TokenRepository
 import com.example.atlasbackend.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import javax.servlet.http.Cookie
 import org.springframework.ldap.AuthenticationException
 import org.springframework.ldap.core.AttributesMapper
 import org.springframework.stereotype.Service
@@ -16,11 +17,8 @@ import org.springframework.ldap.core.LdapTemplate
 import org.springframework.ldap.core.NameClassPairCallbackHandler
 import org.springframework.ldap.core.support.LdapContextSource
 import org.springframework.ldap.query.LdapQueryBuilder.query
-import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.userdetails.User
-import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Component
+import javax.servlet.http.HttpServletResponse
 import kotlin.random.Random
 
 @Component
@@ -34,7 +32,7 @@ class LdapParams {
 }
 
 @Service
-class AuthenticationService(val userService: UserService, val tokenRepository: TokenRepository) {
+class AuthenticationService(val userService: UserService, val tokenRepository: TokenRepository, val response: HttpServletResponse) {
     // Initialize and load LDAP params
     @Autowired
     var ldapParams = LdapParams()
@@ -117,7 +115,7 @@ class AuthenticationService(val userService: UserService, val tokenRepository: T
     }
 
     // Authenticate user with LDAP Server and return token if successful
-    fun authenticate(user: LdapUser): TokenRet {
+    fun authenticate(user: LdapUser): UserRet {
         try {
             initLdap().contextSource.getContext(findUserDn(user), user.password)
         } catch (e: AuthenticationException) {
@@ -128,8 +126,9 @@ class AuthenticationService(val userService: UserService, val tokenRepository: T
 
         val userList = userService.userRepository.testForUser(user.username)
 
+        val atlasUser = getUserProperties(user)
+
         if (userList.isEmpty()) {
-            val atlasUser = getUserProperties(user)
             userService.addUser(
                 UserRet(
                     0,
@@ -140,7 +139,6 @@ class AuthenticationService(val userService: UserService, val tokenRepository: T
                 )
             )
         } else {
-            val atlasUser = getUserProperties(user)
             userService.editUser(
                 UserRet(
                     userList[0].user_id,
@@ -162,6 +160,12 @@ class AuthenticationService(val userService: UserService, val tokenRepository: T
             throw TokenCreationError
         }
 
-        return tokenRet
+        val tokenCookie = Cookie("token", tokenRet.token)
+
+        response.addCookie(tokenCookie)
+
+        val userId = userService.userRepository.testForUser(user.username)[0].user_id
+
+        return userService.getUser(userId)
     }
 }
