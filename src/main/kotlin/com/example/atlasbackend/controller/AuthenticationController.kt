@@ -25,4 +25,9 @@ class AuthenticationController(val authenticationService: AuthenticationService,
     fun logoutAll(@RequestBody user: UserRet) {
         return tokenRepository.revokeAllTokens(user.user_id)
     }
+
+    @PostMapping("/testUserDetailsService")
+    fun test(): UserDetails {
+        return userDetailsService.loadUserByUsername("fmng12")
+    }
 }

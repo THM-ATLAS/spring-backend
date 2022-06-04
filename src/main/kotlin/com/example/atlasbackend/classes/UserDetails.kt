@@ -23,7 +23,7 @@ class UserDetailsService(val userRepository: UserRepository, val roleRepository:
             throw UserNotFoundException
         }
 
-        val roles = roleRepository.getRolesByUser(userRepository.testForUser(username)[0].user_id)
+        val roles = roleRepository.getRolesByUser(userRepository.testForUser(username)[0].user_id).sortedWith(compareBy({ it.role_id }))
 
         return UserDetails(user.username, /*user.password*/"", tokenRepository.getAllTokens(user.user_id), roles.first())
     }
