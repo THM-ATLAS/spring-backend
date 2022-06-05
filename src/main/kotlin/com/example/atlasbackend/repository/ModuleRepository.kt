@@ -19,8 +19,8 @@ interface ModuleRepository: CrudRepository<AtlasModule,Int> {
     @Query("SELECT u.user_id, u.name, u.username, u.email FROM atlas.public.user u JOIN user_module_role umr ON u.user_id = umr.user_id WHERE umr.module_id = :module GROUP BY u.user_id")
     fun getUsersByModule(@Param("module") module: Int): List<AtlasUser>
 
-    @Query("SELECT role.role_id, name FROM user_module_role JOIN role ON user_module_role.role_id = role.role_id WHERE user_module_role.user_id = :id")
-    fun getModuleRolesByUser(@Param("id") id: Int): Role
+    @Query("SELECT role.role_id, name FROM user_module_role JOIN role ON user_module_role.role_id = role.role_id WHERE user_module_role.user_id = :userId AND user_module_role.module_id = :moduleId")
+    fun getModuleRolesByUser(@Param("userId") userId: Int, @Param("moduleId") moduleId: Int): Role
 
     @Query("UPDATE user_module_role SET role_id = :role WHERE user_id = :user AND module_id = :module")
     @Modifying

@@ -18,6 +18,11 @@ class UserController(val userService: UserService) {
         return userService.getAllUsers()
     }
 
+    @GetMapping("/users/me")
+    fun getMe()/*: UserRet*/ {
+        //return userService.getMe()
+    }
+
     @GetMapping("/users/{id}")
     fun getUser(@PathVariable id: Int): UserRet {
         return userService.getUser(id)
