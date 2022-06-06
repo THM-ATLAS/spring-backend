@@ -10,8 +10,8 @@ import org.springframework.stereotype.Repository
 interface ExerciseTypeRepository: CrudRepository<ExerciseType, Int> {
 
     @Query("SELECT name FROM exercise_type WHERE type_id = :id")
-    fun getExerciseTypeName(@Param("id") id: Int): String
+    fun getExerciseTypeName(@Param("id") id: Int): String?
 
-    @Query("SELECT type_id FROM exercise_type WHERE type_name = :name")
-    fun getExerciseTypeID(@Param("name") id: String): Int
+    @Query("SELECT type_id FROM exercise_type WHERE name = :name")
+    fun getExerciseTypeID(@Param("name") id: String?): Int
 }
