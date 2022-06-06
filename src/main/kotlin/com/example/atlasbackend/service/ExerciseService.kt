@@ -25,7 +25,7 @@ class ExerciseService(val ratingRepository: RatingRepository, val exerciseReposi
             throw UserNotFoundException
         }
 
-        val ret = exerciseRepository.getExercisesByUser(userId).map {  e->
+        val ret = exerciseRepository.getExercisesByUser(userId).map {  e ->
             ExerciseRet(e.exercise_id, moduleRepository.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratingRepository.averageExerciseRating(e.exercise_id), exerciseTypeRepository.getExerciseTypeName(e.type_id))
         }.toSet()
 
