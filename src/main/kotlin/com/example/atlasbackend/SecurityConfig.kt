@@ -1,32 +1,32 @@
 package com.example.atlasbackend
 
+import com.example.atlasbackend.classes.UserDetails
+import com.example.atlasbackend.classes.UserDetailsService
+import com.example.atlasbackend.service.AuthFilter
+import com.example.atlasbackend.service.AuthenticationService
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.authentication.AuthenticationProvider
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig: WebSecurityConfigurerAdapter() {
+class SecurityConfig(val authenticationService: AuthenticationService): WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
-        http.csrf().disable()
-            .authorizeRequests().anyRequest().permitAll()
-        http.cors().disable()
-
-        http.authorizeRequests()
-        //TODO: https://docs.spring.io/spring-security/site/docs/5.0.x/reference/html/csrf.html wir sollten drüber reden, ob wir das brauchen
+        http
+            .authenticationManager(authenticationService)
+            .addFilter(AuthFilter())
+            .authorizeRequests()
+                .anyRequest()
+                .authenticated()
+            .and()
+            .cors()
+                .disable()
     }
-
-    /*override fun configure(auth: AuthenticationManagerBuilder?) {
-        auth.ldapAuthentication()
-            .userDnPatterns("uid={0}, ou=People")
-            .contextSource()
-                .url("ldaps://ldap.fh-giessen.de:636/dc=fh-giessen-friedberg,dc=de")
-                //.and()
-
-
-    }*/
 
 }

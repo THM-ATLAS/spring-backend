@@ -64,7 +64,11 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
             }
         }
 
-        val atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email)
+        val atlasUser = userRepository.findById(user.user_id).get()
+            atlasUser.name = user.name
+            atlasUser.username = user.username
+            atlasUser.email = user.email
+
         val ret =
             UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
 

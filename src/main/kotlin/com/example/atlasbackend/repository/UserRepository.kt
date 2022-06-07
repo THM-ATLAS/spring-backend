@@ -1,8 +1,6 @@
 package com.example.atlasbackend.repository
 
 import com.example.atlasbackend.classes.AtlasUser
-import com.example.atlasbackend.classes.AtlasUserPw
-import com.example.atlasbackend.classes.UserRet
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
@@ -17,4 +15,4 @@ interface UserRepository: CrudRepository<AtlasUser, Int> {
 }
 
 @Repository
-interface UserRepositoryPw: CrudRepository<AtlasUserPw, Int>
+interface UserRepositoryPw: CrudRepository<AtlasUser, Int>

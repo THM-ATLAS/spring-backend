@@ -5,21 +5,30 @@ import com.example.atlasbackend.exception.TokenCreationError
 import com.example.atlasbackend.exception.TokenExpiredException
 import com.example.atlasbackend.exception.TokenMissingException
 import com.example.atlasbackend.exception.UnprocessableEntityException
+import com.example.atlasbackend.repository.RoleRepository
 import com.example.atlasbackend.repository.TokenRepository
-import com.example.atlasbackend.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import javax.servlet.http.Cookie
 import org.springframework.ldap.AuthenticationException
 import org.springframework.ldap.core.AttributesMapper
-import org.springframework.stereotype.Service
 import org.springframework.ldap.core.LdapTemplate
 import org.springframework.ldap.core.NameClassPairCallbackHandler
 import org.springframework.ldap.core.support.LdapContextSource
 import org.springframework.ldap.query.LdapQueryBuilder.query
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.AuthenticationProvider
+import org.springframework.security.authentication.AuthenticationServiceException
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
+import org.springframework.security.core.Authentication
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
+import javax.servlet.http.Cookie
+import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import kotlin.random.Random
+
 
 @Component
 class LdapParams {
@@ -32,7 +41,12 @@ class LdapParams {
 }
 
 @Service
-class AuthenticationService(val userService: UserService, val tokenRepository: TokenRepository, val response: HttpServletResponse) {
+class AuthenticationService(
+    val userService: UserService,
+    val tokenRepository: TokenRepository,
+    val roleRepository: RoleRepository,
+    val response: HttpServletResponse
+): AuthenticationManager {
     // Initialize and load LDAP params
     @Autowired
     var ldapParams = LdapParams()
@@ -71,7 +85,9 @@ class AuthenticationService(val userService: UserService, val tokenRepository: T
         val atlasUser = AtlasUser(0, "", "", "")
         initLdap().search(
             query().where("objectclass").`is`("gifb-person").and("uid").`is`(user.username),
-            AttributesMapper { attributes -> atlasUser.name = attributes.get("cn").get().toString(); atlasUser.email = attributes.get("mail").get().toString() }
+            AttributesMapper { attributes -> atlasUser.name = attributes.get("cn").get().toString()
+                atlasUser.email = attributes.get("mail").get().toString()
+                atlasUser.role = roleRepository.getRolesByUser(atlasUser.user_id).sortedBy { r -> r.role_id }.get(0)}
         )
 
         return atlasUser
@@ -114,8 +130,17 @@ class AuthenticationService(val userService: UserService, val tokenRepository: T
         return false
     }
 
+    override fun authenticate(authentication: Authentication): Authentication {
+        println(authentication)
+        authentication as UsernamePasswordAuthenticationToken
+        val username = authentication.principal as String
+        val password = authentication.credentials as String
+        val auth = authenticateUser(LdapUser(username, password))
+        return auth!!
+    }
+
     // Authenticate user with LDAP Server and return token if successful
-    fun authenticate(user: LdapUser): UserRet {
+    fun authenticateUser(user: LdapUser): Authentication? {
         try {
             initLdap().contextSource.getContext(findUserDn(user), user.password)
         } catch (e: AuthenticationException) {
@@ -164,8 +189,28 @@ class AuthenticationService(val userService: UserService, val tokenRepository: T
 
         response.addCookie(tokenCookie)
 
-        val userId = userService.userRepository.testForUser(user.username)[0].user_id
-
-        return userService.getUser(userId)
+        return null
     }
 }
+
+class AuthFilter(): UsernamePasswordAuthenticationFilter() {
+
+    val postOnly = true
+    
+    override fun attemptAuthentication(request: HttpServletRequest?, response: HttpServletResponse?): Authentication {
+        if (postOnly && request!!.method != "POST") {
+            throw AuthenticationServiceException("Authentication method not supported: " + request!!.method)
+        }
+        var username = obtainUsername(request)
+        username = username ?: ""
+        username = username.trim { it <= ' ' }
+        var password = obtainPassword(request)
+        password = password ?: ""
+        val authRequest = UsernamePasswordAuthenticationToken(username, password)
+        // Allow subclasses to set the "details" property
+        // Allow subclasses to set the "details" property
+        setDetails(request, authRequest)
+        return authenticationManager.authenticate(authRequest)
+    }
+}
+
