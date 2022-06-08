@@ -13,11 +13,12 @@ data class AtlasUser(@Id var user_id: Int,
                 private var name: String,
                 var username: String,
                 var email: String,
-                @Transient @JsonIgnore var role: Role = Role(5, "guest"),
-                @Transient @JsonIgnore var password: String = "",
-                @Transient @JsonIgnore private var authenticated: Boolean = false
     ): Authentication {
 
+
+    @Transient @JsonIgnore var role: Role? = null
+    @Transient @JsonIgnore var password: String = ""
+    @Transient @JsonIgnore private var authenticated: Boolean = false
     override fun getName(): String = name
 
     fun setName(name: String) {
@@ -27,7 +28,7 @@ data class AtlasUser(@Id var user_id: Int,
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
         return mutableListOf(
             SimpleGrantedAuthority(
-                role.name))
+                ""))
     }
 
     override fun getCredentials(): Any {

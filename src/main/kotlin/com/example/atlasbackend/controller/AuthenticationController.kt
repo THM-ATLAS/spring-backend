@@ -2,19 +2,17 @@ package com.example.atlasbackend.controller
 
 import com.example.atlasbackend.classes.*
 import com.example.atlasbackend.repository.TokenRepository
-import com.example.atlasbackend.service.AuthenticationService
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class AuthenticationController(val authenticationService: AuthenticationService, val tokenRepository: TokenRepository, val userDetailsService: UserDetailsService) {
+class AuthenticationController(val tokenRepository: TokenRepository) {
 
-    @PostMapping("/authenticate")
+    /*@PostMapping("/authenticate")
     fun authenticate(@RequestBody user: LdapUser): String {
         return user.username
-    }
+    }*/
 
     @PostMapping("/users/logout")
     fun logout(@RequestBody token: TokenRet) {
