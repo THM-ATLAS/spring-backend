@@ -167,7 +167,7 @@ class ModuleService(val moduleRepository: ModuleRepository, val roleRepository: 
             throw UserNotFoundException
         }
 
-        val atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email)
+        val atlasUser = userRepository.findById(user.user_id).get()
 
         if (moduleRepository.getUsersByModule(moduleID).contains(atlasUser).not()) {
             throw UserNotInModuleException

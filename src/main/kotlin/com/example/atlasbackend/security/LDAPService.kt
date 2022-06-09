@@ -1,81 +1,33 @@
-package com.example.atlasbackend.service
+package com.example.atlasbackend.security
 
 import com.example.atlasbackend.classes.*
 import com.example.atlasbackend.exception.TokenCreationError
 import com.example.atlasbackend.exception.TokenExpiredException
 import com.example.atlasbackend.exception.TokenMissingException
 import com.example.atlasbackend.exception.UnprocessableEntityException
+import com.example.atlasbackend.repository.RoleRepository
 import com.example.atlasbackend.repository.TokenRepository
-import com.example.atlasbackend.repository.UserRepository
+import com.example.atlasbackend.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import javax.servlet.http.Cookie
 import org.springframework.ldap.AuthenticationException
 import org.springframework.ldap.core.AttributesMapper
-import org.springframework.stereotype.Service
 import org.springframework.ldap.core.LdapTemplate
 import org.springframework.ldap.core.NameClassPairCallbackHandler
 import org.springframework.ldap.core.support.LdapContextSource
-import org.springframework.ldap.query.LdapQueryBuilder.query
+import org.springframework.ldap.query.LdapQueryBuilder
+import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
-import javax.servlet.http.HttpServletResponse
+import org.springframework.stereotype.Service
 import kotlin.random.Random
 
-@Component
-class LdapParams {
-    // This class loads values from application.properties to use them later
-    @Value("\${spring.ldap.url}")
-    lateinit var url: String
 
-    @Value("\${spring.ldap.base}")
-    lateinit var baseDn: String
-}
+class LdapService(val userService: UserService,
+                  val tokenRepository: TokenRepository,
+                  val roleRepository: RoleRepository
+) {
 
-@Service
-class AuthenticationService(val userService: UserService, val tokenRepository: TokenRepository, val response: HttpServletResponse) {
-    // Initialize and load LDAP params
-    @Autowired
-    var ldapParams = LdapParams()
-
-    // Initialize LDAP Template to fetch user DNs and authenticate them
-    fun initLdap(): LdapTemplate {
-        val ldapContextSource = LdapContextSource()
-
-        ldapContextSource.setUrl(ldapParams.url)
-        ldapContextSource.setBase(ldapParams.baseDn)
-        ldapContextSource.userDn = "anonymous"
-        ldapContextSource.password = "none"
-        ldapContextSource.isAnonymousReadOnly = true
-        ldapContextSource.afterPropertiesSet()
-
-        val ldapTemplate = LdapTemplate(ldapContextSource)
-        ldapTemplate.afterPropertiesSet()
-
-        return ldapTemplate
-    }
-
-    // Find user DN only from userid by searching LDAP
-    fun findUserDn(user: LdapUser): String {
-        var userDn = ""
-
-        initLdap().search(
-            query().where("objectclass").`is`("gifb-person").and("uid").`is`(user.username),
-            NameClassPairCallbackHandler { nameClassPair -> userDn = nameClassPair.nameInNamespace }
-        )
-
-        return userDn
-    }
-
-    // Get a users properties from an LDAP search
-    fun getUserProperties(user: LdapUser): AtlasUser {
-        val atlasUser = AtlasUser(0, "", "", "")
-        initLdap().search(
-            query().where("objectclass").`is`("gifb-person").and("uid").`is`(user.username),
-            AttributesMapper { attributes -> atlasUser.name = attributes.get("cn").get().toString(); atlasUser.email = attributes.get("mail").get().toString() }
-        )
-
-        return atlasUser
-    }
+    //WICHTIG: ist aus Legacy Gründen noch drin, damit der Token gen Kram nicht verloren geht, aber bitte nicht mehr benutzen
 
     // Generate a random Token
     fun getRandomToken(): String {
@@ -93,8 +45,6 @@ class AuthenticationService(val userService: UserService, val tokenRepository: T
 
         return token
     }
-
-    // Validate that a token is still valid
     fun validateToken(token: String): AtlasUser {
         if(tokenRepository.getUserFromToken(token).isEmpty()) {
             throw TokenMissingException
@@ -113,12 +63,7 @@ class AuthenticationService(val userService: UserService, val tokenRepository: T
     fun dbAuthenticate(user: LdapUser): Boolean {
         return false
     }
-
-    // Authenticate user with LDAP Server and return token if successful
-    fun authenticate(user: LdapUser): UserRet {
-        try {
-            initLdap().contextSource.getContext(findUserDn(user), user.password)
-        } catch (e: AuthenticationException) {
+    /*fun authenticateUser(user: LdapUser): Authentication? {
             if(!dbAuthenticate(user)) {
                 throw UnprocessableEntityException
             }
@@ -160,12 +105,7 @@ class AuthenticationService(val userService: UserService, val tokenRepository: T
             throw TokenCreationError
         }
 
-        val tokenCookie = Cookie("token", tokenRet.token)
+        return null
+    }*/
 
-        response.addCookie(tokenCookie)
-
-        val userId = userService.userRepository.testForUser(user.username)[0].user_id
-
-        return userService.getUser(userId)
-    }
 }
