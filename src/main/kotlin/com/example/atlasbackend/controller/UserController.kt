@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class UserController(val userService: UserService) {
 
+    @GetMapping("/")
+    fun authSuccess() = "Authentication successful"
+
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Returns all Users"),
