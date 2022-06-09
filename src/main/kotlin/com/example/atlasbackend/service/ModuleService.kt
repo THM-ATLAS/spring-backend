@@ -1,7 +1,6 @@
 package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.AtlasModule
-import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.classes.ModuleUser
 import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.ModuleRepository

@@ -2,10 +2,6 @@ package com.example.atlasbackend.security
 
 import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.exception.InvalidCredentialsException
-import com.example.atlasbackend.repository.UserRepository
-import com.example.atlasbackend.service.UserService
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Bean
 import org.springframework.ldap.core.AttributesMapper
 import org.springframework.ldap.core.LdapTemplate
 import org.springframework.ldap.core.support.LdapContextSource
@@ -14,7 +10,6 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 
 @Component
@@ -76,7 +71,7 @@ class LDAPAuthenticationManager(
         try {
             initLdap().contextSource.getContext(findUserDn(username), password)
         } catch(error: java.lang.Exception) {
-            if(!(passwordEncoder().matches(password, userDetailsService.loadUserByUsername(username).password))) {
+            if(!(BCryptPasswordEncoder().matches(password, userDetailsService.loadUserByUsername(username).password))) {
                 throw InvalidCredentialsException
             }
         }
@@ -88,10 +83,5 @@ class LDAPAuthenticationManager(
         ret.isAuthenticated = true
 
         return ret
-    }
-
-    @Autowired
-    fun passwordEncoder(): PasswordEncoder {
-        return BCryptPasswordEncoder()
     }
 }

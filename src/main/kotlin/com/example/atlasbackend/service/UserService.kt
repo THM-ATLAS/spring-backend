@@ -1,9 +1,9 @@
 package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.AtlasUser
-import com.example.atlasbackend.classes.Role
 import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.*
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
@@ -50,7 +50,7 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
         }
 
         user.roles.forEach { r ->
-            if (!roleRepository.existsById((r as Role).role_id)) throw RoleNotFoundException
+            if (!roleRepository.existsById(r.role_id)) throw RoleNotFoundException
             if (roleRepository.getRolesByUser(user.user_id).contains(r).not()) {
                 if (r.role_id == 3) {
                     throw InvalidRoleIDException
@@ -70,6 +70,10 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
             atlasUser.username = user.username
             atlasUser.email = user.email
 
+        if(user.password != "") {
+            userRepository.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(user.password))
+        }
+
 
         userRepository.save(atlasUser)
         atlasUser.roles = roleRepository.getRolesByUser(atlasUser.user_id).toMutableList()
@@ -81,10 +85,13 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
             throw InvalidUserIDException
         }
         var atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email)
+        if(user.password != "") {
+            userRepository.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(user.password))
+        }
         atlasUser = userRepository.save(atlasUser)
 
         user.roles.forEach { r  ->
-            if ((r as Role).role_id == 3){
+            if (r.role_id == 3){
                 throw InvalidRoleIDException
             }
             roleRepository.giveRole(atlasUser.user_id, r.role_id)
@@ -93,12 +100,13 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
         settingsRepository.createSettings(atlasUser.user_id)
 
         user.roles = roleRepository.getRolesByUser(user.user_id).toMutableList()
+
         return user
     }
 
     fun addUsers(users: List<AtlasUser>): List<AtlasUser> {
 
-        var userRet = emptyList<AtlasUser>().toMutableList()
+        val userRet = emptyList<AtlasUser>().toMutableList()
 
         users.forEach { u ->
             if (u.user_id != 0) {
@@ -106,10 +114,13 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
             }
 
             var atlasUser = AtlasUser(u.user_id, u.name, u.username, u.email)
+            if(u.password != "") {
+                userRepository.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(u.password))
+            }
             atlasUser = userRepository.save(atlasUser)
 
             u.roles.forEach { r ->
-                if ((r as Role).role_id == 3) {
+                if (r.role_id == 3) {
                     throw InvalidRoleIDException
                 }
                 roleRepository.giveRole(atlasUser.user_id, r.role_id)
@@ -141,7 +152,7 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
     }
 
     fun delUsers(users: List<AtlasUser>): List<AtlasUser> {
-        var ret = emptyList<AtlasUser>().toMutableList()
+        val ret = emptyList<AtlasUser>().toMutableList()
 
         users.forEach { u ->
             if (!userRepository.existsById(u.user_id)) {

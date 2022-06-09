@@ -1,10 +1,7 @@
 package com.example.atlasbackend.security
 
 import com.example.atlasbackend.classes.AtlasUser
-import com.example.atlasbackend.classes.Role
-import com.example.atlasbackend.exception.UserNotFoundException
 import com.example.atlasbackend.repository.RoleRepository
-import com.example.atlasbackend.repository.TokenRepository
 import com.example.atlasbackend.repository.UserRepository
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
