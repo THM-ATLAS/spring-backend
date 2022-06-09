@@ -1,11 +1,9 @@
 package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.AtlasUser
-import com.example.atlasbackend.classes.UserDetails
 import com.example.atlasbackend.classes.UserRet
 import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.*
-import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 
 @Service
@@ -27,8 +25,7 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
         }
     }
 
-    fun getMe(userAuth: String): UserRet {
-        val user = userRepository.testForUser(userAuth)[0]
+    fun getMe(user: AtlasUser): UserRet {
         return UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
     }
 

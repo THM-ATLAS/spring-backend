@@ -1,6 +1,7 @@
 package com.example.atlasbackend.security
 
 import com.example.atlasbackend.classes.AtlasUser
+import com.example.atlasbackend.classes.Role
 import com.example.atlasbackend.exception.UserNotFoundException
 import com.example.atlasbackend.repository.RoleRepository
 import com.example.atlasbackend.repository.TokenRepository
@@ -23,13 +24,8 @@ class UserDetailsService(val userRepository: UserRepository, val roleRepository:
             throw UserNotFoundException
         }
 
-        val roles = roleRepository.getRolesByUser(userRepository.testForUser(username)[0].user_id).sortedWith(compareBy({ it.role_id }))
+        user.roles.addAll(roleRepository.getRolesByUser(user.user_id).map(Role::getGrantedAuthority))
 
-        return com.example.atlasbackend.classes.UserDetails(
-            user.username, /*user.password*/
-            "",
-            tokenRepository.getAllTokens(user.user_id),
-            roles.first()
-        )
+        return user
     }
 }

@@ -1,5 +1,6 @@
 package com.example.atlasbackend.controller
 
+import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.service.UserService
 import com.example.atlasbackend.classes.UserRet
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -35,7 +36,7 @@ class UserController(val userService: UserService) {
 
     ])
     @GetMapping("/users/me")
-    fun getMe(@AuthenticationPrincipal user: String): UserRet {
+    fun getMe(@AuthenticationPrincipal user: AtlasUser): UserRet {
         return userService.getMe(user)
     }
 

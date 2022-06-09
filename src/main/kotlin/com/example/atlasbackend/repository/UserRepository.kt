@@ -9,10 +9,7 @@ import org.springframework.stereotype.Repository
 @Repository
 interface UserRepository: CrudRepository<AtlasUser, Int> {
 
-    @Query("SELECT * FROM \"user\" WHERE \"username\" = :username")
+    @Query("SELECT * FROM atlas.public.user WHERE username = :username")
     fun testForUser(@Param("username") username: String): List<AtlasUser>
 
 }
-
-@Repository
-interface UserRepositoryPw: CrudRepository<AtlasUser, Int>

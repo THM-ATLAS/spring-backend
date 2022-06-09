@@ -1,18 +1,21 @@
 package com.example.atlasbackend.security
 
-import com.example.atlasbackend.classes.AtlasUser
+import com.example.atlasbackend.repository.UserRepository
 import org.springframework.ldap.core.AttributesMapper
 import org.springframework.ldap.core.LdapTemplate
-import org.springframework.ldap.core.NameClassPairCallbackHandler
 import org.springframework.ldap.core.support.LdapContextSource
 import org.springframework.ldap.query.LdapQueryBuilder
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.stereotype.Component
 
-class LDAPAuthenticationManager: AuthenticationManager {
+@Component
+class LDAPAuthenticationManager(
+    val userRepository: UserRepository
+): AuthenticationManager {
 
-    fun initLdap(): LdapTemplate {
+    private fun initLdap(): LdapTemplate {
         val ldapContextSource = LdapContextSource()
 
         ldapContextSource.setUrl("ldaps://ldap.fh-giessen.de:636/")
@@ -29,25 +32,31 @@ class LDAPAuthenticationManager: AuthenticationManager {
     }
 
     fun getUserProperties(user: String): AuthenticationUser {
-        val authenticationUser = AuthenticationUser("", "", "")
+        val atlasUser = userRepository.testForUser(user)[0]
         initLdap().search(
-            LdapQueryBuilder.query().where("objectclass").`is`("gifb-person").and("uid").`is`(user),
-            AttributesMapper { attributes -> authenticationUser.name = attributes.get("cn").get().toString()
-                authenticationUser.email = attributes.get("mail").get().toString()
-                authenticationUser.username = user
-                /*atlasUser.role = roleRepository.getRolesByUser(atlasUser.user_id).sortedBy { r -> r.role_id }.get(0)*/}
-        )
+            LdapQueryBuilder
+                .query()
+                .where("objectclass")
+                .`is`("gifb-person")
+                .and("uid")
+                .`is`(user),
+            AttributesMapper { attributes ->
+                atlasUser.name = attributes.get("cn").get().toString()
+                atlasUser.email = attributes.get("mail").get().toString()
+                atlasUser.username = user
+                //*atlasUser.role = roleRepository.getRolesByUser(atlasUser.user_id).sortedBy { r -> r.role_id }.get(0)*//*}
 
-        return authenticationUser
+            })
+
+        return AuthenticationUser(atlasUser)
     }
 
-    fun findUserDn(user: String): String {
+    private fun findUserDn(user: String): String {
         var userDn = ""
 
         initLdap().search(
-            LdapQueryBuilder.query().where("objectclass").`is`("gifb-person").and("uid").`is`(user),
-            NameClassPairCallbackHandler { nameClassPair -> userDn = nameClassPair.nameInNamespace }
-        )
+            LdapQueryBuilder.query().where("objectclass").`is`("gifb-person").and("uid").`is`(user)
+        ) { nameClassPair -> userDn = nameClassPair.nameInNamespace }
 
         return userDn
     }
@@ -60,7 +69,7 @@ class LDAPAuthenticationManager: AuthenticationManager {
 
         initLdap().contextSource.getContext(findUserDn(username), password)
 
-        var ret = getUserProperties(username)
+        val ret = getUserProperties(username)
         ret.isAuthenticated = true
 
         return ret
