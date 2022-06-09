@@ -82,27 +82,9 @@ class GlobalExceptionHandler {
 
 
     /** [401] UNAUTHORIZED **/
-
-    // Access Token is expired
-    // TODO: Return how to authenticate, error & error description
-    @ExceptionHandler(value = [TokenExpiredException::class])
-    fun exception(exception: TokenExpiredException): ResponseEntity<ApiError> {
-        val err = ApiError(401, HttpStatus.UNAUTHORIZED, "TokenExpiredException", "Your access token has expired.")
-        return ResponseEntity<ApiError>(err, HttpStatus.UNAUTHORIZED)
-    }
-
-    // Access Token is missing
-    // TODO: Return how to authenticate
-    @ExceptionHandler(value = [TokenMissingException::class])
-    fun exception(exception: TokenMissingException): ResponseEntity<ApiError> {
-        val err = ApiError(401, HttpStatus.UNAUTHORIZED,"TokenMissingException", "You're not authorized to view this page.")
-        return ResponseEntity<ApiError>(err, HttpStatus.UNAUTHORIZED)
-    }
-
-    // Error during Token creation
-    @ExceptionHandler(value = [TokenCreationError::class])
-    fun exception(exception: TokenCreationError): ResponseEntity<ApiError> {
-        val err = ApiError(401, HttpStatus.UNAUTHORIZED,"TokenCreationError", "There was an Error during token creation, please try again")
+    @ExceptionHandler(value = [InvalidCredentialsException::class])
+    fun exception(exception: InvalidCredentialsException): ResponseEntity<ApiError> {
+        val err = ApiError(401, HttpStatus.UNAUTHORIZED,"InvalidCredentialsException", "The provided credentials did not match any known account")
         return ResponseEntity<ApiError>(err, HttpStatus.UNAUTHORIZED)
     }
 

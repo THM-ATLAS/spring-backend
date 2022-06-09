@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Component
 
 @Component
-class UserDetailsService(val userRepository: UserRepository, val roleRepository: RoleRepository, val tokenRepository: TokenRepository):
+class UserDetailsService(val userRepository: UserRepository, val roleRepository: RoleRepository):
     UserDetailsService {
 
     override fun loadUserByUsername(username: String): UserDetails {
@@ -21,10 +21,16 @@ class UserDetailsService(val userRepository: UserRepository, val roleRepository:
         if (userList.isNotEmpty()) {
             user = userList[0]
         } else {
-            throw UserNotFoundException
+            user = AtlasUser(0, "", "", "")
         }
 
         user.roles.addAll(roleRepository.getRolesByUser(user.user_id))
+
+        if(user.roles.isEmpty()) {
+            roleRepository.giveRole(user.user_id, 5)
+        }
+
+        user.password = userRepository.getPassword(username) ?: ""
 
         return user
     }

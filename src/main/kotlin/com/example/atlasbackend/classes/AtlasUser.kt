@@ -25,6 +25,10 @@ data class AtlasUser(@Id var user_id: Int,
         this.username = username
     }
 
+    fun setPassword(password: String) {
+        this.password = password
+    }
+
     @org.springframework.data.annotation.Transient
     @JsonIgnore
     override fun isAccountNonExpired(): Boolean = true

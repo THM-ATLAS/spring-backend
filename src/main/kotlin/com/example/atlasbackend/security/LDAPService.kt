@@ -1,9 +1,6 @@
 package com.example.atlasbackend.security
 
 import com.example.atlasbackend.classes.*
-import com.example.atlasbackend.exception.TokenCreationError
-import com.example.atlasbackend.exception.TokenExpiredException
-import com.example.atlasbackend.exception.TokenMissingException
 import com.example.atlasbackend.exception.UnprocessableEntityException
 import com.example.atlasbackend.repository.RoleRepository
 import com.example.atlasbackend.repository.TokenRepository
@@ -30,7 +27,7 @@ class LdapService(val userService: UserService,
     //WICHTIG: ist aus Legacy Gründen noch drin, damit der Token gen Kram nicht verloren geht, aber bitte nicht mehr benutzen
 
     // Generate a random Token
-    fun getRandomToken(): String {
+    /*fun getRandomToken(): String {
         val characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
         var token: String
@@ -63,7 +60,7 @@ class LdapService(val userService: UserService,
     fun dbAuthenticate(user: LdapUser): Boolean {
         return false
     }
-    /*fun authenticateUser(user: LdapUser): Authentication? {
+    fun authenticateUser(user: LdapUser): Authentication? {
             if(!dbAuthenticate(user)) {
                 throw UnprocessableEntityException
             }

@@ -1,7 +1,11 @@
 package com.example.atlasbackend.security
 
 import com.example.atlasbackend.classes.AtlasUser
+import com.example.atlasbackend.exception.InvalidCredentialsException
 import com.example.atlasbackend.repository.UserRepository
+import com.example.atlasbackend.service.UserService
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Bean
 import org.springframework.ldap.core.AttributesMapper
 import org.springframework.ldap.core.LdapTemplate
 import org.springframework.ldap.core.support.LdapContextSource
@@ -9,6 +13,8 @@ import org.springframework.ldap.query.LdapQueryBuilder
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 
 @Component
@@ -32,7 +38,7 @@ class LDAPAuthenticationManager(
         return ldapTemplate
     }
 
-    fun getUserProperties(user: String): AtlasAuthentication {
+    fun getUserProperties(user: String): AtlasUser {
         val atlasUser = userDetailsService.loadUserByUsername(user) as AtlasUser
         initLdap().search(
             LdapQueryBuilder
@@ -48,7 +54,7 @@ class LDAPAuthenticationManager(
 
             })
 
-        return AtlasAuthentication(atlasUser)
+        return atlasUser
     }
 
     private fun findUserDn(user: String): String {
@@ -67,12 +73,25 @@ class LDAPAuthenticationManager(
         val username = authentication.principal as String
         val password = authentication.credentials as String
 
-        initLdap().contextSource.getContext(findUserDn(username), password)
+        try {
+            initLdap().contextSource.getContext(findUserDn(username), password)
+        } catch(error: java.lang.Exception) {
+            if(!(passwordEncoder().matches(password, userDetailsService.loadUserByUsername(username).password))) {
+                throw InvalidCredentialsException
+            }
+        }
 
-        val ret = getUserProperties(username)
+        val user = getUserProperties(username)
+        userDetailsService.userRepository.save(user)
+
+        val ret = AtlasAuthentication(user)
         ret.isAuthenticated = true
 
         return ret
     }
 
+    @Autowired
+    fun passwordEncoder(): PasswordEncoder {
+        return BCryptPasswordEncoder()
+    }
 }
