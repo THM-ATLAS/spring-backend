@@ -14,16 +14,30 @@ data class AtlasUser(@Id var user_id: Int,
 ): UserDetails {
 
     @org.springframework.data.annotation.Transient @JsonIgnore private var password: String = ""
-    @org.springframework.data.annotation.Transient @JsonIgnore var roles: MutableCollection<GrantedAuthority> = mutableListOf()
+    @org.springframework.data.annotation.Transient var roles: MutableCollection<GrantedAuthority> = mutableListOf()
 
+    @org.springframework.data.annotation.Transient
+    @JsonIgnore
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> = roles
     override fun getPassword(): String = password
     override fun getUsername(): String = username
     fun setUsername(username: String) {
         this.username = username
     }
+
+    @org.springframework.data.annotation.Transient
+    @JsonIgnore
     override fun isAccountNonExpired(): Boolean = true
+
+    @org.springframework.data.annotation.Transient
+    @JsonIgnore
     override fun isAccountNonLocked(): Boolean = true
+
+    @org.springframework.data.annotation.Transient
+    @JsonIgnore
     override fun isCredentialsNonExpired(): Boolean = true
+
+    @org.springframework.data.annotation.Transient
+    @JsonIgnore
     override fun isEnabled(): Boolean = true
 }

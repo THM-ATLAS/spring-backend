@@ -6,7 +6,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 
 @Table("user")
-data class AuthenticationUser(val user: AtlasUser): Authentication {
+data class AtlasAuthentication(val user: AtlasUser): Authentication {
 
     private var authenticated: Boolean = false
     override fun getName(): String = user.name

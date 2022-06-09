@@ -1,5 +1,6 @@
 package com.example.atlasbackend.security
 
+import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.repository.UserRepository
 import org.springframework.ldap.core.AttributesMapper
 import org.springframework.ldap.core.LdapTemplate
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class LDAPAuthenticationManager(
-    val userRepository: UserRepository
+    val userDetailsService: UserDetailsService
 ): AuthenticationManager {
 
     private fun initLdap(): LdapTemplate {
@@ -31,8 +32,8 @@ class LDAPAuthenticationManager(
         return ldapTemplate
     }
 
-    fun getUserProperties(user: String): AuthenticationUser {
-        val atlasUser = userRepository.testForUser(user)[0]
+    fun getUserProperties(user: String): AtlasAuthentication {
+        val atlasUser = userDetailsService.loadUserByUsername(user) as AtlasUser
         initLdap().search(
             LdapQueryBuilder
                 .query()
@@ -44,11 +45,10 @@ class LDAPAuthenticationManager(
                 atlasUser.name = attributes.get("cn").get().toString()
                 atlasUser.email = attributes.get("mail").get().toString()
                 atlasUser.username = user
-                //*atlasUser.role = roleRepository.getRolesByUser(atlasUser.user_id).sortedBy { r -> r.role_id }.get(0)*//*}
 
             })
 
-        return AuthenticationUser(atlasUser)
+        return AtlasAuthentication(atlasUser)
     }
 
     private fun findUserDn(user: String): String {

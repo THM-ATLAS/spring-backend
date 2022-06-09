@@ -2,7 +2,6 @@ package com.example.atlasbackend.controller
 
 import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.service.UserService
-import com.example.atlasbackend.classes.UserRet
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -25,7 +24,7 @@ class UserController(val userService: UserService) {
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/users")
-    fun getAllUsers(): List<UserRet> {
+    fun getAllUsers(): List<AtlasUser> {
         return userService.getAllUsers()
     }
 
@@ -36,7 +35,7 @@ class UserController(val userService: UserService) {
 
     ])
     @GetMapping("/users/me")
-    fun getMe(@AuthenticationPrincipal user: AtlasUser): UserRet {
+    fun getMe(@AuthenticationPrincipal user: AtlasUser): AtlasUser {
         return userService.getMe(user)
     }
 
@@ -47,7 +46,7 @@ class UserController(val userService: UserService) {
                 ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/users/{id}")
-    fun getUser(@PathVariable id: Int): UserRet {
+    fun getUser(@PathVariable id: Int): AtlasUser {
         return userService.getUser(id)
     }
 
@@ -59,7 +58,7 @@ class UserController(val userService: UserService) {
                 ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PutMapping("/users")
-    fun editUser(@RequestBody body: UserRet): UserRet {
+    fun editUser(@RequestBody body: AtlasUser): AtlasUser {
         return userService.editUser(body)
     }
 
@@ -70,7 +69,7 @@ class UserController(val userService: UserService) {
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PostMapping("/users")
-    fun addUser(@RequestBody body: UserRet): UserRet {
+    fun addUser(@RequestBody body: AtlasUser): AtlasUser {
         return userService.addUser(body)
     }
 
@@ -81,7 +80,7 @@ class UserController(val userService: UserService) {
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PostMapping("/users/multiple")
-    fun addUsers(@RequestBody body: List<UserRet>): List<UserRet> {
+    fun addUsers(@RequestBody body: List<AtlasUser>): List<AtlasUser> {
         return userService.addUsers(body)
     }
 
@@ -92,7 +91,7 @@ class UserController(val userService: UserService) {
                 ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))])
             ])
     @DeleteMapping("/users/{id}")
-    fun delUser(@PathVariable id: Int): UserRet {
+    fun delUser(@PathVariable id: Int): AtlasUser {
         return userService.delUser(id)
     }
 
@@ -103,7 +102,7 @@ class UserController(val userService: UserService) {
                 ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))])
             ])
     @DeleteMapping("/users/multiple")
-    fun delUsers(@RequestBody body: List<UserRet>): List<UserRet> {
+    fun delUsers(@RequestBody body: List<AtlasUser>): List<AtlasUser> {
         return userService.delUsers(body)
     }
 }

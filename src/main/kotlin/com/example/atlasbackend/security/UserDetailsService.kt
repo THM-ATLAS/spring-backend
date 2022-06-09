@@ -24,7 +24,7 @@ class UserDetailsService(val userRepository: UserRepository, val roleRepository:
             throw UserNotFoundException
         }
 
-        user.roles.addAll(roleRepository.getRolesByUser(user.user_id).map(Role::getGrantedAuthority))
+        user.roles.addAll(roleRepository.getRolesByUser(user.user_id))
 
         return user
     }
