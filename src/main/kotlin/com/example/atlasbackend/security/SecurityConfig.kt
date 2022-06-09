@@ -19,7 +19,7 @@ class SecurityConfig(
             .authenticationManager(ldapAuthenticationManager)
             .addFilterAt(atlasAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
             .authorizeRequests()
-                .antMatchers("/", "/login", "/logout")
+                .antMatchers("/login", "/logout")
                 .permitAll()
             .anyRequest()
                 .authenticated()
