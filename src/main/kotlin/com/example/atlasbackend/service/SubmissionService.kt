@@ -12,7 +12,7 @@ class SubmissionService(val submissionRepository: SubmissionRepository, val exer
 
     fun getAllSubmissions(): List<Submission> {
         return submissionRepository.findAll().map {  s ->
-            Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.grade)
+            Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
         }.toList()
     }
 
@@ -22,7 +22,7 @@ class SubmissionService(val submissionRepository: SubmissionRepository, val exer
         }
 
         return submissionRepository.getSubmissionsByExercise(exerciseID).map {  s ->
-            Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.grade)
+            Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
         }.toList()
     }
 
@@ -32,7 +32,7 @@ class SubmissionService(val submissionRepository: SubmissionRepository, val exer
         }
 
         return submissionRepository.getSubmissionsByUser(userID).map {  s ->
-            Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.grade)
+            Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
         }.toList()
     }
 
@@ -51,39 +51,39 @@ class SubmissionService(val submissionRepository: SubmissionRepository, val exer
         return submissionRepository.findById(submissionID).get()
     }
 
-    fun editSubmission(submission: Submission): Submission {
-        if (!submissionRepository.existsById(submission.submission_id)) {
+    fun editSubmission(s: Submission): Submission {
+        if (!submissionRepository.existsById(s.submission_id)) {
             throw SubmissionNotFoundException
         }
 
         // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
         //    throw NoPermissionToEditExerciseException
 
-        val updatedSubmission = Submission(submission.submission_id, submission.exercise_id, submission.user_id, submission.file, submission.grade)
+        val updatedSubmission = Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
 
         submissionRepository.save(updatedSubmission)
 
         return updatedSubmission
     }
 
-    fun postSubmission(submission: Submission): Submission {
-        if (submission.submission_id != 0) {
+    fun postSubmission(s: Submission): Submission {
+        if (s.submission_id != 0) {
             throw InvalidParameterTypeException
         }
 
-        if (exerciseRepository.existsById(submission.exercise_id).not()) {
+        if (exerciseRepository.existsById(s.exercise_id).not()) {
             throw ExerciseNotFoundException
         }
 
-        if (userRepository.existsById(submission.user_id).not()) {
+        if (userRepository.existsById(s.user_id).not()) {
             throw UserNotFoundException
         }
 
         // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
         //    throw NoPermissionToEditSubmissionException
 
-        submissionRepository.save(submission)
-        return Submission(submission.submission_id, submission.exercise_id, submission.user_id, submission.file, submission.grade)
+        submissionRepository.save(s)
+        return Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
     }
 
     fun deleteSubmission(submissionID: Int): Submission {
@@ -97,12 +97,12 @@ class SubmissionService(val submissionRepository: SubmissionRepository, val exer
 
         // TODO: throw InternalServerError
 
-        val submission = submissionRepository.findById(submissionID).get()
+        val s = submissionRepository.findById(submissionID).get()
 
         // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
         //   throw AccessDeniedException
 
-        val ret = Submission(submission.submission_id, submission.exercise_id, submission.user_id, submission.file, submission.grade)
+        val ret = Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
 
         submissionRepository.deleteById(submissionID)
 
