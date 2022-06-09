@@ -1,7 +1,11 @@
 package com.example.atlasbackend.controller
 
+import com.example.atlasbackend.classes.AtlasUser
+import com.example.atlasbackend.classes.UserDetails
 import com.example.atlasbackend.service.UserService
 import com.example.atlasbackend.classes.UserRet
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -19,8 +23,8 @@ class UserController(val userService: UserService) {
     }
 
     @GetMapping("/users/me")
-    fun getMe()/*: UserRet*/ {
-        //return userService.getMe()
+    fun getMe(@AuthenticationPrincipal user: String): UserRet {
+        return userService.getMe(user)
     }
 
     @GetMapping("/users/{id}")

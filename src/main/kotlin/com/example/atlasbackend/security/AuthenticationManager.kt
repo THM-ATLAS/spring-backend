@@ -28,17 +28,17 @@ class LDAPAuthenticationManager: AuthenticationManager {
         return ldapTemplate
     }
 
-    fun getUserProperties(user: String): AtlasUser {
-        val atlasUser = AtlasUser(0, "", "", "")
+    fun getUserProperties(user: String): AuthenticationUser {
+        val authenticationUser = AuthenticationUser("", "", "")
         initLdap().search(
             LdapQueryBuilder.query().where("objectclass").`is`("gifb-person").and("uid").`is`(user),
-            AttributesMapper { attributes -> atlasUser.name = attributes.get("cn").get().toString()
-                atlasUser.email = attributes.get("mail").get().toString()
-                atlasUser.username = user
+            AttributesMapper { attributes -> authenticationUser.name = attributes.get("cn").get().toString()
+                authenticationUser.email = attributes.get("mail").get().toString()
+                authenticationUser.username = user
                 /*atlasUser.role = roleRepository.getRolesByUser(atlasUser.user_id).sortedBy { r -> r.role_id }.get(0)*/}
         )
 
-        return atlasUser
+        return authenticationUser
     }
 
     fun findUserDn(user: String): String {

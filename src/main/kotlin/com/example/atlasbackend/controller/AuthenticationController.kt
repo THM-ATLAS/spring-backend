@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class AuthenticationController(val tokenRepository: TokenRepository) {
 
-    /*@PostMapping("/authenticate")
+    @PostMapping("/authenticate")
     fun authenticate(@RequestBody user: LdapUser): String {
         return user.username
-    }*/
+    }
 
-    @PostMapping("/users/logout")
+    /*@PostMapping("/users/logout")
     fun logout(@RequestBody token: TokenRet) {
         return tokenRepository.revokeToken(token.token)
     }
@@ -22,5 +22,5 @@ class AuthenticationController(val tokenRepository: TokenRepository) {
     @PostMapping("/users/logout/all")
     fun logoutAll(@RequestBody user: UserRet) {
         return tokenRepository.revokeAllTokens(user.user_id)
-    }
+    }*/
 }

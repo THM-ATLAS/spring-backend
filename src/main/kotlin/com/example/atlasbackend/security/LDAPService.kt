@@ -22,64 +22,12 @@ import org.springframework.stereotype.Service
 import kotlin.random.Random
 
 
-@Component
-class LdapParams {
-    // This class loads values from application.properties to use them later
-    @Value("\${spring.ldap.url}")
-    lateinit var url: String
-
-    @Value("\${spring.ldap.base}")
-    lateinit var baseDn: String
-}
-
-@Service
 class LdapService(val userService: UserService,
                   val tokenRepository: TokenRepository,
                   val roleRepository: RoleRepository
 ) {
-    @Autowired
-    var ldapParams = LdapParams()
 
-    // Initialize LDAP Template to fetch user DNs and authenticate them
-    fun initLdap(): LdapTemplate {
-        val ldapContextSource = LdapContextSource()
-
-        ldapContextSource.setUrl(ldapParams.url)
-        ldapContextSource.setBase(ldapParams.baseDn)
-        ldapContextSource.userDn = "anonymous"
-        ldapContextSource.password = "none"
-        ldapContextSource.isAnonymousReadOnly = true
-        ldapContextSource.afterPropertiesSet()
-
-        val ldapTemplate = LdapTemplate(ldapContextSource)
-        ldapTemplate.afterPropertiesSet()
-
-        return ldapTemplate
-    }
-
-    fun findUserDn(user: LdapUser): String {
-        var userDn = ""
-
-        initLdap().search(
-            LdapQueryBuilder.query().where("objectclass").`is`("gifb-person").and("uid").`is`(user.username),
-            NameClassPairCallbackHandler { nameClassPair -> userDn = nameClassPair.nameInNamespace }
-        )
-
-        return userDn
-    }
-
-    // Get a users properties from an LDAP search
-    fun getUserProperties(user: LdapUser): AtlasUser {
-        val atlasUser = AtlasUser(0, "", "", "")
-        initLdap().search(
-            LdapQueryBuilder.query().where("objectclass").`is`("gifb-person").and("uid").`is`(user.username),
-            AttributesMapper { attributes -> atlasUser.name = attributes.get("cn").get().toString()
-                atlasUser.email = attributes.get("mail").get().toString()
-                /*atlasUser.role = roleRepository.getRolesByUser(atlasUser.user_id).sortedBy { r -> r.role_id }.get(0)*/}
-        )
-
-        return atlasUser
-    }
+    //WICHTIG: ist aus Legacy Gründen noch drin, damit der Token gen Kram nicht verloren geht, aber bitte nicht mehr benutzen
 
     // Generate a random Token
     fun getRandomToken(): String {
@@ -115,10 +63,7 @@ class LdapService(val userService: UserService,
     fun dbAuthenticate(user: LdapUser): Boolean {
         return false
     }
-    fun authenticateUser(user: LdapUser): Authentication? {
-        try {
-            initLdap().contextSource.getContext(findUserDn(user), user.password)
-        } catch (e: AuthenticationException) {
+    /*fun authenticateUser(user: LdapUser): Authentication? {
             if(!dbAuthenticate(user)) {
                 throw UnprocessableEntityException
             }
@@ -161,6 +106,6 @@ class LdapService(val userService: UserService,
         }
 
         return null
-    }
+    }*/
 
 }
