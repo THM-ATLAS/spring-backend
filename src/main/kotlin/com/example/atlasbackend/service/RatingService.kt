@@ -6,8 +6,6 @@ import com.example.atlasbackend.repository.ExerciseRepository
 import com.example.atlasbackend.repository.RatingRepository
 import com.example.atlasbackend.repository.UserRepository
 import org.springframework.stereotype.Service
-import org.springframework.web.bind.annotation.*
-import java.security.InvalidParameterException
 
 @Service
 class RatingService(val ratingRepository: RatingRepository, val exerciseRepository: ExerciseRepository, val userRepository: UserRepository) {
@@ -35,7 +33,7 @@ class RatingService(val ratingRepository: RatingRepository, val exerciseReposito
         if (exerciseRepository.existsById(body.exercise_id).not()) throw ExerciseNotFoundException
         if (userRepository.existsById(body.user_id).not()) throw UserNotFoundException
 
-        return ratingRepository.save(body);
+        return ratingRepository.save(body)
     }
 
     fun postRating(body: Rating): Rating {

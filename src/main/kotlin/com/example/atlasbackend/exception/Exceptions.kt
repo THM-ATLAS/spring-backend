@@ -42,14 +42,8 @@ object UserNotInModuleException: RuntimeException()
 
 /** [401] UNAUTHORIZED **/
 
-// Access Token is expired (Return how to authenticate, error & error description)
-object TokenExpiredException : RuntimeException()
-
-// Access Token is missing (Only return how to authenticate)
-object TokenMissingException : RuntimeException()
-
-// Error during token creation
-object TokenCreationError : RuntimeException()
+// Wrong login credentials provided
+object InvalidCredentialsException : RuntimeException()
 
 
 /** [403] FORBIDDEN **/
