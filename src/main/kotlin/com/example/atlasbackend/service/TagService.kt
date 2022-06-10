@@ -1,15 +1,13 @@
 package com.example.atlasbackend.service
 
-import com.example.atlasbackend.classes.Exercise
+import com.example.atlasbackend.classes.ExerciseRet
 import com.example.atlasbackend.classes.Tag
 import com.example.atlasbackend.exception.*
-import com.example.atlasbackend.repository.ExerciseRepository
-import com.example.atlasbackend.repository.TagRepository
+import com.example.atlasbackend.repository.*
 import org.springframework.stereotype.Service
-import org.springframework.web.bind.annotation.*
 
 @Service
-class TagService(val tagRepository: TagRepository, val exerciseRepository: ExerciseRepository) {
+class TagService(val tagRepository: TagRepository, val exerciseRepository: ExerciseRepository,val moduleRepository: ModuleRepository, val ratingRepository: RatingRepository, val exerciseTypeRepository: ExerciseTypeRepository) {
 
     fun getAllTags(): List<Tag>{
         return tagRepository.findAll().toList()
@@ -38,7 +36,7 @@ class TagService(val tagRepository: TagRepository, val exerciseRepository: Exerc
         return tag
     }
 
-    fun addExerciseTag(exerciseID: Int, tagID: Int): Exercise {
+    fun addExerciseTag(exerciseID: Int, tagID: Int): ExerciseRet {
         if(!exerciseRepository.existsById(exerciseID)){
             throw ExerciseNotFoundException
         }
@@ -46,7 +44,8 @@ class TagService(val tagRepository: TagRepository, val exerciseRepository: Exerc
             throw TagNotFoundException
         }
         tagRepository.addExerciseTag(exerciseID,tagID)
-        return exerciseRepository.findById(exerciseID).get()
+        val exercise = exerciseRepository.findById(exerciseID).get()
+        return ExerciseRet(exerciseID, moduleRepository.findById(exercise.module_id).get(), exercise.title,exercise.content,exercise.description, exercise.exercisePublic, ratingRepository.averageExerciseRating(exerciseID), exerciseTypeRepository.getExerciseTypeName(exercise.type_id),tagRepository.getExerciseTags(exerciseID))
     }
 
     fun deleteTag(tagID: Int): Tag {
@@ -58,8 +57,10 @@ class TagService(val tagRepository: TagRepository, val exerciseRepository: Exerc
         return tag
     }
 
-    fun deleteExerciseTag(exerciseID: Int, tagID: Int): Exercise {
+    fun deleteExerciseTag(exerciseID: Int, tagID: Int): ExerciseRet {
         tagRepository.removeExerciseTag(exerciseID,tagID)
-        return exerciseRepository.findById(exerciseID).get()
+        val exercise = exerciseRepository.findById(exerciseID).get()
+        return ExerciseRet(exerciseID, moduleRepository.findById(exercise.module_id).get(), exercise.title,exercise.content,exercise.description, exercise.exercisePublic, ratingRepository.averageExerciseRating(exerciseID), exerciseTypeRepository.getExerciseTypeName(exercise.type_id),tagRepository.getExerciseTags(exerciseID))
+
     }
 }
