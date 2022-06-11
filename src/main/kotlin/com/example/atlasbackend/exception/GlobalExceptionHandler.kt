@@ -82,6 +82,8 @@ class GlobalExceptionHandler {
 
 
     /** [401] UNAUTHORIZED **/
+
+    // Invalid Credentials when trying to log in
     @ExceptionHandler(value = [InvalidCredentialsException::class])
     fun exception(exception: InvalidCredentialsException): ResponseEntity<ApiError> {
         val err = ApiError(401, HttpStatus.UNAUTHORIZED,"InvalidCredentialsException", "The provided credentials did not match any known account")
@@ -156,18 +158,6 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
-    @ExceptionHandler(value = [UserCannotBeAddedToModuleException::class])
-    fun exception(exception: UserCannotBeAddedToModuleException): ResponseEntity<ApiError> {
-        val err = ApiError(403, HttpStatus.FORBIDDEN, "UserCannotBeAddedToModuleException", "Guests cannot be part of a module")
-        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
-    }
-
-    @ExceptionHandler(value = [UserNotInModuleException::class])
-    fun exception(exception: UserNotInModuleException): ResponseEntity<ApiError> {
-        val err = ApiError(403, HttpStatus.FORBIDDEN, "UserNotInModuleException", "Add the user to the module, before you can edit them.")
-        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
-    }
-
     // User is not allowed to edit this submission
     @ExceptionHandler(value = [NoPermissionToEditSubmissionException::class])
     fun exception(exception: NoPermissionToEditSubmissionException): ResponseEntity<ApiError> {
@@ -189,11 +179,24 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
-
     // User is not allowed to assign/remove tags for this exercise
     @ExceptionHandler(value = [NoPermissionToModifyExerciseTagsException::class])
     fun exception(exception: NoPermissionToModifyExerciseTagsException): ResponseEntity<ApiError> {
         val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyExerciseTagsException", "Insufficient permission to modify the tags of this exercise.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to be added to modules
+    @ExceptionHandler(value = [UserCannotBeAddedToModuleException::class])
+    fun exception(exception: UserCannotBeAddedToModuleException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "UserCannotBeAddedToModuleException", "Guests cannot be part of a module")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User can't be found in module
+    @ExceptionHandler(value = [UserNotInModuleException::class])
+    fun exception(exception: UserNotInModuleException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "UserNotInModuleException", "Add the user to the module, before you can edit them.")
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
@@ -217,8 +220,6 @@ class GlobalExceptionHandler {
     // Exercise ID doesn't exist
     @ExceptionHandler(value = [ExerciseNotFoundException::class])
     fun exception(exception: ExerciseNotFoundException): ResponseEntity<ApiError> {
-        // val errors: MutableList<String> = ArrayList()
-        // errors.add("Exercise not found")
         val err = ApiError(404, HttpStatus.NOT_FOUND, "ExerciseNotFoundException", "Couldn't find requested exercise.")
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
@@ -300,7 +301,6 @@ class GlobalExceptionHandler {
     /** [501] NOT IMPLEMENTED **/
 
     // Method not implemented yet
-    object NotImplementedException : RuntimeException()
     @ExceptionHandler(value = [NotYetImplementedException::class])
     fun exception(exception: NotYetImplementedException): ResponseEntity<ApiError> {
         val err = ApiError(501, HttpStatus.NOT_IMPLEMENTED, "NotYetImplementedException", "This function hasn't been implemented yet, please try again later.")

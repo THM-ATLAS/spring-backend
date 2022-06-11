@@ -24,6 +24,9 @@ object InvalidUserIDException : RuntimeException()
 // Invalid Module ID when creating module
 object InvalidModuleIDException : RuntimeException()
 
+// Invalid Role ID when assigning role
+object InvalidRoleIDException: RuntimeException()
+
 // Invalid Tag ID when creating tag
 object InvalidTagIDException : RuntimeException()
 
@@ -33,12 +36,10 @@ object InvalidSubmissionIDException : RuntimeException()
 // Invalid Rating ID when creating rating
 object InvalidRatingIDException : RuntimeException()
 
-// Invalid Role ID when assigning role
-object InvalidRoleIDException: RuntimeException()
 
 /** [401] UNAUTHORIZED **/
 
-// Wrong login credentials provided
+// Invalid Credentials when trying to log in
 object InvalidCredentialsException : RuntimeException()
 
 
