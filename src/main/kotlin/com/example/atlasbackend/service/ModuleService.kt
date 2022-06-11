@@ -1,7 +1,6 @@
 package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.AtlasModule
-import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.classes.ModuleUser
 import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.ModuleRepository
@@ -146,7 +145,7 @@ class ModuleService(val moduleRepository: ModuleRepository, val roleRepository: 
         if (moduleRepository.existsById(moduleID).not()) throw ModuleNotFoundException
         if (userRepository.existsById(user.user_id).not()) throw UserNotFoundException
 
-        val atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email)
+        val atlasUser = userRepository.findById(user.user_id).get()
 
         if (moduleRepository.getUsersByModule(moduleID).contains(atlasUser).not()) throw UserNotInModuleException
         if (user.module_role.role_id != 2 && user.module_role.role_id != 3 && user.module_role.role_id != 4) throw InvalidRoleIDException

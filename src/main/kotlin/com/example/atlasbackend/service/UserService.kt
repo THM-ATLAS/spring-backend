@@ -1,35 +1,43 @@
 package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.AtlasUser
-import com.example.atlasbackend.classes.UserRet
 import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.*
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
 class UserService(val userRepository: UserRepository, val roleRepository: RoleRepository, val settingsRepository: SettingsRepository) {
-    fun getAllUsers(): List<UserRet> {
+    fun getAllUsers(): List<AtlasUser> {
 
         // Error Catching
         // TODO: falls Berechtigungen fehlen: throw AccessDeniedException
 
         val users = userRepository.findAll().toList()
-        return users.map { u ->
-            UserRet(u.user_id, roleRepository.getRolesByUser(u.user_id), u.name, u.username, u.email)
+
+        users.forEach { u ->
+            u.roles = roleRepository.getRolesByUser(u.user_id).toMutableList()
         }
+
+        return users
     }
 
-    fun getUser(user_id: Int): UserRet {
+    fun getMe(user: AtlasUser): AtlasUser {
+        return user
+    }
+
+    fun getUser(user_id: Int): AtlasUser {
 
         // Error Catching
         // TODO: falls Berechtigungen fehlen: throw AccessDeniedException
         if (!userRepository.existsById(user_id)) throw UserNotFoundException
 
         val user = userRepository.findById(user_id).get()
-        return UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
+        user.roles = roleRepository.getRolesByUser(user_id).toMutableList()
+        return user
     }
 
-    fun editUser(user: UserRet): UserRet {
+    fun editUser(user: AtlasUser): AtlasUser {
 
         // Error Catching
         // TODO: falls Berechtigungen fehlen (nicht user selbst oder admin): throw NoPermissionToEditUserException
@@ -50,78 +58,103 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
             }
         }
 
-        val atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email)
-        val ret = UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
+        val atlasUser = userRepository.findById(user.user_id).get()
+            atlasUser.name = user.name
+            atlasUser.username = user.username
+            atlasUser.email = user.email
+
+        if(user.password != "") {
+            userRepository.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(user.password))
+        }
+
 
         userRepository.save(atlasUser)
-        return ret
+        atlasUser.roles = roleRepository.getRolesByUser(atlasUser.user_id).toMutableList()
+        return atlasUser
     }
 
-    fun addUser(user: UserRet): UserRet {
-
-        // Error Catching
-        if (user.user_id != 0) throw InvalidUserIDException
-
+    fun addUser(user: AtlasUser): AtlasUser {
+        if (user.user_id != 0) {
+            throw InvalidUserIDException
+        }
         var atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email)
+        if(user.password != "") {
+            userRepository.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(user.password))
+        }
         atlasUser = userRepository.save(atlasUser)
 
-        user.roles.forEach { r ->
-            if (r.role_id == 3) throw InvalidRoleIDException
-
+        user.roles.forEach { r  ->
+            if (r.role_id == 3){
+                throw InvalidRoleIDException
+            }
             roleRepository.giveRole(atlasUser.user_id, r.role_id)
         }
 
         settingsRepository.createSettings(atlasUser.user_id)
-        return UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
+
+        user.roles = roleRepository.getRolesByUser(user.user_id).toMutableList()
+
+        return user
     }
 
-    fun addUsers(users: List<UserRet>): List<UserRet> {
+    fun addUsers(users: List<AtlasUser>): List<AtlasUser> {
 
-        val userRet= emptyList<UserRet>().toMutableList()
+        val userRet = emptyList<AtlasUser>().toMutableList()
 
         users.forEach { u ->
             if (u.user_id != 0) throw InvalidUserIDException
 
             var atlasUser = AtlasUser(u.user_id, u.name, u.username, u.email)
+            if(u.password != "") {
+                userRepository.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(u.password))
+            }
             atlasUser = userRepository.save(atlasUser)
 
             u.roles.forEach { r ->
-                if (r.role_id == 3) throw InvalidRoleIDException
+                if (r.role_id == 3) {
+                    throw InvalidRoleIDException
+                }
                 roleRepository.giveRole(atlasUser.user_id, r.role_id)
             }
 
             settingsRepository.createSettings(atlasUser.user_id)
-            userRet.add(UserRet(atlasUser.user_id, roleRepository.getRolesByUser(atlasUser.user_id), atlasUser.name, atlasUser.username, atlasUser.email))
+            u.roles = roleRepository.getRolesByUser(u.user_id).toMutableList()
+            userRet.add(u)
         }
 
 
-        // TODO: falls Berechtigungen fehlen:
-        return userRet
-    }
-
-    fun delUser(user_id: Int): UserRet {
+            //TODO: falls Berechtigungen fehlen:
+            return userRet
+        }
+    fun delUser(user_id: Int): AtlasUser {
 
         // Error Catching
         // TODO: falls Berechtigungen fehlen (Nicht User selbst oder Admin): throw NoPermissionToDeleteUserException
         if (!userRepository.existsById(user_id)) throw UserNotFoundException
 
+        if (!userRepository.existsById(user_id)) {
+            throw UserNotFoundException
+        }
+
         val user = userRepository.findById(user_id).get()
-        val ret = UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email)
+        user.roles = roleRepository.getRolesByUser(user.user_id).toMutableList()
 
         userRepository.deleteById(user_id)
-        return ret
+        return user
     }
 
-    fun delUsers(users: List<UserRet>): List<UserRet> {
-
-        val ret = emptyList<UserRet>().toMutableList()
+    fun delUsers(users: List<AtlasUser>): List<AtlasUser> {
+        val ret = emptyList<AtlasUser>().toMutableList()
 
         users.forEach { u ->
-            if (!userRepository.existsById(u.user_id)) throw UserNotFoundException
+            if (!userRepository.existsById(u.user_id)) {
+                throw UserNotFoundException
+            }
 
             val user = userRepository.findById(u.user_id).get()
-            ret.add(UserRet(user.user_id, roleRepository.getRolesByUser(user.user_id), user.name, user.username, user.email))
+            user.roles = roleRepository.getRolesByUser(user.user_id).toMutableList()
 
+            ret.add(user)
             userRepository.deleteById(u.user_id)
         }
 

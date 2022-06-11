@@ -53,6 +53,12 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
+    @ExceptionHandler(value = [InvalidRoleIDException::class])
+    fun exception(exception: InvalidRoleIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidRoleIDException", "Module Roles can only be: 2: student, 3: tutor, or 4: teacher, 3: tutor cannot be a global role")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
     // Invalid Tag ID when creating tag
     @ExceptionHandler(value = [InvalidTagIDException::class])
     fun exception(exception: InvalidTagIDException): ResponseEntity<ApiError> {
@@ -74,36 +80,11 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
-    // Invalid Role ID when assigning role
-    @ExceptionHandler(value = [InvalidRoleIDException::class])
-    fun exception(exception: InvalidRoleIDException): ResponseEntity<ApiError> {
-        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidRoleIDException", "Module Roles can only be [2: student; 3: tutor; 4: teacher], 3: tutor cannot be a global role.")
-        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
-    }
-
 
     /** [401] UNAUTHORIZED **/
-
-    // Access Token is expired
-    // TODO: Return how to authenticate, error & error description
-    @ExceptionHandler(value = [TokenExpiredException::class])
-    fun exception(exception: TokenExpiredException): ResponseEntity<ApiError> {
-        val err = ApiError(401, HttpStatus.UNAUTHORIZED, "TokenExpiredException", "Your access token has expired.")
-        return ResponseEntity<ApiError>(err, HttpStatus.UNAUTHORIZED)
-    }
-
-    // Access Token is missing
-    // TODO: Return how to authenticate
-    @ExceptionHandler(value = [TokenMissingException::class])
-    fun exception(exception: TokenMissingException): ResponseEntity<ApiError> {
-        val err = ApiError(401, HttpStatus.UNAUTHORIZED,"TokenMissingException", "You're not authorized to view this page.")
-        return ResponseEntity<ApiError>(err, HttpStatus.UNAUTHORIZED)
-    }
-
-    // Error during Token creation
-    @ExceptionHandler(value = [TokenCreationError::class])
-    fun exception(exception: TokenCreationError): ResponseEntity<ApiError> {
-        val err = ApiError(401, HttpStatus.UNAUTHORIZED,"TokenCreationError", "There was an Error during token creation, please try again.")
+    @ExceptionHandler(value = [InvalidCredentialsException::class])
+    fun exception(exception: InvalidCredentialsException): ResponseEntity<ApiError> {
+        val err = ApiError(401, HttpStatus.UNAUTHORIZED,"InvalidCredentialsException", "The provided credentials did not match any known account")
         return ResponseEntity<ApiError>(err, HttpStatus.UNAUTHORIZED)
     }
 
@@ -175,6 +156,18 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
+    @ExceptionHandler(value = [UserCannotBeAddedToModuleException::class])
+    fun exception(exception: UserCannotBeAddedToModuleException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "UserCannotBeAddedToModuleException", "Guests cannot be part of a module")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    @ExceptionHandler(value = [UserNotInModuleException::class])
+    fun exception(exception: UserNotInModuleException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "UserNotInModuleException", "Add the user to the module, before you can edit them.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
     // User is not allowed to edit this submission
     @ExceptionHandler(value = [NoPermissionToEditSubmissionException::class])
     fun exception(exception: NoPermissionToEditSubmissionException): ResponseEntity<ApiError> {
@@ -204,20 +197,6 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
-    // User is not allowed to be added to modules
-    @ExceptionHandler(value = [UserCannotBeAddedToModuleException::class])
-    fun exception(exception: UserCannotBeAddedToModuleException): ResponseEntity<ApiError> {
-        val err = ApiError(403, HttpStatus.FORBIDDEN, "UserCannotBeAddedToModuleException", "Guests cannot be part of a module.")
-        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
-    }
-
-    // User can't be found in module
-    @ExceptionHandler(value = [UserNotInModuleException::class])
-    fun exception(exception: UserNotInModuleException): ResponseEntity<ApiError> {
-        val err = ApiError(403, HttpStatus.FORBIDDEN, "UserNotInModuleException", "Add the user to the module, before you can edit them.")
-        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
-    }
-
     // Submission was too late
     @ExceptionHandler(value = [SubmissionAfterDeadlineException::class])
     fun exception(exception: SubmissionAfterDeadlineException): ResponseEntity<ApiError> {
@@ -238,6 +217,8 @@ class GlobalExceptionHandler {
     // Exercise ID doesn't exist
     @ExceptionHandler(value = [ExerciseNotFoundException::class])
     fun exception(exception: ExerciseNotFoundException): ResponseEntity<ApiError> {
+        // val errors: MutableList<String> = ArrayList()
+        // errors.add("Exercise not found")
         val err = ApiError(404, HttpStatus.NOT_FOUND, "ExerciseNotFoundException", "Couldn't find requested exercise.")
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
@@ -319,6 +300,7 @@ class GlobalExceptionHandler {
     /** [501] NOT IMPLEMENTED **/
 
     // Method not implemented yet
+    object NotImplementedException : RuntimeException()
     @ExceptionHandler(value = [NotYetImplementedException::class])
     fun exception(exception: NotYetImplementedException): ResponseEntity<ApiError> {
         val err = ApiError(501, HttpStatus.NOT_IMPLEMENTED, "NotYetImplementedException", "This function hasn't been implemented yet, please try again later.")
