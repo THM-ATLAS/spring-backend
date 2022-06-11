@@ -45,6 +45,7 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
 
         user.roles.forEach { r ->
             if (!roleRepository.existsById(r.role_id)) throw RoleNotFoundException
+
             if (roleRepository.getRolesByUser(user.user_id).contains(r).not()) {
                 if (r.role_id == 3) throw InvalidRoleIDException
 
@@ -74,9 +75,10 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
     }
 
     fun addUser(user: AtlasUser): AtlasUser {
-        if (user.user_id != 0) {
-            throw InvalidUserIDException
-        }
+
+        // Error Catching
+        if (user.user_id != 0) throw InvalidUserIDException
+
         var atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email)
         if(user.password != "") {
             userRepository.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(user.password))
@@ -84,9 +86,8 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
         atlasUser = userRepository.save(atlasUser)
 
         user.roles.forEach { r  ->
-            if (r.role_id == 3){
-                throw InvalidRoleIDException
-            }
+            if (r.role_id == 3) throw InvalidRoleIDException
+
             roleRepository.giveRole(atlasUser.user_id, r.role_id)
         }
 
@@ -122,19 +123,14 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
             userRet.add(u)
         }
 
+        return userRet
+    }
 
-            //TODO: falls Berechtigungen fehlen:
-            return userRet
-        }
     fun delUser(user_id: Int): AtlasUser {
 
         // Error Catching
         // TODO: falls Berechtigungen fehlen (Nicht User selbst oder Admin): throw NoPermissionToDeleteUserException
         if (!userRepository.existsById(user_id)) throw UserNotFoundException
-
-        if (!userRepository.existsById(user_id)) {
-            throw UserNotFoundException
-        }
 
         val user = userRepository.findById(user_id).get()
         user.roles = roleRepository.getRolesByUser(user.user_id).toMutableList()
@@ -147,9 +143,7 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
         val ret = emptyList<AtlasUser>().toMutableList()
 
         users.forEach { u ->
-            if (!userRepository.existsById(u.user_id)) {
-                throw UserNotFoundException
-            }
+            if (!userRepository.existsById(u.user_id)) throw UserNotFoundException
 
             val user = userRepository.findById(u.user_id).get()
             user.roles = roleRepository.getRolesByUser(user.user_id).toMutableList()

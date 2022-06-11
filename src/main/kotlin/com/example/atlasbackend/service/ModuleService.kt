@@ -70,13 +70,13 @@ class ModuleService(val moduleRepository: ModuleRepository, val roleRepository: 
 
         // Error Catching
         if (moduleRepository.existsById(moduleID).not()) throw ModuleNotFoundException
+        if (roleRepository.getRolesByUser(user.user_id).size <= 1 && roleRepository.getRolesByUser(user.user_id)[0].role_id == 1) throw UserCannotBeAddedToModuleException
+        // TODO: Berechtigungen überprüfen
 
-        // TODO: Berechtigungen prüfen
-            if (roleRepository.getRolesByUser(user.user_id).size <= 1 && roleRepository.getRolesByUser(user.user_id)[0].role_id == 1) throw UserCannotBeAddedToModuleException
 
-            if (moduleRepository.getUsersByModule(moduleID).contains(userRepository.findById(user.user_id).get()).not()) {
-                moduleRepository.addUser(user.user_id, moduleID)
-            }
+        if (moduleRepository.getUsersByModule(moduleID).contains(userRepository.findById(user.user_id).get()).not()) {
+            moduleRepository.addUser(user.user_id, moduleID)
+        }
 
         return moduleRepository.getUsersByModule(moduleID).map {  u ->
             ModuleUser(u.user_id, moduleRepository.getModuleRolesByUser(u.user_id, moduleID), u.name, u.username, u.email)
@@ -87,8 +87,8 @@ class ModuleService(val moduleRepository: ModuleRepository, val roleRepository: 
 
         // Error Catching
         if (moduleRepository.existsById(moduleID).not()) throw ModuleNotFoundException
-
         // TODO: Berechtigungen prüfen
+
         users.forEach {  u ->
             if (roleRepository.getRolesByUser(u.user_id).size <= 1 && roleRepository.getRolesByUser(u.user_id)[0].role_id == 1) throw UserCannotBeAddedToModuleException
 
@@ -107,8 +107,8 @@ class ModuleService(val moduleRepository: ModuleRepository, val roleRepository: 
         // Error Catching
         if (moduleRepository.existsById(moduleID).not()) throw ModuleNotFoundException
         if (userRepository.existsById(userID).not()) throw UserNotFoundException
-
         // TODO: Berechtigungen prüfen
+
         if (moduleRepository.getUsersByModule(moduleID).contains(userRepository.findById(userID).get())) {
             moduleRepository.removeUser(userID, moduleID)
         }
@@ -122,12 +122,10 @@ class ModuleService(val moduleRepository: ModuleRepository, val roleRepository: 
 
         // Error Catching
         if (moduleRepository.existsById(moduleID).not()) throw ModuleNotFoundException
+        // TODO: Berechtigungen prüfen
 
         users.forEach {  u ->
-
             if (userRepository.existsById(u.user_id).not()) throw UserNotFoundException
-
-            // TODO: Berechtigungen prüfen
 
             if (moduleRepository.getUsersByModule(moduleID).contains(userRepository.findById(u.user_id).get())) {
                 moduleRepository.removeUser(u.user_id, moduleID)
@@ -144,14 +142,11 @@ class ModuleService(val moduleRepository: ModuleRepository, val roleRepository: 
         // Error Catching
         if (moduleRepository.existsById(moduleID).not()) throw ModuleNotFoundException
         if (userRepository.existsById(user.user_id).not()) throw UserNotFoundException
-
         val atlasUser = userRepository.findById(user.user_id).get()
-
         if (moduleRepository.getUsersByModule(moduleID).contains(atlasUser).not()) throw UserNotInModuleException
         if (user.module_role.role_id != 2 && user.module_role.role_id != 3 && user.module_role.role_id != 4) throw InvalidRoleIDException
 
         moduleRepository.updateUserModuleRoles(user.module_role.role_id, user.user_id, moduleID)
-
         return ModuleUser(user.user_id, moduleRepository.getModuleRolesByUser(user.user_id, moduleID), user.name, user.username, user.email)
     }
 }
