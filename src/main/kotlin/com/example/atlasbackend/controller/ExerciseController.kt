@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.web.bind.annotation.*
 
 @RestController
+@RequestMapping("/api/")
 class ExerciseController(val exerciseService: ExerciseService) {
 
     @ApiResponses(

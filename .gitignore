@@ -15,6 +15,7 @@ build/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
+!**/src/target/
 
 ### IntelliJ IDEA ###
 .idea
