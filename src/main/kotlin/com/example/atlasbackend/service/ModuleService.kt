@@ -62,7 +62,7 @@ class ModuleService(val moduleRepository: ModuleRepository, val roleRepository: 
         if (moduleRepository.existsById(moduleID).not()) throw ModuleNotFoundException
 
         return moduleRepository.getUsersByModule(moduleID).map { u ->
-            ModuleUser(u.user_id, moduleRepository.getModuleRolesByUser(u.user_id, moduleID), u.name, u.username, u.email)
+            ModuleUser(u.user_id, moduleRepository.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
         }
     }
 
@@ -79,7 +79,7 @@ class ModuleService(val moduleRepository: ModuleRepository, val roleRepository: 
         }
 
         return moduleRepository.getUsersByModule(moduleID).map {  u ->
-            ModuleUser(u.user_id, moduleRepository.getModuleRolesByUser(u.user_id, moduleID), u.name, u.username, u.email)
+            ModuleUser(u.user_id, moduleRepository.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
         }
     }
 
@@ -98,7 +98,7 @@ class ModuleService(val moduleRepository: ModuleRepository, val roleRepository: 
         }
 
         return moduleRepository.getUsersByModule(moduleID).map {  u ->
-            ModuleUser(u.user_id, moduleRepository.getModuleRolesByUser(u.user_id, moduleID), u.name, u.username, u.email)
+            ModuleUser(u.user_id, moduleRepository.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
         }
     }
 
@@ -114,7 +114,7 @@ class ModuleService(val moduleRepository: ModuleRepository, val roleRepository: 
         }
 
         return moduleRepository.getUsersByModule(moduleID).map {  u ->
-            ModuleUser(u.user_id, moduleRepository.getModuleRolesByUser(u.user_id, moduleID), u.name, u.username, u.email)
+            ModuleUser(u.user_id, moduleRepository.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
         }
     }
 
@@ -133,7 +133,7 @@ class ModuleService(val moduleRepository: ModuleRepository, val roleRepository: 
         }
 
         return moduleRepository.getUsersByModule(moduleID).map {  u ->
-            ModuleUser(u.user_id, moduleRepository.getModuleRolesByUser(u.user_id, moduleID), u.name, u.username, u.email)
+            ModuleUser(u.user_id, moduleRepository.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
         }
     }
 
@@ -146,7 +146,7 @@ class ModuleService(val moduleRepository: ModuleRepository, val roleRepository: 
         if (moduleRepository.getUsersByModule(moduleID).contains(atlasUser).not()) throw UserNotInModuleException
         if (user.module_role.role_id != 2 && user.module_role.role_id != 3 && user.module_role.role_id != 4) throw InvalidRoleIDException
 
-        moduleRepository.updateUserModuleRoles(user.module_role.role_id, user.user_id, moduleID)
-        return ModuleUser(user.user_id, moduleRepository.getModuleRolesByUser(user.user_id, moduleID), user.name, user.username, user.email)
+        moduleRepository.updateUserModuleRole(user.module_role.role_id, user.user_id, moduleID)
+        return ModuleUser(user.user_id, moduleRepository.getModuleRoleByUser(user.user_id, moduleID), user.name, user.username, user.email)
     }
 }
