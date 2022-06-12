@@ -194,6 +194,20 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
+    // User is not allowed to add this user to module (needs to be self/admin/teacher)
+    @ExceptionHandler(value = [NoPermissionToAddUserToModuleException::class])
+    fun exception(exception: NoPermissionToAddUserToModuleException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToAddUserToModuleException", "Insufficient permission to add user to module.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to remove this user to module (needs to be self/admin/teacher)
+    @ExceptionHandler(value = [NoPermissionToRemoveUserFromModuleException::class])
+    fun exception(exception: NoPermissionToRemoveUserFromModuleException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToRemoveUserFromModuleException", "Insufficient permission to remove user from module.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
     // User is not allowed to be added to modules
     @ExceptionHandler(value = [UserCannotBeAddedToModuleException::class])
     fun exception(exception: UserCannotBeAddedToModuleException): ResponseEntity<ApiError> {

@@ -1,152 +1,188 @@
 package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.AtlasModule
+import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.classes.ModuleUser
 import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.ModuleRepository
 import com.example.atlasbackend.repository.RoleRepository
 import com.example.atlasbackend.repository.UserRepository
 import org.springframework.stereotype.Service
-import org.springframework.web.bind.annotation.PathVariable
 
 @Service
-class ModuleService(val moduleRepository: ModuleRepository, val roleRepository: RoleRepository, val userRepository: UserRepository){
+class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, val userRep: UserRepository){
+
+    /***** GENERAL MODULE MANAGEMENT *****/
 
     fun loadModules(): List<AtlasModule> {
-        return moduleRepository.findAll().toList()
+        return modRep.findAll().toList()
     }
 
-    fun getModule(@PathVariable moduleID: Int): AtlasModule {
+    fun getModule(moduleID: Int): AtlasModule {
 
         // Error Catching
-        if (!moduleRepository.existsById(moduleID)) throw ModuleNotFoundException
-        // TODO: falls Berechtigungen fehlen (Wenn Security steht): throw AccessDeniedException
+        if (!modRep.existsById(moduleID)) throw ModuleNotFoundException
 
-        return moduleRepository.findById(moduleID).get()
+        // Functionality
+        return modRep.findById(moduleID).get()
     }
 
-    fun editModule(module: AtlasModule): AtlasModule {
+    fun updateModule(user: AtlasUser, module: AtlasModule): AtlasModule {
 
         // Error Catching
-        if (!moduleRepository.existsById(module.module_id)) throw ModuleNotFoundException
-        // TODO: falls Berechtigungen fehlen (Wenn Security steht): throw NoPermissionToEditModuleException
+        if (!modRep.existsById(module.module_id)) throw ModuleNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, module.module_id).role_id != 2)   // Check for teacher
+            throw NoPermissionToEditModuleException
 
-        moduleRepository.save(module)
+        // Functionality
+        modRep.save(module)
         return module
     }
 
-    fun createModule(module: AtlasModule): AtlasModule {
+    fun createModule(user: AtlasUser, module: AtlasModule): AtlasModule {
 
         // Error Catching
-        if(module.module_id != 0) throw InvalidModuleIDException
-        // TODO: falls Berechtigungen fehlen (Wenn Security steht): throw NoPermissionToEditModuleException
+        if (module.module_id != 0) throw InvalidModuleIDException
+        if (!user.roles.any { r -> r.role_id <= 2}) throw NoPermissionToEditModuleException   // Check for admin/teacher
 
-        moduleRepository.save(module)
+        // Functionality
+        modRep.save(module)
         return module
     }
 
-    fun deleteModule(moduleID: Int): AtlasModule {
+    fun deleteModule(user: AtlasUser, moduleID: Int): AtlasModule {
 
         // Error Catching
-        if (!moduleRepository.existsById(moduleID)) throw ModuleNotFoundException
-        // TODO: falls Berechtigungen fehlen (Wenn Security steht): throw NoPermissionToDeleteModuleException
+        if (!modRep.existsById(moduleID)) throw ModuleNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, moduleID).role_id != 2)   // Check for teacher
+            throw NoPermissionToDeleteModuleException
 
-        val module = moduleRepository.findById(moduleID).get()
-        moduleRepository.deleteById(moduleID)
+        // Functionality
+        val module = modRep.findById(moduleID).get()
+        modRep.deleteById(moduleID)
         return module
     }
 
-    fun getUsers(moduleID: Int): List<ModuleUser> {
+
+    /***** INTERNAL MODULE MANAGEMENT *****/
+
+    fun getUsers(user: AtlasUser, moduleID: Int): List<ModuleUser> {
 
         // Error Catching
-        if (moduleRepository.existsById(moduleID).not()) throw ModuleNotFoundException
+        if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, moduleID).role_id > 3)   // Check for tutor/teacher
+            throw AccessDeniedException
 
-        return moduleRepository.getUsersByModule(moduleID).map { u ->
-            ModuleUser(u.user_id, moduleRepository.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
+        // Functionality
+        return modRep.getUsersByModule(moduleID).map { u ->
+            ModuleUser(u.user_id, modRep.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
         }
     }
 
-    fun addUser(user: ModuleUser, moduleID: Int): List<ModuleUser> {
+    fun addUser(user: AtlasUser, modUser: ModuleUser, moduleID: Int): List<ModuleUser> {
 
         // Error Catching
-        if (moduleRepository.existsById(moduleID).not()) throw ModuleNotFoundException
-        if (roleRepository.getRolesByUser(user.user_id).size <= 1 && roleRepository.getRolesByUser(user.user_id)[0].role_id == 1) throw UserCannotBeAddedToModuleException
-        // TODO: Berechtigungen überprüfen
+        if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
+        if (userRep.existsById(modUser.user_id).not()) throw UserNotFoundException
+        if (roleRep.getRolesByUser(modUser.user_id).size <= 1 && roleRep.getRolesByUser(modUser.user_id)[0].role_id == 1) throw UserCannotBeAddedToModuleException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, moduleID).role_id != 2 &&   // Check for teacher
+            user.user_id != modUser.user_id)   // Check for self
+            throw NoPermissionToAddUserToModuleException
 
-
-        if (moduleRepository.getUsersByModule(moduleID).contains(userRepository.findById(user.user_id).get()).not()) {
-            moduleRepository.addUser(user.user_id, moduleID)
+        // Functionality
+        if (modRep.getUsersByModule(moduleID).contains(userRep.findById(modUser.user_id).get()).not()) {
+            modRep.addUser(modUser.user_id, moduleID)
         }
 
-        return moduleRepository.getUsersByModule(moduleID).map {  u ->
-            ModuleUser(u.user_id, moduleRepository.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
+        return modRep.getUsersByModule(moduleID).map {  u ->
+            ModuleUser(u.user_id, modRep.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
         }
     }
 
-    fun addUsers(users: List<ModuleUser>, moduleID: Int): List<ModuleUser> {
+    fun addUsers(user: AtlasUser, modUsers: List<ModuleUser>, moduleID: Int): List<ModuleUser> {
 
         // Error Catching
-        if (moduleRepository.existsById(moduleID).not()) throw ModuleNotFoundException
-        // TODO: Berechtigungen prüfen
+        if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, moduleID).role_id != 2)   // Check for teacher
+            throw NoPermissionToAddUserToModuleException
 
-        users.forEach {  u ->
-            if (roleRepository.getRolesByUser(u.user_id).size <= 1 && roleRepository.getRolesByUser(u.user_id)[0].role_id == 1) throw UserCannotBeAddedToModuleException
+        modUsers.forEach {  u ->
+            if (userRep.existsById(u.user_id).not()) throw UserNotFoundException
+            if (roleRep.getRolesByUser(u.user_id).size <= 1 && roleRep.getRolesByUser(u.user_id)[0].role_id == 1) throw UserCannotBeAddedToModuleException
 
-            if (moduleRepository.getUsersByModule(moduleID).contains(userRepository.findById(u.user_id).get()).not()) {
-                moduleRepository.addUser(u.user_id, moduleID)
+        // Functionality
+            if (modRep.getUsersByModule(moduleID).contains(userRep.findById(u.user_id).get()).not()) {
+                modRep.addUser(u.user_id, moduleID)
             }
         }
 
-        return moduleRepository.getUsersByModule(moduleID).map {  u ->
-            ModuleUser(u.user_id, moduleRepository.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
+        return modRep.getUsersByModule(moduleID).map {  u ->
+            ModuleUser(u.user_id, modRep.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
         }
     }
 
-    fun removeUser(userID: Int, moduleID: Int): List<ModuleUser> {
+    fun removeUser(user: AtlasUser, userID: Int, moduleID: Int): List<ModuleUser> {
 
         // Error Catching
-        if (moduleRepository.existsById(moduleID).not()) throw ModuleNotFoundException
-        if (userRepository.existsById(userID).not()) throw UserNotFoundException
-        // TODO: Berechtigungen prüfen
+        if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
+        if (userRep.existsById(userID).not()) throw UserNotFoundException
+        if (!modRep.getUsersByModule(moduleID).contains(userRep.findById(userID).get())) throw UserNotInModuleException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, moduleID).role_id != 2 &&   // Check for teacher
+            user.user_id != userID)   // Check for self
+            throw NoPermissionToRemoveUserFromModuleException
 
-        if (moduleRepository.getUsersByModule(moduleID).contains(userRepository.findById(userID).get())) {
-            moduleRepository.removeUser(userID, moduleID)
+        // Functionality
+        if (modRep.getUsersByModule(moduleID).contains(userRep.findById(userID).get())) {
+            modRep.removeUser(userID, moduleID)
         }
 
-        return moduleRepository.getUsersByModule(moduleID).map {  u ->
-            ModuleUser(u.user_id, moduleRepository.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
+        return modRep.getUsersByModule(moduleID).map {  u ->
+            ModuleUser(u.user_id, modRep.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
         }
     }
 
-    fun removeUsers(users: List<ModuleUser>, moduleID: Int): List<ModuleUser> {
+    fun removeUsers(user: AtlasUser, modUsers: List<ModuleUser>, moduleID: Int): List<ModuleUser> {
 
         // Error Catching
-        if (moduleRepository.existsById(moduleID).not()) throw ModuleNotFoundException
-        // TODO: Berechtigungen prüfen
+        if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, moduleID).role_id != 2)   // Check for teacher
+            throw NoPermissionToRemoveUserFromModuleException
 
-        users.forEach {  u ->
-            if (userRepository.existsById(u.user_id).not()) throw UserNotFoundException
+        modUsers.forEach {  u ->
+            if (userRep.existsById(u.user_id).not()) throw UserNotFoundException
+            if (!modRep.getUsersByModule(moduleID).contains(userRep.findById(u.user_id).get())) throw UserNotInModuleException
 
-            if (moduleRepository.getUsersByModule(moduleID).contains(userRepository.findById(u.user_id).get())) {
-                moduleRepository.removeUser(u.user_id, moduleID)
+        // Functionality
+            if (modRep.getUsersByModule(moduleID).contains(userRep.findById(u.user_id).get())) {
+                modRep.removeUser(u.user_id, moduleID)
             }
         }
 
-        return moduleRepository.getUsersByModule(moduleID).map {  u ->
-            ModuleUser(u.user_id, moduleRepository.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
+        return modRep.getUsersByModule(moduleID).map {  u ->
+            ModuleUser(u.user_id, modRep.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
         }
     }
 
-    fun editModuleRoles(user: ModuleUser, moduleID: Int): ModuleUser {
+    fun editModuleRoles(user: AtlasUser, modUser: ModuleUser, moduleID: Int): ModuleUser {
 
         // Error Catching
-        if (moduleRepository.existsById(moduleID).not()) throw ModuleNotFoundException
-        if (userRepository.existsById(user.user_id).not()) throw UserNotFoundException
-        val atlasUser = userRepository.findById(user.user_id).get()
-        if (moduleRepository.getUsersByModule(moduleID).contains(atlasUser).not()) throw UserNotInModuleException
-        if (user.module_role.role_id != 2 && user.module_role.role_id != 3 && user.module_role.role_id != 4) throw InvalidRoleIDException
+        if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
+        if (userRep.existsById(modUser.user_id).not()) throw UserNotFoundException
+        if (modRep.getUsersByModule(moduleID).contains(userRep.findById(modUser.user_id).get()).not()) throw UserNotInModuleException
+        if (modUser.module_role.role_id != 2 && modUser.module_role.role_id != 3 && modUser.module_role.role_id != 4) throw InvalidRoleIDException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, moduleID).role_id != 2)   // Check for teacher
+            throw NoPermissionToEditModuleException
 
-        moduleRepository.updateUserModuleRole(user.module_role.role_id, user.user_id, moduleID)
-        return ModuleUser(user.user_id, moduleRepository.getModuleRoleByUser(user.user_id, moduleID), user.name, user.username, user.email)
+        // Functionality
+        modRep.updateUserModuleRole(modUser.module_role.role_id, modUser.user_id, moduleID)
+        return ModuleUser(modUser.user_id, modRep.getModuleRoleByUser(modUser.user_id, moduleID), modUser.name, modUser.username, modUser.email)
     }
 }
