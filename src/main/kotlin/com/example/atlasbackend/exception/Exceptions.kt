@@ -18,23 +18,26 @@ object InvalidParameterTypeException : RuntimeException()
 // One/multiple requested/posted parameters are too long/short
 object InvalidParameterLengthException : RuntimeException()
 
-// Invalid User ID when creating user
-object InvalidUserIDException : RuntimeException()
+// Invalid Exercise ID when creating exercise
+object InvalidExerciseIDException : RuntimeException()
 
 // Invalid Module ID when creating module
 object InvalidModuleIDException : RuntimeException()
 
-// Invalid Role ID when assigning role
-object InvalidRoleIDException: RuntimeException()
-
-// Invalid Tag ID when creating tag
-object InvalidTagIDException : RuntimeException()
+// Invalid User ID when creating user
+object InvalidUserIDException : RuntimeException()
 
 // Invalid Submission ID when creating submission
 object InvalidSubmissionIDException : RuntimeException()
 
 // Invalid Rating ID when creating rating
 object InvalidRatingIDException : RuntimeException()
+
+// Invalid Tag ID when creating tag
+object InvalidTagIDException : RuntimeException()
+
+// Invalid Role ID when assigning role
+object InvalidRoleIDException: RuntimeException()
 
 
 /** [401] UNAUTHORIZED **/
@@ -103,23 +106,23 @@ object PageNotFoundException : RuntimeException()
 // Exercise ID doesn't exist
 object ExerciseNotFoundException : RuntimeException()
 
-// User ID doesn't exist
-object UserNotFoundException : RuntimeException()
-
 // Module ID doesn't exist
 object ModuleNotFoundException : RuntimeException()
 
-// Role ID doesn't exist
-object RoleNotFoundException : RuntimeException()
-
-// Tag ID doesn't exist
-object TagNotFoundException : RuntimeException()
+// User ID doesn't exist
+object UserNotFoundException : RuntimeException()
 
 // Submission ID doesn't exist
 object SubmissionNotFoundException : RuntimeException()
 
 // Rating ID doesn't exist
 object RatingNotFoundException : RuntimeException()
+
+// Tag ID doesn't exist
+object TagNotFoundException : RuntimeException()
+
+// Role ID doesn't exist
+object RoleNotFoundException : RuntimeException()
 
 // Setting ID doesn't exist
 object SettingNotFoundException : RuntimeException()
