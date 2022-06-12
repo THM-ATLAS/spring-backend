@@ -19,7 +19,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
         // Error Catching
         if (!user.roles.any { r -> r.role_id == 1}) throw AccessDeniedException   // Check for admin
 
-
+        // Functionality
         return exRep.findAll().map {  e ->
             ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
         }.toList()
@@ -33,7 +33,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
             user.user_id != userId)   // Check for self
             throw AccessDeniedException
 
-
+        // Functionality
         return exRep.getExercisesByUser(userId).map {  e ->
             ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
         }.toSet()
@@ -47,7 +47,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
             !modRep.getUsersByModule(moduleId).any { m -> m.user_id == user.user_id })   // Check if user in module
             throw AccessDeniedException
 
-
+        // Functionality
         return exRep.getExercisesByModule(moduleId).map {  e ->
             ExerciseRet(e.exercise_id, modRep.findById(moduleId).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
         }.toList()
@@ -61,6 +61,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
             !modRep.getUsersByModule(exRep.getModuleByExercise(exerciseID).module_id).any { m -> m.user_id == user.user_id })   // Check if user in module
             throw AccessDeniedException
 
+        // Functionality
         val e = exRep.findById(exerciseID).get()
         return ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
     }
@@ -70,7 +71,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
         // Error Catching
         if (!user.roles.any { r -> r.role_id == 1}) throw AccessDeniedException   // Check for admin
 
-
+        // Functionality
         return exTyRep.findAll().map {  et ->
             ExerciseType(et.type_id, et.name)
         }.toList()
@@ -81,10 +82,10 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
         // Error Catching
         if (!exRep.existsById(e.exercise_id)) throw ExerciseNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, e.module.module_id).role_id < 3)   // Check for tutor/teacher
+            modRep.getModuleRoleByUser(user.user_id, e.module.module_id).role_id > 3)   // Check for tutor/teacher
             throw NoPermissionToEditExerciseException
 
-
+        // Functionality
         val updatedExercise = Exercise(e.exercise_id, e.module.module_id, exTyRep.getExerciseTypeID(e.type), e.title, e.content, e.description, e.exercisePublic)
         exRep.save(updatedExercise)
         return ExerciseRet(e.exercise_id, modRep.findById(e.module.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), e.type, tagRep.getExerciseTags(e.exercise_id))
@@ -93,13 +94,13 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
     fun createExercise(@AuthenticationPrincipal user: AtlasUser, e: Exercise): ExerciseRet {
 
         // Error Catching
-        if (e.exercise_id != 0) throw InvalidParameterTypeException
+        if (e.exercise_id != 0) throw InvalidExerciseIDException
         if (modRep.existsById(e.module_id).not()) throw ModuleNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, e.module_id).role_id < 3)   // Check for tutor/teacher
+            modRep.getModuleRoleByUser(user.user_id, e.module_id).role_id > 3)   // Check for tutor/teacher
             throw NoPermissionToEditExerciseException
 
-
+        // Functionality
         exRep.save(e)
         return ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
     }
@@ -109,10 +110,10 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
         // Error Catching
         if (!exRep.existsById(exerciseID)) throw ExerciseNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, exRep.getModuleByExercise(exerciseID).module_id).role_id < 3)   // Check for tutor/teacher
+            modRep.getModuleRoleByUser(user.user_id, exRep.getModuleByExercise(exerciseID).module_id).role_id > 3)   // Check for tutor/teacher
             throw NoPermissionToDeleteExerciseException
 
-
+        // Functionality
         val e = exRep.findById(exerciseID).get()
         val ret = ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
         exRep.deleteById(exerciseID)

@@ -82,7 +82,8 @@ class ExerciseController(val exerciseService: ExerciseService) {
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Creates Exercises"),
-                ApiResponse(responseCode = "400", description = "InvalidUserIDException - Exercise ID must be 0", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "400", description = "InvalidExerciseIDException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "NoPermissionToEditExerciseException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PostMapping("/exercises")
