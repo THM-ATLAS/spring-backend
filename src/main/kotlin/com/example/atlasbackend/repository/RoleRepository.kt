@@ -20,5 +20,4 @@ interface RoleRepository: CrudRepository<Role, Int> {
     @Query("DELETE FROM user_role WHERE user_id = :user AND role_id = :role")
     @Modifying
     fun removeRole(@Param("user") user: Int, @Param("role") role: Int)
-
 }
