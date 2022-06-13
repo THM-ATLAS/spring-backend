@@ -32,7 +32,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         // Error Catching
         if (!modRep.existsById(module.module_id)) throw ModuleNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, module.module_id).role_id != 2)   // Check for teacher
+            modRep.getModuleRoleByUser(user.user_id, module.module_id).let { mru -> mru == null || mru.role_id != 2 } )   // Check for teacher
             throw NoPermissionToEditModuleException
 
         // Functionality
@@ -56,7 +56,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         // Error Catching
         if (!modRep.existsById(moduleID)) throw ModuleNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, moduleID).role_id != 2)   // Check for teacher
+            modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id != 2 } )   // Check for teacher
             throw NoPermissionToDeleteModuleException
 
         // Functionality
@@ -73,12 +73,12 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         // Error Catching
         if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, moduleID).role_id > 3)   // Check for tutor/teacher
+            modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
             throw AccessDeniedException
 
         // Functionality
         return modRep.getUsersByModule(moduleID).map { u ->
-            ModuleUser(u.user_id, modRep.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
+            ModuleUser(u.user_id, modRep.getModuleRoleByUser(u.user_id, moduleID)!!, u.name, u.username, u.email) // !! : should never return null
         }
     }
 
@@ -89,7 +89,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         if (userRep.existsById(modUser.user_id).not()) throw UserNotFoundException
         if (roleRep.getRolesByUser(modUser.user_id).size <= 1 && roleRep.getRolesByUser(modUser.user_id)[0].role_id == 1) throw UserCannotBeAddedToModuleException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, moduleID).role_id != 2 &&   // Check for teacher
+            modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id != 2 } &&   // Check for teacher
             user.user_id != modUser.user_id)   // Check for self
             throw NoPermissionToAddUserToModuleException
 
@@ -99,7 +99,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         }
 
         return modRep.getUsersByModule(moduleID).map {  u ->
-            ModuleUser(u.user_id, modRep.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
+            ModuleUser(u.user_id, modRep.getModuleRoleByUser(u.user_id, moduleID)!!, u.name, u.username, u.email) // !! :should never return null
         }
     }
 
@@ -108,7 +108,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         // Error Catching
         if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, moduleID).role_id != 2)   // Check for teacher
+            modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id != 2 })   // Check for teacher
             throw NoPermissionToAddUserToModuleException
 
         modUsers.forEach {  u ->
@@ -122,7 +122,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         }
 
         return modRep.getUsersByModule(moduleID).map {  u ->
-            ModuleUser(u.user_id, modRep.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
+            ModuleUser(u.user_id, modRep.getModuleRoleByUser(u.user_id, moduleID)!!, u.name, u.username, u.email) // !! : should never return null
         }
     }
 
@@ -133,7 +133,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         if (userRep.existsById(userID).not()) throw UserNotFoundException
         if (!modRep.getUsersByModule(moduleID).contains(userRep.findById(userID).get())) throw UserNotInModuleException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, moduleID).role_id != 2 &&   // Check for teacher
+            modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id != 2 } &&   // Check for teacher
             user.user_id != userID)   // Check for self
             throw NoPermissionToRemoveUserFromModuleException
 
@@ -143,7 +143,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         }
 
         return modRep.getUsersByModule(moduleID).map {  u ->
-            ModuleUser(u.user_id, modRep.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
+            ModuleUser(u.user_id, modRep.getModuleRoleByUser(u.user_id, moduleID)!!, u.name, u.username, u.email) // !! : should never return null
         }
     }
 
@@ -152,7 +152,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         // Error Catching
         if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, moduleID).role_id != 2)   // Check for teacher
+            modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id != 2 })   // Check for teacher
             throw NoPermissionToRemoveUserFromModuleException
 
         modUsers.forEach {  u ->
@@ -166,7 +166,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         }
 
         return modRep.getUsersByModule(moduleID).map {  u ->
-            ModuleUser(u.user_id, modRep.getModuleRoleByUser(u.user_id, moduleID), u.name, u.username, u.email)
+            ModuleUser(u.user_id, modRep.getModuleRoleByUser(u.user_id, moduleID)!!, u.name, u.username, u.email) // !! : should never return null
         }
     }
 
@@ -178,11 +178,11 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         if (modRep.getUsersByModule(moduleID).contains(userRep.findById(modUser.user_id).get()).not()) throw UserNotInModuleException
         if (modUser.module_role.role_id != 2 && modUser.module_role.role_id != 3 && modUser.module_role.role_id != 4) throw InvalidRoleIDException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, moduleID).role_id != 2)   // Check for teacher
+            modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id != 2 })   // Check for teacher
             throw NoPermissionToEditModuleException
 
         // Functionality
         modRep.updateUserModuleRole(modUser.module_role.role_id, modUser.user_id, moduleID)
-        return ModuleUser(modUser.user_id, modRep.getModuleRoleByUser(modUser.user_id, moduleID), modUser.name, modUser.username, modUser.email)
+        return ModuleUser(modUser.user_id, modRep.getModuleRoleByUser(modUser.user_id, moduleID)!!, modUser.name, modUser.username, modUser.email) // !! : should never return null
     }
 }

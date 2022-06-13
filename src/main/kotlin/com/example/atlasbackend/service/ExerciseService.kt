@@ -82,7 +82,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
         // Error Catching
         if (!exRep.existsById(e.exercise_id)) throw ExerciseNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, e.module.module_id).role_id > 3)   // Check for tutor/teacher
+            modRep.getModuleRoleByUser(user.user_id, e.module.module_id).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
             throw NoPermissionToEditExerciseException
 
         // Functionality
@@ -97,7 +97,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
         if (e.exercise_id != 0) throw InvalidExerciseIDException
         if (modRep.existsById(e.module_id).not()) throw ModuleNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, e.module_id).role_id > 3)   // Check for tutor/teacher
+            modRep.getModuleRoleByUser(user.user_id, e.module_id).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
             throw NoPermissionToEditExerciseException
 
         // Functionality
@@ -110,7 +110,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
         // Error Catching
         if (!exRep.existsById(exerciseID)) throw ExerciseNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, exRep.getModuleByExercise(exerciseID).module_id).role_id > 3)   // Check for tutor/teacher
+            modRep.getModuleRoleByUser(user.user_id, exRep.getModuleByExercise(exerciseID).module_id).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
             throw NoPermissionToDeleteExerciseException
 
         // Functionality
