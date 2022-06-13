@@ -12,9 +12,9 @@ import org.springframework.stereotype.Repository
 @Repository
 interface ModuleRepository: CrudRepository<AtlasModule,Int> {
 
-    @Query("INSERT INTO user_module_role (user_id, module_id) VALUES (:user, :module)")
+    @Query("INSERT INTO user_module_role (user_id, module_id, role_id) VALUES (:user, :module, :role)")
     @Modifying
-    fun addUser(@Param("user") user: Int, @Param("module") module: Int)
+    fun addUser(@Param("user") user: Int, @Param("module") module: Int,@Param("role") role:Int)
 
     @Query("SELECT u.user_id, u.name, u.username, u.email FROM atlas.public.user u JOIN user_module_role umr ON u.user_id = umr.user_id WHERE umr.module_id = :module GROUP BY u.user_id")
     fun getUsersByModule(@Param("module") module: Int): List<AtlasUser>

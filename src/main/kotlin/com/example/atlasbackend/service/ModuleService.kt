@@ -48,6 +48,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
 
         // Functionality
         modRep.save(module)
+        modRep.addUser(user.user_id,module.module_id,2) // when creating a module u should be added as teacher
         return module
     }
 
@@ -95,7 +96,12 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
 
         // Functionality
         if (modRep.getUsersByModule(moduleID).contains(userRep.findById(modUser.user_id).get()).not()) {
-            modRep.addUser(modUser.user_id, moduleID)
+            if(user.user_id == modUser.user_id){
+                modRep.addUser(modUser.user_id, moduleID,4)
+            }else{
+                modRep.addUser(modUser.user_id, moduleID,modUser.module_role.role_id)
+            }
+
         }
 
         return modRep.getUsersByModule(moduleID).map {  u ->
@@ -117,7 +123,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
 
         // Functionality
             if (modRep.getUsersByModule(moduleID).contains(userRep.findById(u.user_id).get()).not()) {
-                modRep.addUser(u.user_id, moduleID)
+                modRep.addUser(u.user_id, moduleID,u.module_role.role_id)
             }
         }
 
