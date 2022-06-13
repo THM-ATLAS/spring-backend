@@ -39,30 +39,24 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
-    // Invalid User ID when creating user
-    @ExceptionHandler(value = [InvalidUserIDException::class])
-    fun exception(exception: InvalidUserIDException): ResponseEntity<ApiError> {
-        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidUserIDException", "User ID must be zero when creating new user.")
+    // Invalid Exercise ID when creating exercise
+    @ExceptionHandler(value = [InvalidExerciseIDException::class])
+    fun exception(exception: InvalidExerciseIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidExerciseIDException", "Exercise ID must be zero when creating new exercise.")
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
-    // Invalid Module ID when creating user
+    // Invalid Module ID when creating module
     @ExceptionHandler(value = [InvalidModuleIDException::class])
     fun exception(exception: InvalidModuleIDException): ResponseEntity<ApiError> {
         val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidModuleIDException", "Module ID must be zero when creating new module.")
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
-    @ExceptionHandler(value = [InvalidRoleIDException::class])
-    fun exception(exception: InvalidRoleIDException): ResponseEntity<ApiError> {
-        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidRoleIDException", "Module Roles can only be: 2: student, 3: tutor, or 4: teacher, 3: tutor cannot be a global role")
-        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
-    }
-
-    // Invalid Tag ID when creating tag
-    @ExceptionHandler(value = [InvalidTagIDException::class])
-    fun exception(exception: InvalidTagIDException): ResponseEntity<ApiError> {
-        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidTagIDException", "Tag ID must be zero when creating new tag.")
+    // Invalid User ID when creating user
+    @ExceptionHandler(value = [InvalidUserIDException::class])
+    fun exception(exception: InvalidUserIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidUserIDException", "User ID must be zero when creating new user.")
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
@@ -80,8 +74,24 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
+    // Invalid Tag ID when creating tag
+    @ExceptionHandler(value = [InvalidTagIDException::class])
+    fun exception(exception: InvalidTagIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidTagIDException", "Tag ID must be zero when creating new tag.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
+    // Invalid Role ID when creating role
+    @ExceptionHandler(value = [InvalidRoleIDException::class])
+    fun exception(exception: InvalidRoleIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidRoleIDException", "Module Roles can only be: 2: student, 3: tutor, or 4: teacher, 3: tutor cannot be a global role")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
 
     /** [401] UNAUTHORIZED **/
+
+    // Invalid Credentials when trying to log in
     @ExceptionHandler(value = [InvalidCredentialsException::class])
     fun exception(exception: InvalidCredentialsException): ResponseEntity<ApiError> {
         val err = ApiError(401, HttpStatus.UNAUTHORIZED,"InvalidCredentialsException", "The provided credentials did not match any known account")
@@ -156,18 +166,6 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
-    @ExceptionHandler(value = [UserCannotBeAddedToModuleException::class])
-    fun exception(exception: UserCannotBeAddedToModuleException): ResponseEntity<ApiError> {
-        val err = ApiError(403, HttpStatus.FORBIDDEN, "UserCannotBeAddedToModuleException", "Guests cannot be part of a module")
-        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
-    }
-
-    @ExceptionHandler(value = [UserNotInModuleException::class])
-    fun exception(exception: UserNotInModuleException): ResponseEntity<ApiError> {
-        val err = ApiError(403, HttpStatus.FORBIDDEN, "UserNotInModuleException", "Add the user to the module, before you can edit them.")
-        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
-    }
-
     // User is not allowed to edit this submission
     @ExceptionHandler(value = [NoPermissionToEditSubmissionException::class])
     fun exception(exception: NoPermissionToEditSubmissionException): ResponseEntity<ApiError> {
@@ -189,11 +187,38 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
-
     // User is not allowed to assign/remove tags for this exercise
     @ExceptionHandler(value = [NoPermissionToModifyExerciseTagsException::class])
     fun exception(exception: NoPermissionToModifyExerciseTagsException): ResponseEntity<ApiError> {
         val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyExerciseTagsException", "Insufficient permission to modify the tags of this exercise.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to add this user to module (needs to be self/admin/teacher)
+    @ExceptionHandler(value = [NoPermissionToAddUserToModuleException::class])
+    fun exception(exception: NoPermissionToAddUserToModuleException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToAddUserToModuleException", "Insufficient permission to add user to module.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to remove this user to module (needs to be self/admin/teacher)
+    @ExceptionHandler(value = [NoPermissionToRemoveUserFromModuleException::class])
+    fun exception(exception: NoPermissionToRemoveUserFromModuleException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToRemoveUserFromModuleException", "Insufficient permission to remove user from module.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to be added to modules
+    @ExceptionHandler(value = [UserCannotBeAddedToModuleException::class])
+    fun exception(exception: UserCannotBeAddedToModuleException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "UserCannotBeAddedToModuleException", "Guests cannot be part of a module")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User can't be found in module
+    @ExceptionHandler(value = [UserNotInModuleException::class])
+    fun exception(exception: UserNotInModuleException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "UserNotInModuleException", "Add the user to the module, before you can edit them.")
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
@@ -217,16 +242,7 @@ class GlobalExceptionHandler {
     // Exercise ID doesn't exist
     @ExceptionHandler(value = [ExerciseNotFoundException::class])
     fun exception(exception: ExerciseNotFoundException): ResponseEntity<ApiError> {
-        // val errors: MutableList<String> = ArrayList()
-        // errors.add("Exercise not found")
         val err = ApiError(404, HttpStatus.NOT_FOUND, "ExerciseNotFoundException", "Couldn't find requested exercise.")
-        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
-    }
-
-    // User ID doesn't exist
-    @ExceptionHandler(value = [UserNotFoundException::class])
-    fun exception(exception: UserNotFoundException): ResponseEntity<ApiError> {
-        val err = ApiError(404, HttpStatus.NOT_FOUND, "UserNotFoundException", "Couldn't find requested user.")
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 
@@ -237,17 +253,10 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 
-    // Role ID doesn't exist
-    @ExceptionHandler(value = [RoleNotFoundException::class])
-    fun exception(exception: RoleNotFoundException): ResponseEntity<ApiError> {
-        val err = ApiError(404, HttpStatus.NOT_FOUND, "RoleNotFoundException", "Couldn't find requested role.")
-        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
-    }
-
-    // Tag ID doesn't exist
-    @ExceptionHandler(value = [TagNotFoundException::class])
-    fun exception(exception: TagNotFoundException): ResponseEntity<ApiError> {
-        val err = ApiError(404, HttpStatus.NOT_FOUND, "TagNotFoundException", "Couldn't find requested tag.")
+    // User ID doesn't exist
+    @ExceptionHandler(value = [UserNotFoundException::class])
+    fun exception(exception: UserNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "UserNotFoundException", "Couldn't find requested user.")
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 
@@ -262,6 +271,20 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = [RatingNotFoundException::class])
     fun exception(exception: RatingNotFoundException): ResponseEntity<ApiError> {
         val err = ApiError(404, HttpStatus.NOT_FOUND, "RatingNotFoundException", "Couldn't find requested exercise rating.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
+    // Tag ID doesn't exist
+    @ExceptionHandler(value = [TagNotFoundException::class])
+    fun exception(exception: TagNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "TagNotFoundException", "Couldn't find requested tag.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
+    // Role ID doesn't exist
+    @ExceptionHandler(value = [RoleNotFoundException::class])
+    fun exception(exception: RoleNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "RoleNotFoundException", "Couldn't find requested role.")
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 
@@ -300,7 +323,6 @@ class GlobalExceptionHandler {
     /** [501] NOT IMPLEMENTED **/
 
     // Method not implemented yet
-    object NotImplementedException : RuntimeException()
     @ExceptionHandler(value = [NotYetImplementedException::class])
     fun exception(exception: NotYetImplementedException): ResponseEntity<ApiError> {
         val err = ApiError(501, HttpStatus.NOT_IMPLEMENTED, "NotYetImplementedException", "This function hasn't been implemented yet, please try again later.")

@@ -8,21 +8,21 @@ import org.springframework.web.bind.annotation.PathVariable
 
 @Service
 class SettingsService(val settingsRepository: SettingsRepository) {
+
     fun loadSettings(@PathVariable userID: Int): UserSettings {
-        if (!settingsRepository.existsById(userID)) {
-            throw UserNotFoundException
-        }
+
+        // Error Catching
+        if (!settingsRepository.existsById(userID)) throw UserNotFoundException
 
         return settingsRepository.findById(userID).get()
     }
 
     fun updateSettings(settings: UserSettings): UserSettings {
-        if (!settingsRepository.existsById(settings.user_id)) {
-            throw UserNotFoundException
-        }
+
+        // Error Catching
+        if (!settingsRepository.existsById(settings.user_id)) throw UserNotFoundException
 
         settingsRepository.save(settings)
-
         return settings
     }
 }
