@@ -105,10 +105,9 @@ class ModuleController(val moduleService: ModuleService) {
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Adds multiple Users to Module"),
-                ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "403", description = "NoPermissionToAddUserToModuleException", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "403", description = "UserCannotBeAddedToModuleException", content = [Content(schema = Schema(hidden = true))])
+                ApiResponse(responseCode = "404", description = "ModuleNotFoundException || UserNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "403", description = "NoPermissionToAddUserToModuleException || UserCannotBeAddedToModuleException", content = [Content(schema = Schema(hidden = true))])
+
             ])
     @PostMapping("/modules/users/multiple/{moduleID}")
     fun addUsers(@AuthenticationPrincipal user: AtlasUser, @RequestBody modUsers: List<ModuleUser>, @PathVariable moduleID: Int): List<ModuleUser> {
@@ -118,9 +117,7 @@ class ModuleController(val moduleService: ModuleService) {
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Removes User from Module"),
-                ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "404", description = "UserNotInModuleException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "404", description = "ModuleNotFoundException || UserNotFoundException || UserNotInModuleException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "NoPermissionToRemoveUserFromModuleException", content = [Content(schema = Schema(hidden = true))])
             ])
     @DeleteMapping("/modules/users/{moduleID}/{userID}")
@@ -131,10 +128,8 @@ class ModuleController(val moduleService: ModuleService) {
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Removes multiple Users from Module"),
-                ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "403", description = "NoPermissionToRemoveUserFromModuleException", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "404", description = "UserNotInModuleException", content = [Content(schema = Schema(hidden = true))])
+                ApiResponse(responseCode = "404", description = "ModuleNotFoundException || UserNotFoundException || UserNotInModuleException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "403", description = "NoPermissionToRemoveUserFromModuleException", content = [Content(schema = Schema(hidden = true))])
             ])
     @DeleteMapping("/modules/users/{moduleID}")
     fun removeUsers(@AuthenticationPrincipal user: AtlasUser, @RequestBody modUsers: List<ModuleUser>, @PathVariable moduleID: Int): List<ModuleUser> {
@@ -144,9 +139,7 @@ class ModuleController(val moduleService: ModuleService) {
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "OK - Edits Role of User in Module"),
-            ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))]),
-            ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))]),
-            ApiResponse(responseCode = "404", description = "UserNotInModuleException", content = [Content(schema = Schema(hidden = true))]),
+            ApiResponse(responseCode = "404", description = "ModuleNotFoundException || UserNotFoundException || UserNotInModuleException || ", content = [Content(schema = Schema(hidden = true))]),
             ApiResponse(responseCode = "400", description = "InvalidRoleIDException (Valid roles: 2,3,4)", content = [Content(schema = Schema(hidden = true))]),
             ApiResponse(responseCode = "403", description = "NoPermissionToEditModuleException", content = [Content(schema = Schema(hidden = true))])
         ])
