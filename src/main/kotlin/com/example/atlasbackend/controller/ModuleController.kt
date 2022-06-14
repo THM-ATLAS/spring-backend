@@ -4,6 +4,7 @@ import com.example.atlasbackend.classes.AtlasModule
 import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.classes.ModuleUser
 import com.example.atlasbackend.service.ModuleService
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -49,7 +50,7 @@ class ModuleController(val moduleService: ModuleService) {
                 ApiResponse(responseCode = "403", description = "NoPermissionToEditModuleException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PutMapping("/modules")
-    fun editModule(@AuthenticationPrincipal user: AtlasUser, @RequestBody body: AtlasModule): AtlasModule {
+    fun editModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: AtlasModule): AtlasModule {
         return moduleService.updateModule(user, body)
     }
 
@@ -60,7 +61,7 @@ class ModuleController(val moduleService: ModuleService) {
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))]),
             ])
     @PostMapping("/modules")
-    fun postModule(@AuthenticationPrincipal user: AtlasUser, @RequestBody module: AtlasModule): AtlasModule{
+    fun postModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody module: AtlasModule): AtlasModule{
         return moduleService.createModule(user, module)
     }
 
@@ -71,7 +72,7 @@ class ModuleController(val moduleService: ModuleService) {
                 ApiResponse(responseCode = "403", description = "NoPermissionToDeleteModuleException", content = [Content(schema = Schema(hidden = true))])
             ])
     @DeleteMapping("/modules/{moduleID}")
-    fun deleteModule(@AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int): AtlasModule {
+    fun deleteModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int): AtlasModule {
         return moduleService.deleteModule(user, moduleID)
     }
 
@@ -85,7 +86,7 @@ class ModuleController(val moduleService: ModuleService) {
             ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
         ])
     @GetMapping("/modules/users/{moduleID}")
-    fun getUsers(@AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int): List<ModuleUser> {
+    fun getUsers(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int): List<ModuleUser> {
         return moduleService.getUsers(user, moduleID)
     }
 
@@ -98,7 +99,7 @@ class ModuleController(val moduleService: ModuleService) {
                 ApiResponse(responseCode = "403", description = "NoPermissionToAddUserToModuleException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PostMapping("/modules/users/{moduleID}")
-    fun addUser(@AuthenticationPrincipal user: AtlasUser, @RequestBody modUser: ModuleUser, @PathVariable moduleID: Int): List<ModuleUser> {
+    fun addUser(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody modUser: ModuleUser, @PathVariable moduleID: Int): List<ModuleUser> {
         return moduleService.addUser(user, modUser, moduleID)
     }
 
@@ -110,7 +111,7 @@ class ModuleController(val moduleService: ModuleService) {
 
             ])
     @PostMapping("/modules/users/multiple/{moduleID}")
-    fun addUsers(@AuthenticationPrincipal user: AtlasUser, @RequestBody modUsers: List<ModuleUser>, @PathVariable moduleID: Int): List<ModuleUser> {
+    fun addUsers(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody modUsers: List<ModuleUser>, @PathVariable moduleID: Int): List<ModuleUser> {
         return moduleService.addUsers(user, modUsers, moduleID)
     }
 
@@ -121,7 +122,7 @@ class ModuleController(val moduleService: ModuleService) {
                 ApiResponse(responseCode = "403", description = "NoPermissionToRemoveUserFromModuleException", content = [Content(schema = Schema(hidden = true))])
             ])
     @DeleteMapping("/modules/users/{moduleID}/{userID}")
-    fun removeUser(@AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int, @PathVariable userID: Int): List<ModuleUser> {
+    fun removeUser(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int, @PathVariable userID: Int): List<ModuleUser> {
         return moduleService.removeUser(user, userID, moduleID)
     }
 
@@ -132,7 +133,7 @@ class ModuleController(val moduleService: ModuleService) {
                 ApiResponse(responseCode = "403", description = "NoPermissionToRemoveUserFromModuleException", content = [Content(schema = Schema(hidden = true))])
             ])
     @DeleteMapping("/modules/users/{moduleID}")
-    fun removeUsers(@AuthenticationPrincipal user: AtlasUser, @RequestBody modUsers: List<ModuleUser>, @PathVariable moduleID: Int): List<ModuleUser> {
+    fun removeUsers(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody modUsers: List<ModuleUser>, @PathVariable moduleID: Int): List<ModuleUser> {
         return moduleService.removeUsers(user, modUsers, moduleID)
     }
 
@@ -144,7 +145,7 @@ class ModuleController(val moduleService: ModuleService) {
             ApiResponse(responseCode = "403", description = "NoPermissionToEditModuleException", content = [Content(schema = Schema(hidden = true))])
         ])
     @PutMapping("/modules/users/{moduleID}")
-    fun editUserModuleRoles(@AuthenticationPrincipal user: AtlasUser, @RequestBody modUser: ModuleUser, @PathVariable moduleID: Int): ModuleUser {
+    fun editUserModuleRoles(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody modUser: ModuleUser, @PathVariable moduleID: Int): ModuleUser {
         return moduleService.editModuleRoles(user, modUser, moduleID)
     }
 }
