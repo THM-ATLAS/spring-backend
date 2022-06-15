@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@master
         with:
             name: THM-ATLAS/vue-frontend
-            path: spring-backend
+            path: frontend
 
       - name: show files
         run: ls
