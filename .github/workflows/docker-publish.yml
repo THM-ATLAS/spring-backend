@@ -42,11 +42,8 @@ jobs:
             name: THM-ATLAS/vue-frontend
             path: frontend
 
-      - name: show files
-        run: ls
-
       - name: Install Frontend
-        run: ./gradlew npmInstall
+        run: ./gradlew npmInstall --stacktrace
 
       - name: Build frontend
         run: ./gradlew buildFrontend
