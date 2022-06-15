@@ -45,13 +45,19 @@ jobs:
       - name: ls
         run: ls
 
+      - name: cd
+        run: cd vue-frontend
+
+      - name: ls
+        run: ls
+
       - name: Install Frontend
-        run: ./gradlew npmInstall --stacktrace
+        run: ./gradlew npmInstall
 
       - name: Build frontend
         run: ./gradlew buildFrontend
 
-      - name: Copy to static ressources
+      - name: Copy to static resources
         run: ./gradlew copyFrontend
 
       # Workaround: https://github.com/docker/build-push-action/issues/461
