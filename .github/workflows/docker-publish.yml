@@ -6,12 +6,14 @@ name: Docker
 # documentation.
 
 on:
-  [workflow_dispatch]
-
+  workflow_dispatch:
+    inputs:
+      description: "Test"
+      required: false
   schedule:
     - cron: "55 * * * *"
   push:
-    branches: [ master, development, 110-frontend-über-spring-servieren]
+    branches: [ master, development]
     # Publish semver tags as releases.
     tags: [ latest ]
   pull_request:
