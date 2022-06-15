@@ -17,9 +17,10 @@ class SubmissionService(val submissionRepository: SubmissionRepository, val exer
     }
 
     fun getExerciseSubmissions(exerciseID: Int): List<Submission> {
-        if (!exerciseRepository.existsById(exerciseID)) {
-            throw ExerciseNotFoundException
-        }
+
+        // Error Catching
+        if (!exerciseRepository.existsById(exerciseID)) throw ExerciseNotFoundException
+        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht): throw AccessDeniedException
 
         return submissionRepository.getSubmissionsByExercise(exerciseID).map {  s ->
             Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
@@ -27,9 +28,10 @@ class SubmissionService(val submissionRepository: SubmissionRepository, val exer
     }
 
     fun getUserSubmissions(userID: Int): List<Submission> {
-        if (!userRepository.existsById(userID)) {
-            throw UserNotFoundException
-        }
+
+        // Error Catching
+        if (!userRepository.existsById(userID)) throw UserNotFoundException
+        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht): throw AccessDeniedException
 
         return submissionRepository.getSubmissionsByUser(userID).map {  s ->
             Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
@@ -37,50 +39,33 @@ class SubmissionService(val submissionRepository: SubmissionRepository, val exer
     }
 
     fun getSubmission(exerciseID: Int, submissionID: Int): Submission {
-        if (!exerciseRepository.existsById(exerciseID)) {
-            throw ExerciseNotFoundException
-        }
 
-        if (!submissionRepository.existsById(submissionID)) {
-            throw SubmissionNotFoundException
-        }
-
-        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
-        //   throw AccessDeniedException
+        // Error Catching
+        if (!exerciseRepository.existsById(exerciseID)) throw ExerciseNotFoundException
+        if (!submissionRepository.existsById(submissionID)) throw SubmissionNotFoundException
+        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht): throw AccessDeniedException
 
         return submissionRepository.findById(submissionID).get()
     }
 
     fun editSubmission(s: Submission): Submission {
-        if (!submissionRepository.existsById(s.submission_id)) {
-            throw SubmissionNotFoundException
-        }
 
-        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
-        //    throw NoPermissionToEditExerciseException
+        // Error Catching
+        if (!submissionRepository.existsById(s.submission_id)) throw SubmissionNotFoundException
+        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht): throw NoPermissionToEditExerciseException
 
         val updatedSubmission = Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
-
         submissionRepository.save(updatedSubmission)
-
         return updatedSubmission
     }
 
     fun postSubmission(s: Submission): Submission {
-        if (s.submission_id != 0) {
-            throw InvalidParameterTypeException
-        }
 
-        if (exerciseRepository.existsById(s.exercise_id).not()) {
-            throw ExerciseNotFoundException
-        }
-
-        if (userRepository.existsById(s.user_id).not()) {
-            throw UserNotFoundException
-        }
-
-        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
-        //    throw NoPermissionToEditSubmissionException
+        // Error Catching
+        if (s.submission_id != 0) throw InvalidParameterTypeException
+        if (exerciseRepository.existsById(s.exercise_id).not()) throw ExerciseNotFoundException
+        if (userRepository.existsById(s.user_id).not()) throw UserNotFoundException
+        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht): throw NoPermissionToEditSubmissionException
 
         submissionRepository.save(s)
         return Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
@@ -88,24 +73,15 @@ class SubmissionService(val submissionRepository: SubmissionRepository, val exer
 
     fun deleteSubmission(submissionID: Int): Submission {
 
-        if (!submissionRepository.existsById(submissionID)) {
-            throw SubmissionNotFoundException
-        }
-
-        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
-        //    throw NoPermissionToDeleteSubmissionException
-
+        // Error Catching
+        if (!submissionRepository.existsById(submissionID)) throw SubmissionNotFoundException
+        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht): throw AccessDeniedException
+        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht): throw NoPermissionToDeleteSubmissionException
         // TODO: throw InternalServerError
 
         val s = submissionRepository.findById(submissionID).get()
-
-        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
-        //   throw AccessDeniedException
-
         val ret = Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
-
         submissionRepository.deleteById(submissionID)
-
         return ret
     }
 }

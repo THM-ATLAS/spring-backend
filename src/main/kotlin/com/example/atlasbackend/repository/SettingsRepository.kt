@@ -13,5 +13,4 @@ interface SettingsRepository: CrudRepository<UserSettings, Int> {
     @Query("INSERT INTO user_settings (user_id, language, theme) VALUES (:user, 'de', 'light')")
     @Modifying
     fun createSettings(@Param("user") user: Int)
-
 }

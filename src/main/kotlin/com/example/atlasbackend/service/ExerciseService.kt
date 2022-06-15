@@ -1,119 +1,122 @@
 package com.example.atlasbackend.service
 
+import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.classes.Exercise
 import com.example.atlasbackend.classes.ExerciseRet
 import com.example.atlasbackend.classes.ExerciseType
 import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.*
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.PathVariable
 
 
 @Service
-class ExerciseService(val ratingRepository: RatingRepository, val exerciseRepository: ExerciseRepository, val moduleRepository: ModuleRepository, val userRepository: UserRepository, val exerciseTypeRepository: ExerciseTypeRepository) {
+class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepository, val modRep: ModuleRepository, val userRep: UserRepository, val exTyRep: ExerciseTypeRepository, val tagRep: TagRepository) {
 
-    fun loadExercises(): List<ExerciseRet> {
-        val ret = exerciseRepository.findAll().map {  e ->
-            ExerciseRet(e.exercise_id, moduleRepository.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratingRepository.averageExerciseRating(e.exercise_id), exerciseTypeRepository.getExerciseTypeName(e.type_id))
+    fun loadExercises(@AuthenticationPrincipal user: AtlasUser): List<ExerciseRet> {
+
+        // Error Catching
+        if (!user.roles.any { r -> r.role_id == 1}) throw AccessDeniedException   // Check for admin
+
+        // Functionality
+        return exRep.findAll().map {  e ->
+            ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
         }.toList()
-        return ret
     }
 
-    fun loadExercisesUser(@PathVariable userId: Int): Set<ExerciseRet> {
+    fun loadExercisesUser(@AuthenticationPrincipal user: AtlasUser, @PathVariable userId: Int): Set<ExerciseRet> {
 
-        if (!userRepository.existsById(userId)) {
-            throw UserNotFoundException
-        }
+        // Error Catching
+        if (!userRep.existsById(userId)) throw UserNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            user.user_id != userId)   // Check for self
+            throw AccessDeniedException
 
-        val ret = exerciseRepository.getExercisesByUser(userId).map {  e ->
-            ExerciseRet(e.exercise_id, moduleRepository.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratingRepository.averageExerciseRating(e.exercise_id), exerciseTypeRepository.getExerciseTypeName(e.type_id))
+        // Functionality
+        return exRep.getExercisesByUser(userId).map {  e ->
+            ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
         }.toSet()
-
-        return ret
     }
 
-    fun loadExercisesModule(moduleId: Int): List<ExerciseRet> {
-        if (moduleRepository.existsById(moduleId).not()) {
-            throw ModuleNotFoundException
-        }
-        val ret = exerciseRepository.getExercisesByModule(moduleId).map {  e ->
-            ExerciseRet(e.exercise_id, moduleRepository.findById(moduleId).get(), e.title, e.content, e.description, e.exercisePublic, ratingRepository.averageExerciseRating(e.exercise_id), exerciseTypeRepository.getExerciseTypeName(e.type_id))
+    fun loadExercisesModule(@AuthenticationPrincipal user: AtlasUser, moduleId: Int): List<ExerciseRet> {
+
+        // Error Catching
+        if (modRep.existsById(moduleId).not()) throw ModuleNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            !modRep.getUsersByModule(moduleId).any { m -> m.user_id == user.user_id })   // Check if user in module
+            throw AccessDeniedException
+
+        // Functionality
+        return exRep.getExercisesByModule(moduleId).map {  e ->
+            ExerciseRet(e.exercise_id, modRep.findById(moduleId).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
         }.toList()
-
-        return ret
     }
 
-    fun getExercise(exerciseID: Int): ExerciseRet {
+    fun getExercise(@AuthenticationPrincipal user: AtlasUser, exerciseID: Int): ExerciseRet {
 
-        if (!exerciseRepository.existsById(exerciseID)) {
-            throw ExerciseNotFoundException
-        }
-        val exercise = exerciseRepository.findById(exerciseID).get()
+        // Error Catching
+        if (!exRep.existsById(exerciseID)) throw ExerciseNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            !modRep.getUsersByModule(exRep.getModuleByExercise(exerciseID).module_id).any { m -> m.user_id == user.user_id })   // Check if user in module
+            throw AccessDeniedException
 
-        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
-        //   throw AccessDeniedException
-
-        return ExerciseRet(exercise.exercise_id, moduleRepository.findById(exercise.module_id).get(), exercise.title, exercise.content, exercise.description, exercise.exercisePublic, ratingRepository.averageExerciseRating(exercise.exercise_id), exerciseTypeRepository.getExerciseTypeName(exercise.type_id))
+        // Functionality
+        val e = exRep.findById(exerciseID).get()
+        return ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
     }
 
-    fun getExerciseTypes(): List<ExerciseType> {
-        return exerciseTypeRepository.findAll().map {  et ->
+    fun getExerciseTypes(@AuthenticationPrincipal user: AtlasUser): List<ExerciseType> {
+
+        // Error Catching
+        if (!user.roles.any { r -> r.role_id == 1}) throw AccessDeniedException   // Check for admin
+
+        // Functionality
+        return exTyRep.findAll().map {  et ->
             ExerciseType(et.type_id, et.name)
         }.toList()
     }
 
-    fun updateExercise(exercise: ExerciseRet): ExerciseRet {
+    fun updateExercise(@AuthenticationPrincipal user: AtlasUser, e: ExerciseRet): ExerciseRet {
 
-        if (!exerciseRepository.existsById(exercise.exercise_id)) {
-            throw ExerciseNotFoundException
-        }
+        // Error Catching
+        if (!exRep.existsById(e.exercise_id)) throw ExerciseNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, e.module.module_id).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
+            throw NoPermissionToEditExerciseException
 
-        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
-        //    throw NoPermissionToEditExerciseException
-
-
-        val updatedExercise = Exercise(exercise.exercise_id, exercise.module.module_id, exerciseTypeRepository.getExerciseTypeID(exercise.type), exercise.title, exercise.content, exercise.description, exercise.exercisePublic)
-
-        exerciseRepository.save(updatedExercise)
-
-        return ExerciseRet(exercise.exercise_id, moduleRepository.findById(exercise.module.module_id).get(), exercise.title, exercise.content, exercise.description, exercise.exercisePublic, ratingRepository.averageExerciseRating(exercise.exercise_id), exercise.type)
+        // Functionality
+        val updatedExercise = Exercise(e.exercise_id, e.module.module_id, exTyRep.getExerciseTypeID(e.type), e.title, e.content, e.description, e.exercisePublic)
+        exRep.save(updatedExercise)
+        return ExerciseRet(e.exercise_id, modRep.findById(e.module.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), e.type, tagRep.getExerciseTags(e.exercise_id))
     }
 
-    fun createExercise(exercise: Exercise): ExerciseRet {
+    fun createExercise(@AuthenticationPrincipal user: AtlasUser, e: Exercise): ExerciseRet {
 
-        if (exercise.exercise_id != 0) {
-            throw InvalidParameterTypeException
-        }
+        // Error Catching
+        if (e.exercise_id != 0) throw InvalidExerciseIDException
+        if (modRep.existsById(e.module_id).not()) throw ModuleNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, e.module_id).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
+            throw NoPermissionToEditExerciseException
 
-        if (moduleRepository.existsById(exercise.module_id).not()) {
-            throw ModuleNotFoundException
-        }
-
-        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
-        //    throw NoPermissionToEditExerciseException
-
-        exerciseRepository.save(exercise)
-        return ExerciseRet(exercise.exercise_id, moduleRepository.findById(exercise.module_id).get(), exercise.title, exercise.content, exercise.description, exercise.exercisePublic, ratingRepository.averageExerciseRating(exercise.exercise_id), exerciseTypeRepository.getExerciseTypeName(exercise.type_id))
+        // Functionality
+        exRep.save(e)
+        return ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
     }
 
-    fun deleteExercise(exerciseID: Int): ExerciseRet {
+    fun deleteExercise(@AuthenticationPrincipal user: AtlasUser, exerciseID: Int): ExerciseRet {
 
-        if (!exerciseRepository.existsById(exerciseID)) {
-            throw ExerciseNotFoundException
-        }
+        // Error Catching
+        if (!exRep.existsById(exerciseID)) throw ExerciseNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, exRep.getModuleByExercise(exerciseID).module_id).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
+            throw NoPermissionToDeleteExerciseException
 
-        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
-        //    throw NoPermissionToDeleteExerciseException
-
-        val exercise = exerciseRepository.findById(exerciseID).get()
-
-        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht):
-        //   throw AccessDeniedException
-
-        val ret = ExerciseRet(exercise.exercise_id, moduleRepository.findById(exercise.module_id).get(), exercise.title, exercise.content, exercise.description, exercise.exercisePublic, ratingRepository.averageExerciseRating(exercise.exercise_id), exerciseTypeRepository.getExerciseTypeName(exercise.type_id))
-
-        exerciseRepository.deleteById(exerciseID)
-
+        // Functionality
+        val e = exRep.findById(exerciseID).get()
+        val ret = ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+        exRep.deleteById(exerciseID)
         return ret
     }
 }

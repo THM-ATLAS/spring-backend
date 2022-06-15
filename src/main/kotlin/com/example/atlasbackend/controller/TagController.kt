@@ -1,6 +1,7 @@
 package com.example.atlasbackend.controller
 
 import com.example.atlasbackend.classes.Exercise
+import com.example.atlasbackend.classes.ExerciseRet
 import com.example.atlasbackend.classes.Tag
 import com.example.atlasbackend.service.TagService
 import io.swagger.v3.oas.annotations.media.Content
@@ -64,7 +65,7 @@ class TagController(val tagService: TagService) {
                 ApiResponse(responseCode = "404", description = "TagNotFoundException || ExerciseNotFoundException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PostMapping("/exercises/{exerciseID}/{tagID}")
-    fun addExerciseTag(@PathVariable("exerciseID") exerciseID: Int, @PathVariable("tagID") tagID: Int): Exercise {
+    fun addExerciseTag(@PathVariable("exerciseID") exerciseID: Int, @PathVariable("tagID") tagID: Int): ExerciseRet {
         return tagService.addExerciseTag(exerciseID, tagID)
     }
 
@@ -85,7 +86,7 @@ class TagController(val tagService: TagService) {
                 ApiResponse(responseCode = "403", description = "NoPermissionToModifyExerciseTagsException", content = [Content(schema = Schema(hidden = true))]),
             ])
     @DeleteMapping("/exercises/{exerciseID}/{tagID}")
-    fun deleteExerciseTag(@PathVariable("exerciseID") exerciseID: Int, @PathVariable("tagID") tagID: Int): Exercise {
+    fun deleteExerciseTag(@PathVariable("exerciseID") exerciseID: Int, @PathVariable("tagID") tagID: Int): ExerciseRet {
         return tagService.deleteExerciseTag(exerciseID, tagID)
     }
 }
