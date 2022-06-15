@@ -37,7 +37,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Clone Frontend
-          uses: actions/checkout@v2
+          uses: actions/checkout@v3
           with:
             repository: THM-ATLAS/vue-frontend
             path: spring-backend
