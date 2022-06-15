@@ -42,6 +42,9 @@ jobs:
             name: THM-ATLAS/vue-frontend
             path: vue-frontend
 
+      - name: ls
+        run: ls
+
       - name: Install Frontend
         run: ./gradlew npmInstall --stacktrace
 
