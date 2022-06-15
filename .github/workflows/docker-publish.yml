@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@master
         with:
             name: THM-ATLAS/vue-frontend
-            path: frontend
+            path: vue-frontend
 
       - name: Install Frontend
         run: ./gradlew npmInstall --stacktrace
