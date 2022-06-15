@@ -43,13 +43,7 @@ jobs:
             path: vue-frontend
 
       - name: ls
-        run: ls
-
-      - name: cd
-        run: cd vue-frontend
-
-      - name: ls
-        run: ls
+        run: find -maxdepth 2
 
       - name: Install Frontend
         run: ./gradlew npmInstall
