@@ -7,9 +7,6 @@ name: Docker
 
 on:
   workflow_dispatch:
-    inputs:
-      description: "Test"
-      required: false
   schedule:
     - cron: "55 * * * *"
   push:
