@@ -42,6 +42,9 @@ jobs:
             name: THM-ATLAS/vue-frontend
             path: spring-backend
 
+      - name: show dir
+        run: dir
+
       - name: Install Frontend
         run: ./gradlew npmInstall
 
