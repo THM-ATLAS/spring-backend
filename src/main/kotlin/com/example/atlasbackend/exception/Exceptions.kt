@@ -103,6 +103,9 @@ object UserNotInModuleException: RuntimeException()
 // Submission was too late
 object SubmissionAfterDeadlineException : RuntimeException()
 
+// User didn't enter Submission for this Exercise, can't rate exercise
+object UserNeedsToSubmitBeforeRatingException : RuntimeException()
+
 
 /** [404] NOT FOUND **/
 

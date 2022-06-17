@@ -229,6 +229,13 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
+    // User didn't enter Submission for this Exercise, can't rate exercise
+    @ExceptionHandler(value = [UserNeedsToSubmitBeforeRatingException::class])
+    fun exception(exception: UserNeedsToSubmitBeforeRatingException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "UserNeedsToSubmitBeforeRatingException", "User needs to submit first before rating an exercise.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
 
     /** [404] NOT FOUND **/
 
