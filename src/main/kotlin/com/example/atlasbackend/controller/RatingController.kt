@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.web.bind.annotation.*
 
 @RestController
+@RequestMapping("/api/")
 class RatingController(val ratingService: RatingService) {
 
     @ApiResponses(

@@ -1,10 +1,23 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.github.gradle.node.npm.task.NpmTask
 
 plugins {
     id("org.springframework.boot") version "2.6.7"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    id("com.github.node-gradle.node") version "3.0.0"
     kotlin("jvm") version "1.6.21"
     kotlin("plugin.spring") version "1.6.21"
+
+}
+
+node {
+    version.set("16.14.0")
+    npmVersion.set("")
+    npmInstallCommand.set("install")
+    workDir.set(File("vue-frontend"))
+    nodeModulesDir.set(File("vue-frontend"))
+    npmWorkDir.set(File("vue-frontend"))
+    workDir.set(File("vue-frontend"))
 }
 
 group = "com.example"
@@ -38,4 +51,15 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.register("copyFrontend", Sync::class) {
+
+    from("vue-frontend/dist/")
+    destinationDir = File("src/main/resources/static")
+}
+
+tasks.register("buildFrontend", NpmTask::class) {
+    dependsOn(tasks.npmInstall)
+    npmCommand.set(listOf("run", "build"))
 }
