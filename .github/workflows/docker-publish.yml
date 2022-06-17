@@ -54,10 +54,7 @@ jobs:
       - name: Copy to static resources
         run: ./gradlew copyFrontend
 
-      - name: cd
-        run: cd src/main/resources
-
-      - name: ls
+      - name: ls src/main/resources
         run: ls
 
       # Workaround: https://github.com/docker/build-push-action/issues/461
