@@ -45,9 +45,6 @@ jobs:
             repository: THM-ATLAS/vue-frontend
             path: vue-frontend
 
-      - name: Install Frontend
-        run: ./gradlew npmInstall
-
       - name: Build frontend
         run: ./gradlew buildFrontend
 
