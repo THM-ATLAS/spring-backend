@@ -43,6 +43,7 @@ jobs:
         uses: actions/checkout@master
         with:
             repository: THM-ATLAS/vue-frontend
+            ref: master
             path: vue-frontend
 
       - name: Build frontend
