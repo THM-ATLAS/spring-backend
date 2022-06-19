@@ -201,6 +201,27 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
+    // User is not allowed to assign/remove roles of a user
+    @ExceptionHandler(value = [NoPermissionToModifyUserRolesException::class])
+    fun exception(exception: NoPermissionToModifyUserRolesException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyUserRolesException", "Insufficient permission to modify the roles of a user.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to add/remove multiple users at once
+    @ExceptionHandler(value = [NoPermissionToModifyMultipleUsersException::class])
+    fun exception(exception: NoPermissionToModifyMultipleUsersException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyMultipleUsersException", "Insufficient permission to modify multiple users at once.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to modify admins (no one is)
+    @ExceptionHandler(value = [NoPermissionToModifyAdminException::class])
+    fun exception(exception: NoPermissionToModifyAdminException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyAdminException", "Can't modify administrators.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
     // User is not allowed to add this user to module (needs to be self/admin/teacher)
     @ExceptionHandler(value = [NoPermissionToAddUserToModuleException::class])
     fun exception(exception: NoPermissionToAddUserToModuleException): ResponseEntity<ApiError> {

@@ -2,6 +2,7 @@ package com.example.atlasbackend.controller
 
 import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.service.UserService
+import io.swagger.v3.oas.annotations.Parameter
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -22,15 +23,13 @@ class UserController(val userService: UserService) {
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/users")
-    fun getAllUsers(): List<AtlasUser> {
-        return userService.getAllUsers()
+    fun getAllUsers(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser): List<AtlasUser> {
+        return userService.getAllUsers(user)
     }
 
     @ApiResponses(
             value = [
-                ApiResponse(responseCode = "200", description = "OK - Returns logged in User"),
-                ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
-
+                ApiResponse(responseCode = "200", description = "OK - Returns logged in User")
     ])
     @GetMapping("/users/me")
     fun getMe(@AuthenticationPrincipal user: AtlasUser): AtlasUser {
@@ -40,31 +39,30 @@ class UserController(val userService: UserService) {
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Returns User with requested ID"),
-                ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))])
+                ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/users/{id}")
-    fun getUser(@PathVariable id: Int): AtlasUser {
-        return userService.getUser(id)
+    fun getUser(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable getUserID: Int): AtlasUser {
+        return userService.getUser(user, getUserID)
     }
 
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Edits User "),
+                ApiResponse(responseCode = "404", description = "UserNotFoundException || RoleNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "403", description = "NoPermissionToEditUserException || NoPermissionToModifyUserRolesException || NoPermissionToModifyAdminException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "400", description = "InvalidRoleIDException - valid IDs 1,2,4,5", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PutMapping("/users")
-    fun editUser(@RequestBody body: AtlasUser): AtlasUser {
-        return userService.editUser(body)
+    fun editUser(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: AtlasUser): AtlasUser {
+        return userService.editUser(user, body)
     }
 
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Creates User "),
-                ApiResponse(responseCode = "400", description = "InvalidUserIDException - ID must be 0 || InvalidRoleIDException - valid IDs 1,2,4,5", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
+                ApiResponse(responseCode = "400", description = "InvalidUserIDException - ID must be 0 || InvalidRoleIDException - valid IDs 1,2,4,5", content = [Content(schema = Schema(hidden = true))])
             ])
     @PostMapping("/users")
     fun addUser(@RequestBody body: AtlasUser): AtlasUser {
@@ -75,32 +73,32 @@ class UserController(val userService: UserService) {
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Creates multiple Users "),
                 ApiResponse(responseCode = "400", description = "InvalidUserIDException - User ID must be 0 || InvalidRoleIDException - valid IDs 1,2,4,5", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
+                ApiResponse(responseCode = "403", description = "NoPermissionToModifyMultipleUsersException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PostMapping("/users/multiple")
-    fun addUsers(@RequestBody body: List<AtlasUser>): List<AtlasUser> {
-        return userService.addUsers(body)
+    fun addUsers(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: List<AtlasUser>): List<AtlasUser> {
+        return userService.addUsers(user, body)
     }
 
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Deletes User with Requested ID"),
-                ApiResponse(responseCode = "403", description = "NoPermissionToDeleteUserException", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))])
+                ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "403", description = "NoPermissionToDeleteUserException || NoPermissionToModifyAdminException", content = [Content(schema = Schema(hidden = true))])
             ])
     @DeleteMapping("/users/{id}")
-    fun delUser(@PathVariable id: Int): AtlasUser {
-        return userService.delUser(id)
+    fun delUser(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable delUserID: Int): AtlasUser {
+        return userService.delUser(user, delUserID)
     }
 
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Deletes multiple Users"),
-                ApiResponse(responseCode = "403", description = "NoPermissionToDeleteUserException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "403", description = "NoPermissionToModifyMultipleUsersException || NoPermissionToModifyAdminException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))])
             ])
     @DeleteMapping("/users/multiple")
-    fun delUsers(@RequestBody body: List<AtlasUser>): List<AtlasUser> {
-        return userService.delUsers(body)
+    fun delUsers(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: List<AtlasUser>): List<AtlasUser> {
+        return userService.delUsers(user, body)
     }
 }

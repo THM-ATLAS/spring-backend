@@ -91,10 +91,19 @@ object NoPermissionToModifyTagsException : RuntimeException()
 // User is not allowed to assign/remove tags for this exercise
 object NoPermissionToModifyExerciseTagsException : RuntimeException()
 
+// User is not allowed to assign/remove roles of a user
+object NoPermissionToModifyUserRolesException : RuntimeException()
+
+// User is not allowed to add/remove multiple users at once
+object NoPermissionToModifyMultipleUsersException : RuntimeException()
+
+// User is not allowed to modify admins (no one is)
+object NoPermissionToModifyAdminException : RuntimeException()
+
 // User is not allowed to add this user to module (needs to be self/admin/teacher)
 object NoPermissionToAddUserToModuleException: RuntimeException()
 
-// User is not allowed to remove this user to module (needs to be self/admin/teacher)
+// User is not allowed to remove this user from module (needs to be self/admin/teacher)
 object NoPermissionToRemoveUserFromModuleException: RuntimeException()
 
 // User is not allowed to be added to modules
