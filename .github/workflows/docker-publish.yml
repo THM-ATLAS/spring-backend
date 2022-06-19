@@ -43,10 +43,8 @@ jobs:
         uses: actions/checkout@master
         with:
             repository: THM-ATLAS/vue-frontend
+            ref: main
             path: vue-frontend
-
-      - name: Install Frontend
-        run: ./gradlew npmInstall
 
       - name: Build frontend
         run: ./gradlew buildFrontend
