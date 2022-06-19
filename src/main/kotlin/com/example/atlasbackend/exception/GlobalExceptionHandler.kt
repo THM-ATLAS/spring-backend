@@ -236,6 +236,13 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
+    // User doesn't have access to exercise (Not in module & exercise private)
+    @ExceptionHandler(value = [NoAccessToExerciseException::class])
+    fun exception(exception: NoAccessToExerciseException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoAccessToExerciseException", "User has to join module or exercise has to be public to submit.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
     // User didn't enter Submission for this Exercise, can't rate exercise
     @ExceptionHandler(value = [UserNeedsToSubmitBeforeRatingException::class])
     fun exception(exception: UserNeedsToSubmitBeforeRatingException): ResponseEntity<ApiError> {

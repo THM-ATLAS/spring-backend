@@ -106,6 +106,9 @@ object UserNotInModuleException: RuntimeException()
 // Submission was too late
 object SubmissionAfterDeadlineException : RuntimeException()
 
+// User doesn't have access to exercise (Not in module & exercise private)
+object NoAccessToExerciseException : RuntimeException()
+
 // User didn't enter Submission for this Exercise, can't rate exercise
 object UserNeedsToSubmitBeforeRatingException : RuntimeException()
 
