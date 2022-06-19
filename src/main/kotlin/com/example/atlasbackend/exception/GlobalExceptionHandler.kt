@@ -180,6 +180,13 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
+    // User is not allowed to edit these settings
+    @ExceptionHandler(value = [NoPermissionToModifySettingsException::class])
+    fun exception(exception: NoPermissionToModifySettingsException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifySettingsException","Not allowed to edit the settings of another user.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
     // User is not allowed to create/edit/delete tags
     @ExceptionHandler(value = [NoPermissionToModifyTagsException::class])
     fun exception(exception: NoPermissionToModifyTagsException): ResponseEntity<ApiError> {

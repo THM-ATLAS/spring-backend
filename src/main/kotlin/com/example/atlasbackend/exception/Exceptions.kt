@@ -82,6 +82,9 @@ object NoPermissionToEditSubmissionException : RuntimeException()
 // User is not allowed to edit this exercise rating
 object NoPermissionToEditRatingException : RuntimeException()
 
+// User is not allowed to edit these settings
+object NoPermissionToModifySettingsException : RuntimeException()
+
 // User is not allowed to create/edit/delete tags
 object NoPermissionToModifyTagsException : RuntimeException()
 
