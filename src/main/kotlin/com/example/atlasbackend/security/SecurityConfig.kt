@@ -15,8 +15,10 @@ class SecurityConfig(
             .authenticationManager(ldapAuthenticationManager)
             .addFilterAt(atlasAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
             .authorizeRequests()
-                .antMatchers("/login", "/logout")
+                .antMatchers("/login", "/logout", "/", "/api/docs")
                     .permitAll()
+            .and()
+            .authorizeRequests()
                 .anyRequest()
                     .authenticated()
             .and()
@@ -24,6 +26,8 @@ class SecurityConfig(
                 .disable()
             .cors()
                 .disable()
+            /*.formLogin()
+                .loginPage("/login")*/
             .httpBasic()
     }
 }
