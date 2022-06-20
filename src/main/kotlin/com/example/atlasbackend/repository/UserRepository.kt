@@ -10,13 +10,13 @@ import org.springframework.stereotype.Repository
 @Repository
 interface UserRepository: CrudRepository<AtlasUser, Int> {
 
-    @Query("SELECT * FROM atlas.public.user WHERE username = :username")
+    @Query("SELECT * FROM \"user\" WHERE username = :username")
     fun testForUser(@Param("username") username: String): List<AtlasUser>
 
-    @Query("SELECT password FROM atlas.public.user WHERE username = :username")
+    @Query("SELECT password FROM \"user\" WHERE username = :username")
     fun getPassword(@Param("username") username: String): String?
 
-    @Query("UPDATE atlas.public.user SET password = :password WHERE username = :username")
+    @Query("UPDATE \"user\" SET password = :password WHERE username = :username")
     @Modifying
     fun addPassword(@Param("username") username: String, @Param("password") password: String)
 
