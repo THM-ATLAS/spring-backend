@@ -12,22 +12,16 @@ class SecurityConfig(
 ): WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
         http
+            .csrf().disable()
+            .cors().disable()
             .authenticationManager(ldapAuthenticationManager)
             .addFilterAt(atlasAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
             .authorizeRequests()
-                .antMatchers("/login", "/logout", "/", "/api/docs")
-                    .permitAll()
+                .anyRequest().authenticated()
             .and()
-            .authorizeRequests()
-                .anyRequest()
-                    .authenticated()
-            .and()
-            .csrf()
-                .disable()
-            .cors()
-                .disable()
-            /*.formLogin()
-                .loginPage("/login")*/
-            .httpBasic()
+            .formLogin()
+                .loginPage("/login").permitAll()
+                .loginProcessingUrl("/login").permitAll()
+            //.httpBasic()
     }
 }
