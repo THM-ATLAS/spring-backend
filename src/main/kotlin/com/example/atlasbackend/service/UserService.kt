@@ -80,10 +80,10 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
         if (user.user_id != 0) throw InvalidUserIDException
 
         var atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email)
+        atlasUser = userRepository.save(atlasUser)
         if(user.password != "") {
             userRepository.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(user.password))
         }
-        atlasUser = userRepository.save(atlasUser)
 
         user.roles.forEach { r  ->
             if (r.role_id == 3) throw InvalidRoleIDException
@@ -106,10 +106,10 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
             if (u.user_id != 0) throw InvalidUserIDException
 
             var atlasUser = AtlasUser(u.user_id, u.name, u.username, u.email)
+            atlasUser = userRepository.save(atlasUser)
             if(u.password != "") {
                 userRepository.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(u.password))
             }
-            atlasUser = userRepository.save(atlasUser)
 
             u.roles.forEach { r ->
                 if (r.role_id == 3) {
