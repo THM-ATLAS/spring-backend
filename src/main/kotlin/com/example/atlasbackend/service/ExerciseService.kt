@@ -21,7 +21,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
 
         // Functionality
         return exRep.findAll().map {  e ->
-            ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+            ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.deadline, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
         }.toList()
     }
 
@@ -35,7 +35,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
 
         // Functionality
         return exRep.getExercisesByUser(userId).map {  e ->
-            ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+            ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.deadline, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
         }.toSet()
     }
 
@@ -49,7 +49,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
 
         // Functionality
         return exRep.getExercisesByModule(moduleId).map {  e ->
-            ExerciseRet(e.exercise_id, modRep.findById(moduleId).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+            ExerciseRet(e.exercise_id, modRep.findById(moduleId).get(), e.title, e.content, e.description, e.deadline, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
         }.toList()
     }
 
@@ -63,7 +63,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
 
         // Functionality
         val e = exRep.findById(exerciseID).get()
-        return ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+        return ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.deadline, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
     }
 
     fun getExerciseTypes(@AuthenticationPrincipal user: AtlasUser): List<ExerciseType> {
@@ -86,9 +86,9 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
             throw NoPermissionToEditExerciseException
 
         // Functionality
-        val updatedExercise = Exercise(e.exercise_id, e.module.module_id, exTyRep.getExerciseTypeID(e.type), e.title, e.content, e.description, e.exercisePublic)
+        val updatedExercise = Exercise(e.exercise_id, e.module.module_id, exTyRep.getExerciseTypeID(e.type), e.title, e.content, e.description, e.deadline, e.exercisePublic)
         exRep.save(updatedExercise)
-        return ExerciseRet(e.exercise_id, modRep.findById(e.module.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), e.type, tagRep.getExerciseTags(e.exercise_id))
+        return ExerciseRet(e.exercise_id, modRep.findById(e.module.module_id).get(), e.title, e.content, e.description, e.deadline, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), e.type, tagRep.getExerciseTags(e.exercise_id))
     }
 
     fun createExercise(@AuthenticationPrincipal user: AtlasUser, e: Exercise): ExerciseRet {
@@ -102,7 +102,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
 
         // Functionality
         exRep.save(e)
-        return ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+        return ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.deadline, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
     }
 
     fun deleteExercise(@AuthenticationPrincipal user: AtlasUser, exerciseID: Int): ExerciseRet {
@@ -115,7 +115,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
 
         // Functionality
         val e = exRep.findById(exerciseID).get()
-        val ret = ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+        val ret = ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.deadline, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
         exRep.deleteById(exerciseID)
         return ret
     }
