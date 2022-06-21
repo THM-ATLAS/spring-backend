@@ -1,7 +1,5 @@
 package com.example.atlasbackend.exception
 
-// TODO: Try to combine similar functions
-
 
 /***** [4xx] CLIENT ERRORS *****/
 
@@ -82,16 +80,28 @@ object NoPermissionToEditSubmissionException : RuntimeException()
 // User is not allowed to edit this exercise rating
 object NoPermissionToEditRatingException : RuntimeException()
 
+// User is not allowed to edit these settings
+object NoPermissionToModifySettingsException : RuntimeException()
+
 // User is not allowed to create/edit/delete tags
 object NoPermissionToModifyTagsException : RuntimeException()
 
 // User is not allowed to assign/remove tags for this exercise
 object NoPermissionToModifyExerciseTagsException : RuntimeException()
 
+// User is not allowed to assign/remove roles of a user
+object NoPermissionToModifyUserRolesException : RuntimeException()
+
+// User is not allowed to add/remove multiple users at once
+object NoPermissionToModifyMultipleUsersException : RuntimeException()
+
+// User is not allowed to modify admins (no one is)
+object NoPermissionToModifyAdminException : RuntimeException()
+
 // User is not allowed to add this user to module (needs to be self/admin/teacher)
 object NoPermissionToAddUserToModuleException: RuntimeException()
 
-// User is not allowed to remove this user to module (needs to be self/admin/teacher)
+// User is not allowed to remove this user from module (needs to be self/admin/teacher)
 object NoPermissionToRemoveUserFromModuleException: RuntimeException()
 
 // User is not allowed to be added to modules
@@ -102,6 +112,12 @@ object UserNotInModuleException: RuntimeException()
 
 // Submission was too late
 object SubmissionAfterDeadlineException : RuntimeException()
+
+// User doesn't have access to exercise (Not in module & exercise private)
+object NoAccessToExerciseException : RuntimeException()
+
+// User didn't enter Submission for this Exercise, can't rate exercise
+object UserNeedsToSubmitBeforeRatingException : RuntimeException()
 
 
 /** [404] NOT FOUND **/
@@ -139,6 +155,7 @@ object SettingNotFoundException : RuntimeException()
 // Entity couldn't be processed
 object UnprocessableEntityException : RuntimeException()
 
+// Username already exists in the database
 object UserAlreadyExistsException : RuntimeException()
 
 

@@ -1,87 +1,118 @@
 package com.example.atlasbackend.service
 
+import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.classes.Submission
 import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.ExerciseRepository
+import com.example.atlasbackend.repository.ModuleRepository
 import com.example.atlasbackend.repository.SubmissionRepository
 import com.example.atlasbackend.repository.UserRepository
 import org.springframework.stereotype.Service
 
 @Service
-class SubmissionService(val submissionRepository: SubmissionRepository, val exerciseRepository: ExerciseRepository, val userRepository: UserRepository) {
+class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRepository, val userRep: UserRepository, val modRep: ModuleRepository) {
 
-    fun getAllSubmissions(): List<Submission> {
-        return submissionRepository.findAll().map {  s ->
+    fun getAllSubmissions(user: AtlasUser): List<Submission> {
+
+        // Error Catching
+        if (!user.roles.any { r -> r.role_id == 1}) throw AccessDeniedException    // Check for admin
+
+        // Functionality
+        return subRep.findAll().map {  s ->
             Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
         }.toList()
     }
 
-    fun getExerciseSubmissions(exerciseID: Int): List<Submission> {
+    fun getExerciseSubmissions(user: AtlasUser, exerciseID: Int): List<Submission> {
 
         // Error Catching
-        if (!exerciseRepository.existsById(exerciseID)) throw ExerciseNotFoundException
-        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht): throw AccessDeniedException
+        if (!exRep.existsById(exerciseID)) throw ExerciseNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, exRep.getModuleByExercise(exerciseID).module_id).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
+            throw AccessDeniedException
 
-        return submissionRepository.getSubmissionsByExercise(exerciseID).map {  s ->
+        // Functionality
+        return subRep.getSubmissionsByExercise(exerciseID).map {  s ->
             Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
         }.toList()
     }
 
-    fun getUserSubmissions(userID: Int): List<Submission> {
+    fun getUserSubmissions(user: AtlasUser, subUserID: Int): List<Submission> {
 
         // Error Catching
-        if (!userRepository.existsById(userID)) throw UserNotFoundException
-        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht): throw AccessDeniedException
+        if (!userRep.existsById(subUserID)) throw UserNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            user.user_id != subUserID)   // Check for self
+            throw AccessDeniedException
 
-        return submissionRepository.getSubmissionsByUser(userID).map {  s ->
+        // Functionality
+        return subRep.getSubmissionsByUser(subUserID).map {  s ->
             Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
         }.toList()
     }
 
-    fun getSubmission(exerciseID: Int, submissionID: Int): Submission {
+    fun getSubmission(user: AtlasUser, exerciseID: Int, submissionID: Int): Submission {
 
         // Error Catching
-        if (!exerciseRepository.existsById(exerciseID)) throw ExerciseNotFoundException
-        if (!submissionRepository.existsById(submissionID)) throw SubmissionNotFoundException
-        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht): throw AccessDeniedException
+        if (!exRep.existsById(exerciseID)) throw ExerciseNotFoundException
+        if (!subRep.existsById(submissionID)) throw SubmissionNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, exRep.getModuleByExercise(exerciseID).module_id).let { mru -> mru == null || mru.role_id > 3 } &&   // Check for tutor/teacher
+            user.user_id != subRep.findById(submissionID).get().user_id)   // Check for self
+            throw AccessDeniedException
 
-        return submissionRepository.findById(submissionID).get()
+        // Functionality
+        return subRep.findById(submissionID).get()
     }
 
-    fun editSubmission(s: Submission): Submission {
+    fun editSubmission(user: AtlasUser, s: Submission): Submission {
 
         // Error Catching
-        if (!submissionRepository.existsById(s.submission_id)) throw SubmissionNotFoundException
-        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht): throw NoPermissionToEditExerciseException
+        if (!subRep.existsById(s.submission_id)) throw SubmissionNotFoundException
+        if (!exRep.existsById(s.exercise_id)) throw ExerciseNotFoundException
+        if (!userRep.existsById(s.user_id)) throw UserNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            user.user_id != s.user_id)   // Check for self
+            throw NoPermissionToEditSubmissionException
 
+        // Functionality
         val updatedSubmission = Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
-        submissionRepository.save(updatedSubmission)
+        subRep.save(updatedSubmission)
         return updatedSubmission
     }
 
-    fun postSubmission(s: Submission): Submission {
+    fun postSubmission(user: AtlasUser, s: Submission): Submission {
 
         // Error Catching
-        if (s.submission_id != 0) throw InvalidParameterTypeException
-        if (exerciseRepository.existsById(s.exercise_id).not()) throw ExerciseNotFoundException
-        if (userRepository.existsById(s.user_id).not()) throw UserNotFoundException
-        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht): throw NoPermissionToEditSubmissionException
+        if (s.submission_id != 0) throw InvalidSubmissionIDException
+        if (!exRep.existsById(s.exercise_id)) throw ExerciseNotFoundException
+        if (!userRep.existsById(s.user_id)) throw UserNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            !exRep.findById(s.exercise_id).get().exercisePublic &&     // Check if exercise public
+            !modRep.getUsersByModule(exRep.getModuleByExercise(s.exercise_id).module_id).any { u -> u.user_id == user.user_id })     // Check if user in module
+            throw NoAccessToExerciseException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            user.user_id != s.user_id)   // Check for self
+            throw NoPermissionToEditSubmissionException
 
-        submissionRepository.save(s)
+        // Functionality
+        subRep.save(s)
         return Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
     }
 
-    fun deleteSubmission(submissionID: Int): Submission {
+    fun deleteSubmission(user: AtlasUser, submissionID: Int): Submission {
+        val s = subRep.findById(submissionID).get()
 
         // Error Catching
-        if (!submissionRepository.existsById(submissionID)) throw SubmissionNotFoundException
-        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht): throw AccessDeniedException
-        // TODO: Falls Berechtigungen fehlen (Wenn Spring Security steht): throw NoPermissionToDeleteSubmissionException
-        // TODO: throw InternalServerError
+        if (!subRep.existsById(submissionID)) throw SubmissionNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, exRep.getModuleByExercise(s.exercise_id).module_id).let { mru -> mru == null || mru.role_id > 3 } &&   // Check for tutor/teacher
+            user.user_id != s.user_id)   // Check for self
+            throw NoPermissionToDeleteSubmissionException
 
-        val s = submissionRepository.findById(submissionID).get()
+        // Functionality
         val ret = Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
-        submissionRepository.deleteById(submissionID)
+        subRep.deleteById(submissionID)
         return ret
     }
 }

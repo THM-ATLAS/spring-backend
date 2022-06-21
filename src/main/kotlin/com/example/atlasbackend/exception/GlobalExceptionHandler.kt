@@ -180,6 +180,13 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
+    // User is not allowed to edit these settings
+    @ExceptionHandler(value = [NoPermissionToModifySettingsException::class])
+    fun exception(exception: NoPermissionToModifySettingsException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifySettingsException","Not allowed to edit the settings of another user.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
     // User is not allowed to create/edit/delete tags
     @ExceptionHandler(value = [NoPermissionToModifyTagsException::class])
     fun exception(exception: NoPermissionToModifyTagsException): ResponseEntity<ApiError> {
@@ -191,6 +198,27 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = [NoPermissionToModifyExerciseTagsException::class])
     fun exception(exception: NoPermissionToModifyExerciseTagsException): ResponseEntity<ApiError> {
         val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyExerciseTagsException", "Insufficient permission to modify the tags of this exercise.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to assign/remove roles of a user
+    @ExceptionHandler(value = [NoPermissionToModifyUserRolesException::class])
+    fun exception(exception: NoPermissionToModifyUserRolesException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyUserRolesException", "Insufficient permission to modify the roles of a user.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to add/remove multiple users at once
+    @ExceptionHandler(value = [NoPermissionToModifyMultipleUsersException::class])
+    fun exception(exception: NoPermissionToModifyMultipleUsersException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyMultipleUsersException", "Insufficient permission to modify multiple users at once.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to modify admins (no one is)
+    @ExceptionHandler(value = [NoPermissionToModifyAdminException::class])
+    fun exception(exception: NoPermissionToModifyAdminException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyAdminException", "Can't modify administrators.")
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
@@ -226,6 +254,20 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = [SubmissionAfterDeadlineException::class])
     fun exception(exception: SubmissionAfterDeadlineException): ResponseEntity<ApiError> {
         val err = ApiError(403, HttpStatus.FORBIDDEN, "SubmissionAfterDeadlineException", "Time threshold for submission exceeded.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User doesn't have access to exercise (Not in module & exercise private)
+    @ExceptionHandler(value = [NoAccessToExerciseException::class])
+    fun exception(exception: NoAccessToExerciseException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoAccessToExerciseException", "User has to join module or exercise has to be public to submit.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User didn't enter Submission for this Exercise, can't rate exercise
+    @ExceptionHandler(value = [UserNeedsToSubmitBeforeRatingException::class])
+    fun exception(exception: UserNeedsToSubmitBeforeRatingException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "UserNeedsToSubmitBeforeRatingException", "User needs to submit first before rating an exercise.")
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
@@ -305,6 +347,7 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
     }
 
+    // Username already exists in the database
     @ExceptionHandler(value = [UserAlreadyExistsException::class])
     fun exception(exception: UserAlreadyExistsException): ResponseEntity<ApiError> {
         val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "The provided username already exists. Edit the existing user or choose a different username.")

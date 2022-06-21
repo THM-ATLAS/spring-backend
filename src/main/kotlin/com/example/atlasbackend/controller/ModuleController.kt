@@ -125,7 +125,7 @@ class ModuleController(val moduleService: ModuleService) {
             ])
     @DeleteMapping("/modules/users/{moduleID}/{userID}")
     fun removeUser(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int, @PathVariable userID: Int): List<ModuleUser> {
-        return moduleService.removeUser(user, userID, moduleID)
+        return moduleService.removeUser(user, moduleID, userID)
     }
 
     @ApiResponses(
