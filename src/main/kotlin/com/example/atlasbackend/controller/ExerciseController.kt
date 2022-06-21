@@ -70,6 +70,7 @@ class ExerciseController(val exerciseService: ExerciseService) {
         return exerciseService.getExerciseTypes(user)
     }
 
+
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Edits Exercises"),
