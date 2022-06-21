@@ -8,9 +8,10 @@ import org.springframework.stereotype.Service
 
 @Service
 class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val setRep: SettingsRepository) {
-    fun getAllUsers(user: AtlasUser): List<AtlasUser> {
+    fun getAllUsers(user: AtlasUser?): List<AtlasUser> {
 
         // Error Catching
+        if (user == null) throw AccessDeniedException
         if (!user.roles.any { r -> r.role_id < 3}) throw AccessDeniedException   // Check for admin/teacher
 
         // Functionality
@@ -35,9 +36,10 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         return getUser
     }
 
-    fun editUser(user: AtlasUser, editUser: AtlasUser): AtlasUser {
+    fun editUser(user: AtlasUser?, editUser: AtlasUser): AtlasUser {
 
         // Error Catching
+        if (user == null) throw AccessDeniedException
         if (!userRep.existsById(editUser.user_id)) throw UserNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
             user.user_id != editUser.user_id)   // Check for self
