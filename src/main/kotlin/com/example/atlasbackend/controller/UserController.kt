@@ -23,7 +23,7 @@ class UserController(val userService: UserService) {
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/users")
-    fun getAllUsers(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser): List<AtlasUser> {
+    fun getAllUsers(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser?): List<AtlasUser> {
         return userService.getAllUsers(user)
     }
 
