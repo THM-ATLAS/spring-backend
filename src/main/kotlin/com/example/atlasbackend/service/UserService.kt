@@ -20,7 +20,7 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         return users
     }
 
-    fun getMe(user: AtlasUser): AtlasUser {
+    fun getMe(user: AtlasUser?): AtlasUser? {
         return user
     }
 

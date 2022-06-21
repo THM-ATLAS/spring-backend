@@ -14,9 +14,6 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/")
 class UserController(val userService: UserService) {
 
-    @GetMapping("/")
-    fun authSuccess() = "Authentication successful"
-
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Returns all Users"),
@@ -32,7 +29,7 @@ class UserController(val userService: UserService) {
                 ApiResponse(responseCode = "200", description = "OK - Returns logged in User")
     ])
     @GetMapping("/users/me")
-    fun getMe(@AuthenticationPrincipal user: AtlasUser): AtlasUser {
+    fun getMe(@AuthenticationPrincipal user: AtlasUser?): AtlasUser?{
         return userService.getMe(user)
     }
 
