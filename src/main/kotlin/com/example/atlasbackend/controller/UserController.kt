@@ -20,7 +20,7 @@ class UserController(val userService: UserService) {
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/users")
-    fun getAllUsers(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser): List<AtlasUser> {
+    fun getAllUsers(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser?): List<AtlasUser> {
         return userService.getAllUsers(user)
     }
 
@@ -52,7 +52,7 @@ class UserController(val userService: UserService) {
                 ApiResponse(responseCode = "400", description = "InvalidRoleIDException - valid IDs 1,2,4,5", content = [Content(schema = Schema(hidden = true))]),
             ])
     @PutMapping("/users")
-    fun editUser(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: AtlasUser): AtlasUser {
+    fun editUser(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser?, @RequestBody body: AtlasUser): AtlasUser {
         return userService.editUser(user, body)
     }
 
