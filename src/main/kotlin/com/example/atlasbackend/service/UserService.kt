@@ -79,6 +79,8 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
         // Error Catching
         if (user.user_id != 0) throw InvalidUserIDException
 
+        if(userRepository.testForUser(user.username).isNotEmpty()) throw UserAlreadyExistsException
+
         var atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email)
         atlasUser = userRepository.save(atlasUser)
         if(user.password != "") {
@@ -104,6 +106,8 @@ class UserService(val userRepository: UserRepository, val roleRepository: RoleRe
 
         users.forEach { u ->
             if (u.user_id != 0) throw InvalidUserIDException
+
+            if(userRepository.testForUser(u.username).isNotEmpty()) throw UserAlreadyExistsException
 
             var atlasUser = AtlasUser(u.user_id, u.name, u.username, u.email)
             atlasUser = userRepository.save(atlasUser)
