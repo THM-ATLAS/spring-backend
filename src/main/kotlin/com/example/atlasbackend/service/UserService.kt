@@ -81,13 +81,13 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
 
         // Error Catching
         if (newUser.user_id != 0) throw InvalidUserIDException
+        if (userRep.testForUser(newUser.username).isNotEmpty()) throw UserAlreadyExistsException
 
-        if(userRepository.testForUser(user.username).isNotEmpty()) throw UserAlreadyExistsException
-
-        var atlasUser = AtlasUser(user.user_id, user.name, user.username, user.email)
-        atlasUser = userRepository.save(atlasUser)
-        if(user.password != "") {
-            userRepository.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(user.password))
+        // Functionality
+        var atlasUser = AtlasUser(newUser.user_id, newUser.name, newUser.username, newUser.email)
+        atlasUser = userRep.save(atlasUser)
+        if(newUser.password != "") {
+            userRep.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(newUser.password))
         }
 
         newUser.roles.forEach { r  ->
@@ -109,11 +109,11 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
 
         newUsers.forEach { u ->
             if (u.user_id != 0) throw InvalidUserIDException
+            if (userRep.testForUser(u.username).isNotEmpty()) throw UserAlreadyExistsException
 
-            if(userRepository.testForUser(u.username).isNotEmpty()) throw UserAlreadyExistsException
-
+        // Functionality
             var atlasUser = AtlasUser(u.user_id, u.name, u.username, u.email)
-            atlasUser = userRepository.save(atlasUser)
+            atlasUser = userRep.save(atlasUser)
             if(u.password != "") {
                 userRep.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(u.password))
             }

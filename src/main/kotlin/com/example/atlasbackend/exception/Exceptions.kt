@@ -1,7 +1,5 @@
 package com.example.atlasbackend.exception
 
-// TODO: Try to combine similar functions
-
 
 /***** [4xx] CLIENT ERRORS *****/
 
@@ -157,6 +155,7 @@ object SettingNotFoundException : RuntimeException()
 // Entity couldn't be processed
 object UnprocessableEntityException : RuntimeException()
 
+// Username already exists in the database
 object UserAlreadyExistsException : RuntimeException()
 
 
