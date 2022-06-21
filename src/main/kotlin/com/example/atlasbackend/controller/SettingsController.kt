@@ -21,7 +21,7 @@ class SettingsController(val settingsService: SettingsService) {
                 ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))]),
                         ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
-    @GetMapping("/settings/{userID}")
+    @GetMapping("/settings/{settingUserID}")
     fun loadSettings(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable settingUserID: Int): UserSettings {
         return settingsService.loadSettings(user, settingUserID)
     }

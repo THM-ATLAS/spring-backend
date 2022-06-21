@@ -42,7 +42,7 @@ class SubmissionController(val submissionService: SubmissionService) {
                 ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
-    @GetMapping("/users/{userID}/submissions")
+    @GetMapping("/users/{subUserID}/submissions")
     fun getUserSubmissions(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable subUserID: Int): List<Submission> {
         return submissionService.getUserSubmissions(user, subUserID)
     }

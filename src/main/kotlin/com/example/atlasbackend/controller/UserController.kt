@@ -42,7 +42,7 @@ class UserController(val userService: UserService) {
                 ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
-    @GetMapping("/users/{id}")
+    @GetMapping("/users/{getUserID}")
     fun getUser(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable getUserID: Int): AtlasUser {
         return userService.getUser(user, getUserID)
     }
@@ -88,7 +88,7 @@ class UserController(val userService: UserService) {
                 ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "NoPermissionToDeleteUserException || NoPermissionToModifyAdminException", content = [Content(schema = Schema(hidden = true))])
             ])
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/users/{delUserID}")
     fun delUser(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable delUserID: Int): AtlasUser {
         return userService.delUser(user, delUserID)
     }

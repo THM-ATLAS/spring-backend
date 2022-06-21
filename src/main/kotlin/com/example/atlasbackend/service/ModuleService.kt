@@ -132,7 +132,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         }
     }
 
-    fun removeUser(user: AtlasUser, userID: Int, moduleID: Int): List<ModuleUser> {
+    fun removeUser(user: AtlasUser, moduleID: Int, userID: Int): List<ModuleUser> {
 
         // Error Catching
         if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException

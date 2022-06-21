@@ -33,7 +33,7 @@ class RatingController(val ratingService: RatingService) {
                 ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
-    @GetMapping("/ratings/users/{userID}")
+    @GetMapping("/ratings/users/{ratUserID}")
     fun getUserRatings(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable ratUserID: Int): List<Rating> {
         return ratingService.getUserRatings(user, ratUserID)
     }
