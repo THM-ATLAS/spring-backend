@@ -157,6 +157,8 @@ object SettingNotFoundException : RuntimeException()
 // Entity couldn't be processed
 object UnprocessableEntityException : RuntimeException()
 
+object UserAlreadyExistsException : RuntimeException()
+
 
 
 /***** [5xx] SERVER ERRORS *****/

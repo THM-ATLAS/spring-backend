@@ -347,6 +347,11 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
     }
 
+    @ExceptionHandler(value = [UserAlreadyExistsException::class])
+    fun exception(exception: UserAlreadyExistsException): ResponseEntity<ApiError> {
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "The provided username already exists. Edit the existing user or choose a different username.")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
 
 
     /***** [5xx] SERVER ERRORS *****/
