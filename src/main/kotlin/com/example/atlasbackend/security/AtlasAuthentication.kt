@@ -5,7 +5,6 @@ import org.springframework.data.relational.core.mapping.Table
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 
-@Table("user")
 data class AtlasAuthentication(val user: AtlasUser): Authentication {
 
     private var authenticated: Boolean = false
