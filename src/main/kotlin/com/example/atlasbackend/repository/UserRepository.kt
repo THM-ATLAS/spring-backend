@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository
 interface UserRepository: CrudRepository<AtlasUser, Int> {
 
     @Query("SELECT * FROM \"user\" WHERE username = :username")
-    fun testForUser(@Param("username") username: String): List<AtlasUser>
+    fun testForUser(@Param("username") username: String): AtlasUser?
 
     @Query("SELECT password FROM \"user\" WHERE username = :username")
     fun getPassword(@Param("username") username: String): String?

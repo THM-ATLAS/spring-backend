@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component
 @Component
 class LDAPAuthenticationManager(
     val userDetailsService: UserDetailsService
-): AuthenticationManager {
+) : AuthenticationManager {
 
     private fun initLdap(): LdapTemplate {
         val ldapContextSource = LdapContextSource()
@@ -67,12 +67,22 @@ class LDAPAuthenticationManager(
         val username = authentication.principal as String
         val password = authentication.credentials as String
 
+        val userDn: String?
         try {
-            initLdap().contextSource.getContext(findUserDn(username), password)
-        } catch(error: java.lang.Exception) {
-            if(!(BCryptPasswordEncoder().matches(password, userDetailsService.loadUserByUsername(username).password))) {
+            userDn = findUserDn(username)
+        } catch (error: java.lang.Exception) {
+            if (!BCryptPasswordEncoder().matches(password, userDetailsService.loadUserByUsername(username).password)) {
                 throw InvalidCredentialsException
+            } else {
+                val user = AtlasAuthentication(userDetailsService.loadUserByUsername(username) as AtlasUser)
+                user.isAuthenticated = true
+                return user
             }
+        }
+        try {
+            initLdap().contextSource.getContext(userDn, password)
+        } catch (error: java.lang.Exception) {
+            throw InvalidCredentialsException
         }
 
         val user = getUserProperties(username)
