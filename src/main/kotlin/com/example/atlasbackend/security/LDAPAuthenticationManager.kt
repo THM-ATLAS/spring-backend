@@ -72,9 +72,9 @@ class LDAPAuthenticationManager(
         val password = authentication.credentials as String
 
         val userDn: String?
-        try {
-            userDn = findUserDn(username)
-        } catch (error: java.lang.Exception) {
+
+        userDn = findUserDn(username)
+        if (userDn == "") {
             if (!BCryptPasswordEncoder().matches(password, userDetailsService.loadUserByUsername(username)!!.password)) {
                 throw InvalidCredentialsException
             } else {
