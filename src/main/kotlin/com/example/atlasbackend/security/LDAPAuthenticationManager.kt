@@ -34,7 +34,11 @@ class LDAPAuthenticationManager(
     }
 
     fun getUserProperties(user: String): AtlasUser {
-        val atlasUser = userDetailsService.loadUserByUsername(user) as AtlasUser
+        var atlasUser = userDetailsService.loadUserByUsername(user) as AtlasUser
+        if (atlasUser == null) {
+            atlasUser = AtlasUser(0, "", "", "")
+        }
+
         initLdap().search(
             LdapQueryBuilder
                 .query()
@@ -71,7 +75,7 @@ class LDAPAuthenticationManager(
         try {
             userDn = findUserDn(username)
         } catch (error: java.lang.Exception) {
-            if (!BCryptPasswordEncoder().matches(password, userDetailsService.loadUserByUsername(username).password)) {
+            if (!BCryptPasswordEncoder().matches(password, userDetailsService.loadUserByUsername(username)!!.password)) {
                 throw InvalidCredentialsException
             } else {
                 val user = AtlasAuthentication(userDetailsService.loadUserByUsername(username) as AtlasUser)
