@@ -88,6 +88,13 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
+    // Invalid Asset ID when creating asset
+    @ExceptionHandler(value = [InvalidAssetIDException::class])
+    fun exception(exception: InvalidAssetIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidAssetIDException", "Asset ID must be zero when creating a new asset.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
 
     /** [401] UNAUTHORIZED **/
 
@@ -292,6 +299,13 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = [SettingNotFoundException::class])
     fun exception(exception: SettingNotFoundException): ResponseEntity<ApiError> {
         val err = ApiError(404, HttpStatus.NOT_FOUND, "SettingNotFoundException", "Couldn't find requested setting.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
+    // Asset ID doesn't exist
+    @ExceptionHandler(value = [AssetNotFoundException::class])
+    fun exception(exception: AssetNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "AssetNotFoundException", "Couldn't find requested asset.")
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 
