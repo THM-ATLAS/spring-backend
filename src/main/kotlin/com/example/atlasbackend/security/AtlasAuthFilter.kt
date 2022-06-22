@@ -12,24 +12,6 @@ import javax.servlet.http.HttpServletResponse
 
 @Component
 class AtlasAuthFilter(ldapAuthenticationManager: LDAPAuthenticationManager) : UsernamePasswordAuthenticationFilter(ldapAuthenticationManager) {
-    private var jsonUsername: String? = null
-    private var jsonPassword: String? = null
-
-    override fun obtainPassword(request: HttpServletRequest): String? {
-        return if ("application/json" == request.getHeader("Content-Type")) {
-            jsonPassword
-        } else {
-            super.obtainPassword(request)
-        }
-    }
-
-    override fun obtainUsername(request: HttpServletRequest): String? {
-        return if ("application/json" == request.getHeader("Content-Type")) {
-            jsonUsername
-        } else {
-            super.obtainUsername(request)
-        }
-    }
 
     override fun attemptAuthentication(request: HttpServletRequest, response: HttpServletResponse?): Authentication? {
 
@@ -41,10 +23,8 @@ class AtlasAuthFilter(ldapAuthenticationManager: LDAPAuthenticationManager) : Us
         }
         val parsedReq = sb.toString()
         val authReq: AuthReq = jacksonObjectMapper().readValue(parsedReq)
-        jsonPassword = authReq.password
-        jsonUsername = authReq.username
         return authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken(jsonUsername, jsonPassword)
+            UsernamePasswordAuthenticationToken(authReq.username, authReq.password)
         )
     }
 }
