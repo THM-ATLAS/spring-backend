@@ -63,7 +63,6 @@ class LDAPAuthenticationManager(
     }
 
     override fun authenticate(authentication: Authentication): Authentication {
-        println(authentication)
         authentication as UsernamePasswordAuthenticationToken
         val username = authentication.principal as String
         val password = authentication.credentials as String
