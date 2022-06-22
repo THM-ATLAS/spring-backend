@@ -12,16 +12,9 @@ class UserDetailsService(val userRepository: UserRepository, val roleRepository:
     UserDetailsService {
 
     override fun loadUserByUsername(username: String): UserDetails {
-        val userList = userRepository.testForUser(username)
-        val user: AtlasUser
+        val user = userRepository.testForUser(username)
 
-        if (userList.isNotEmpty()) {
-            user = userList[0]
-        } else {
-            user = AtlasUser(0, "", "", "")
-        }
-
-        user.roles.addAll(roleRepository.getRolesByUser(user.user_id))
+        user!!.roles.addAll(roleRepository.getRolesByUser(user.user_id))
 
         if(user.roles.isEmpty()) {
             roleRepository.giveRole(user.user_id, 5)
