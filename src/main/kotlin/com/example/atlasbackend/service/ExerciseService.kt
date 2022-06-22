@@ -1,18 +1,16 @@
 package com.example.atlasbackend.service
 
-import com.example.atlasbackend.classes.AtlasUser
-import com.example.atlasbackend.classes.Exercise
-import com.example.atlasbackend.classes.ExerciseRet
-import com.example.atlasbackend.classes.ExerciseType
+import com.example.atlasbackend.classes.*
 import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.*
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.PathVariable
+import java.sql.Timestamp
 
 
 @Service
-class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepository, val modRep: ModuleRepository, val userRep: UserRepository, val exTyRep: ExerciseTypeRepository, val tagRep: TagRepository) {
+class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepository, val modRep: ModuleRepository, val userRep: UserRepository, val exTyRep: ExerciseTypeRepository, val tagRep: TagRepository,var notifRep: NotificationRepository) {
 
     fun loadExercises(@AuthenticationPrincipal user: AtlasUser): List<ExerciseRet> {
 
@@ -88,6 +86,13 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
         // Functionality
         val updatedExercise = Exercise(e.exercise_id, e.module.module_id, exTyRep.getExerciseTypeID(e.type), e.title, e.content, e.description, e.exercisePublic)
         exRep.save(updatedExercise)
+        // Notification
+        val notification = Notification(0,e.title + "edited","", Timestamp(System.currentTimeMillis()),2,e.exercise_id,null)
+        notifRep.save(notification)
+        modRep.getUsersByModule(e.module.module_id).forEach {u ->
+            notifRep.addNotificationByUser(u.user_id,notification.notification_id)
+        }
+
         return ExerciseRet(e.exercise_id, modRep.findById(e.module.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), e.type, tagRep.getExerciseTags(e.exercise_id))
     }
 
@@ -102,6 +107,12 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
 
         // Functionality
         exRep.save(e)
+        // Notification
+        val notification = Notification(0,e.title + "erstellt","", Timestamp(System.currentTimeMillis()),2,e.exercise_id,null)
+        notifRep.save(notification)
+        modRep.getUsersByModule(e.module_id).forEach {u ->
+            notifRep.addNotificationByUser(u.user_id,notification.notification_id)
+        }
         return ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
     }
 
