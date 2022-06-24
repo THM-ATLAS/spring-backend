@@ -2,7 +2,7 @@ package com.example.atlasbackend.controller
 
 import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.classes.Submission
-import com.example.atlasbackend.classes.SubmissionRating
+import com.example.atlasbackend.classes.SubmissionGrade
 import com.example.atlasbackend.service.SubmissionService
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -76,9 +76,9 @@ class SubmissionController(val submissionService: SubmissionService) {
             ApiResponse(responseCode = "404", description = "SubmissionNotFoundException", content = [Content(schema = Schema(hidden = true))]),
             ApiResponse(responseCode = "403", description = "NoPermissionToEditExerciseException", content = [Content(schema = Schema(hidden = true))])
         ])
-    @PutMapping("/submissions/rating")
-    fun editSubmissionRating(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: SubmissionRating): Submission {
-        return submissionService.editSubmissionRating(user, body)
+    @PutMapping("/submissions/grade")
+    fun editSubmissionRating(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: SubmissionGrade): Submission {
+        return submissionService.editSubmissionGrade(user, body)
     }
 
     @ApiResponses(
