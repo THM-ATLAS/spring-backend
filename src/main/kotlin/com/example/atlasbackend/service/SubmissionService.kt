@@ -3,7 +3,7 @@ package com.example.atlasbackend.service
 import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.classes.Notification
 import com.example.atlasbackend.classes.Submission
-import com.example.atlasbackend.classes.SubmissionRating
+import com.example.atlasbackend.classes.SubmissionGrade
 import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.*
 import org.springframework.stereotype.Service
@@ -85,7 +85,7 @@ class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRep
         return updatedSubmission
     }
 
-    fun editSubmissionRating(user: AtlasUser, sr: SubmissionRating): Submission {
+    fun editSubmissionGrade(user: AtlasUser, sr: SubmissionGrade): Submission {
         val s = subRep.findById(sr.submission_id).get()
 
         // Error Catching
