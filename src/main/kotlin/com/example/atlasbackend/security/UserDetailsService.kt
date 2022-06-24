@@ -11,23 +11,19 @@ import org.springframework.stereotype.Component
 class UserDetailsService(val userRepository: UserRepository, val roleRepository: RoleRepository):
     UserDetailsService {
 
-    override fun loadUserByUsername(username: String): UserDetails {
-        val userList = userRepository.testForUser(username)
-        val user: AtlasUser
+    override fun loadUserByUsername(username: String): UserDetails? {
+        val user = userRepository.testForUser(username)
 
-        if (userList.isNotEmpty()) {
-            user = userList[0]
-        } else {
-            user = AtlasUser(0, "", "", "")
+        if (user != null) {
+            user.roles.addAll(roleRepository.getRolesByUser(user.user_id))
+
+            if(user.roles.isEmpty()) {
+                roleRepository.giveRole(user.user_id, 5)
+            }
+
+            user.password = userRepository.getPassword(username) ?: ""
         }
 
-        user.roles.addAll(roleRepository.getRolesByUser(user.user_id))
-
-        if(user.roles.isEmpty()) {
-            roleRepository.giveRole(user.user_id, 5)
-        }
-
-        user.password = userRepository.getPassword(username) ?: ""
 
         return user
     }
