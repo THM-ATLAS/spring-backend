@@ -158,6 +158,9 @@ object UnprocessableEntityException : RuntimeException()
 // Username already exists in the database
 object UserAlreadyExistsException : RuntimeException()
 
+// User already submitted to that exercise
+object SubmissionAlreadyExistsException: RuntimeException()
+
 
 
 /***** [5xx] SERVER ERRORS *****/

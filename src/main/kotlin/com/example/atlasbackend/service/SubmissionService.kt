@@ -95,7 +95,10 @@ class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRep
             user.user_id != s.user_id)   // Check for self
             throw NoPermissionToEditSubmissionException
 
-        // Functionality
+        if (subRep.getSubmissionsByUser(s.user_id).filter { it.exercise_id == s.exercise_id }.isEmpty().not()) {
+            throw SubmissionAlreadyExistsException
+        }
+
         subRep.save(s)
         return Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
     }
