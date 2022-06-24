@@ -37,6 +37,9 @@ object InvalidTagIDException : RuntimeException()
 // Invalid Role ID when assigning role
 object InvalidRoleIDException: RuntimeException()
 
+// Invalid Asset ID when creating Asset
+object InvalidAssetIDException : RuntimeException()
+
 
 /** [401] UNAUTHORIZED **/
 
@@ -148,6 +151,9 @@ object RoleNotFoundException : RuntimeException()
 
 // Setting ID doesn't exist
 object SettingNotFoundException : RuntimeException()
+
+// Asset ID doesn't exist
+object AssetNotFoundException : RuntimeException()
 
 
 /** [422] UNPROCESSABLE ENTITY **/
