@@ -5,7 +5,6 @@ import com.example.atlasbackend.classes.AssetBase64
 import com.example.atlasbackend.exception.AssetNotFoundException
 import com.example.atlasbackend.exception.InvalidAssetIDException
 import com.example.atlasbackend.repository.AssetRepository
-import org.apache.tomcat.jni.File
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.core.io.Resource
 import org.springframework.http.ContentDisposition

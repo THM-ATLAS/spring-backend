@@ -1,13 +1,11 @@
 package com.example.atlasbackend.controller
 
-import com.example.atlasbackend.classes.Asset
 import com.example.atlasbackend.classes.AssetBase64
 import com.example.atlasbackend.service.AssetService
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
-import org.apache.tomcat.jni.File
 import org.springframework.core.io.Resource
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
