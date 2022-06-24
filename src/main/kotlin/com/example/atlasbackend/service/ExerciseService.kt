@@ -87,7 +87,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
         val updatedExercise = Exercise(e.exercise_id, e.module.module_id, exTyRep.getExerciseTypeID(e.type), e.title, e.content, e.description, e.exercisePublic)
         exRep.save(updatedExercise)
         // Notification
-        val notification = Notification(0,e.title + "edited","", Timestamp(System.currentTimeMillis()),2,e.exercise_id,null)
+        val notification = Notification(0,e.title,"", Timestamp(System.currentTimeMillis()),2,e.module.module_id,e.exercise_id,null)
         notifRep.save(notification)
         modRep.getUsersByModule(e.module.module_id).forEach {u ->
             notifRep.addNotificationByUser(u.user_id,notification.notification_id)
@@ -108,7 +108,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
         // Functionality
         exRep.save(e)
         // Notification
-        val notification = Notification(0,e.title + "erstellt","", Timestamp(System.currentTimeMillis()),2,e.exercise_id,null)
+        val notification = Notification(0,e.title,"", Timestamp(System.currentTimeMillis()),1,e.module_id,e.exercise_id,null)
         notifRep.save(notification)
         modRep.getUsersByModule(e.module_id).forEach {u ->
             notifRep.addNotificationByUser(u.user_id,notification.notification_id)

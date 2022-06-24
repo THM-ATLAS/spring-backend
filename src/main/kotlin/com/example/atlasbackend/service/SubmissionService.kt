@@ -1,17 +1,16 @@
 package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.AtlasUser
+import com.example.atlasbackend.classes.Notification
 import com.example.atlasbackend.classes.Submission
 import com.example.atlasbackend.classes.SubmissionRating
 import com.example.atlasbackend.exception.*
-import com.example.atlasbackend.repository.ExerciseRepository
-import com.example.atlasbackend.repository.ModuleRepository
-import com.example.atlasbackend.repository.SubmissionRepository
-import com.example.atlasbackend.repository.UserRepository
+import com.example.atlasbackend.repository.*
 import org.springframework.stereotype.Service
+import java.sql.Timestamp
 
 @Service
-class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRepository, val userRep: UserRepository, val modRep: ModuleRepository) {
+class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRepository, val userRep: UserRepository, val modRep: ModuleRepository, var notifRep: NotificationRepository) {
 
     fun getAllSubmissions(user: AtlasUser): List<Submission> {
 
@@ -98,6 +97,14 @@ class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRep
         // Functionality
         val updatedSubmission = Submission(sr.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, sr.grade, sr.teacher_id, sr.comment)
         subRep.save(updatedSubmission)
+
+        // Notification
+        val notification = Notification(0,exRep.findById(updatedSubmission.exercise_id).get().title,"", Timestamp(System.currentTimeMillis()),3,exRep.findById(s.exercise_id).get().module_id,s.exercise_id,s.submission_id)
+        notifRep.save(notification)
+        notifRep.addNotificationByUser(s.user_id,notification.notification_id)
+
+
+
         return updatedSubmission
     }
 
