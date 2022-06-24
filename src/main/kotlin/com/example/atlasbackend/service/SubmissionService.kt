@@ -2,6 +2,7 @@ package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.classes.Submission
+import com.example.atlasbackend.classes.SubmissionRating
 import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.ExerciseRepository
 import com.example.atlasbackend.repository.ModuleRepository
@@ -66,6 +67,7 @@ class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRep
     }
 
     fun editSubmission(user: AtlasUser, s: Submission): Submission {
+        val oldSub = subRep.findById(s.submission_id).get()
 
         // Error Catching
         if (!subRep.existsById(s.submission_id)) throw SubmissionNotFoundException
@@ -76,7 +78,25 @@ class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRep
             throw NoPermissionToEditSubmissionException
 
         // Functionality
-        val updatedSubmission = Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
+        var updatedSubmission = Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
+        if(user.user_id == s.user_id && !user.roles.any { r -> r.role_id == 1}) {     // User can't edit his own grade, unless admin
+            updatedSubmission = Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, oldSub.grade, oldSub.teacher_id, oldSub.comment)
+        }
+        subRep.save(updatedSubmission)
+        return updatedSubmission
+    }
+
+    fun editSubmissionRating(user: AtlasUser, sr: SubmissionRating): Submission {
+        val s = subRep.findById(sr.submission_id).get()
+
+        // Error Catching
+        if (!subRep.existsById(sr.submission_id)) throw SubmissionNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, exRep.getModuleByExercise(s.exercise_id).module_id).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
+            throw NoPermissionToEditSubmissionException
+
+        // Functionality
+        val updatedSubmission = Submission(sr.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, sr.grade, sr.teacher_id, sr.comment)
         subRep.save(updatedSubmission)
         return updatedSubmission
     }
@@ -95,7 +115,10 @@ class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRep
             user.user_id != s.user_id)   // Check for self
             throw NoPermissionToEditSubmissionException
 
-        // Functionality
+        if (subRep.getSubmissionsByUser(s.user_id).filter { it.exercise_id == s.exercise_id }.isEmpty().not()) {
+            throw SubmissionAlreadyExistsException
+        }
+
         subRep.save(s)
         return Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
     }

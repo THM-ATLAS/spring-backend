@@ -368,6 +368,14 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
     }
 
+    // Submission with that user_id and that exercise_id already exists
+    @ExceptionHandler(value = [SubmissionAlreadyExistsException::class])
+    fun exception(exception: SubmissionAlreadyExistsException): ResponseEntity<ApiError> {
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "User already submitted to that task")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
+
+
 
     /***** [5xx] SERVER ERRORS *****/
 

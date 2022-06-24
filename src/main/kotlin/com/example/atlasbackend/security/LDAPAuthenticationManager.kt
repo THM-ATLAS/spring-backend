@@ -71,11 +71,12 @@ class LDAPAuthenticationManager(
         val username = authentication.principal as String
         val password = authentication.credentials as String
 
-        val userDn: String?
+        val userDn: String
 
         userDn = findUserDn(username)
         if (userDn == "") {
-            if (!BCryptPasswordEncoder().matches(password, userDetailsService.loadUserByUsername(username)!!.password)) {
+            val user = userDetailsService.loadUserByUsername(username) ?: throw InvalidCredentialsException
+            if (!BCryptPasswordEncoder().matches(password, user.password)) {
                 throw InvalidCredentialsException
             } else {
                 val user = AtlasAuthentication(userDetailsService.loadUserByUsername(username) as AtlasUser)
