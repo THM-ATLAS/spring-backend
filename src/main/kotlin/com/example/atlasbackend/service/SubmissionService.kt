@@ -103,8 +103,6 @@ class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRep
         notifRep.save(notification)
         notifRep.addNotificationByUser(s.user_id,notification.notification_id)
 
-
-
         return updatedSubmission
     }
 
@@ -121,6 +119,10 @@ class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRep
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
             user.user_id != s.user_id)   // Check for self
             throw NoPermissionToEditSubmissionException
+
+        if (subRep.getSubmissionsByUser(s.user_id).filter { it.exercise_id == s.exercise_id }.isEmpty().not()) {
+            throw SubmissionAlreadyExistsException
+        }
 
         // Functionality
         subRep.save(s)

@@ -40,6 +40,9 @@ object InvalidRoleIDException: RuntimeException()
 // Invalid Notification ID when creating notification
 object  InvalidNotificationIDException : RuntimeException()
 
+// Invalid Asset ID when creating Asset
+object InvalidAssetIDException : RuntimeException()
+
 
 /** [401] UNAUTHORIZED **/
 
@@ -163,6 +166,9 @@ object SettingNotFoundException : RuntimeException()
 // Notification ID doesn't exist
 object NotificationNotFoundException : RuntimeException()
 
+// Asset ID doesn't exist
+object AssetNotFoundException : RuntimeException()
+
 
 /** [422] UNPROCESSABLE ENTITY **/
 
@@ -171,6 +177,9 @@ object UnprocessableEntityException : RuntimeException()
 
 // Username already exists in the database
 object UserAlreadyExistsException : RuntimeException()
+
+// User already submitted to that exercise
+object SubmissionAlreadyExistsException: RuntimeException()
 
 
 

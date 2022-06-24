@@ -96,6 +96,13 @@ class GlobalExceptionHandler {
     }
 
 
+    // Invalid Asset ID when creating asset
+    @ExceptionHandler(value = [InvalidAssetIDException::class])
+    fun exception(exception: InvalidAssetIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidAssetIDException", "Asset ID must be zero when creating a new asset.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
 
     /** [401] UNAUTHORIZED **/
 
@@ -373,6 +380,13 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 
+    // Asset ID doesn't exist
+    @ExceptionHandler(value = [AssetNotFoundException::class])
+    fun exception(exception: AssetNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "AssetNotFoundException", "Couldn't find requested asset.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
 
     /** [422] UNPROCESSABLE ENTITY **/
 
@@ -389,6 +403,14 @@ class GlobalExceptionHandler {
         val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "The provided username already exists. Edit the existing user or choose a different username.")
         return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
     }
+
+    // Submission with that user_id and that exercise_id already exists
+    @ExceptionHandler(value = [SubmissionAlreadyExistsException::class])
+    fun exception(exception: SubmissionAlreadyExistsException): ResponseEntity<ApiError> {
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "User already submitted to that task")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
+
 
 
     /***** [5xx] SERVER ERRORS *****/
