@@ -167,6 +167,9 @@ object UserAlreadyExistsException : RuntimeException()
 // User already submitted to that exercise
 object SubmissionAlreadyExistsException: RuntimeException()
 
+// Username is reserved for LDAP users
+object ReservedLdapUsernameException : RuntimeException()
+
 
 
 /***** [5xx] SERVER ERRORS *****/

@@ -375,6 +375,13 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
     }
 
+    // Username is reserved for LDAP users
+    @ExceptionHandler(value = [ReservedLdapUsernameException::class])
+    fun exception(exception: ReservedLdapUsernameException): ResponseEntity<ApiError> {
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "The chosen username is reserved for LDAP users")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
+
 
 
     /***** [5xx] SERVER ERRORS *****/

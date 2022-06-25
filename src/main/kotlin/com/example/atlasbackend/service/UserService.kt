@@ -84,6 +84,8 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         // Error Catching
         if (newUser.user_id != 0) throw InvalidUserIDException
         if (userRep.testForUser(newUser.username) != null) throw UserAlreadyExistsException
+        val regex = Regex("([a-zA-Z]{4}\\d{2}|[a-zA-Z]{2}\\d+)")
+        if(regex.matches(newUser.username)) throw UserAlreadyExistsException
 
         // Functionality
         var atlasUser = AtlasUser(newUser.user_id, newUser.name, newUser.username, newUser.email)
@@ -108,10 +110,13 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
 
         // Error Catching
         if (!user.roles.any { r -> r.role_id == 1}) throw NoPermissionToModifyMultipleUsersException   // Check for admin
+        val regex = Regex("([a-zA-Z]{4}\\d{2}|[a-zA-Z]{2}\\d+)")
 
         newUsers.forEach { u ->
             if (u.user_id != 0) throw InvalidUserIDException
             if (userRep.testForUser(u.username) != null) throw UserAlreadyExistsException
+            if(regex.matches(u.username)) throw UserAlreadyExistsException
+
 
         // Functionality
             var atlasUser = AtlasUser(u.user_id, u.name, u.username, u.email)
