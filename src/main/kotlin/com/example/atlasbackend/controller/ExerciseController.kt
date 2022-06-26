@@ -1,9 +1,6 @@
 package com.example.atlasbackend.controller
 
-import com.example.atlasbackend.classes.AtlasUser
-import com.example.atlasbackend.classes.Exercise
-import com.example.atlasbackend.classes.ExerciseRet
-import com.example.atlasbackend.classes.ExerciseType
+import com.example.atlasbackend.classes.*
 import com.example.atlasbackend.service.ExerciseService
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -102,5 +99,63 @@ class ExerciseController(val exerciseService: ExerciseService) {
     @DeleteMapping("/exercises/{exerciseID}")
     fun deleteExercise(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable exerciseID: Int): ExerciseRet {
         return exerciseService.deleteExercise(user, exerciseID)
+    }
+
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "OK - Returns Multiple Choice Questions for this exercise"),
+            ApiResponse(responseCode = "404", description = "ExerciseNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+            ApiResponse(responseCode = "400", description = "InvalidExerciseIdException", content = [Content(schema = Schema(hidden = true))])
+        ])
+    @GetMapping("/exercises/mc/{exerciseId}")
+    fun getMcForExercise(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser,
+                         @PathVariable exerciseId: Int
+    ): List<MultipleChoiceQuestion> {
+        return exerciseService.getMcForExercise(user, exerciseId)
+    }
+
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "OK - Returns Multiple Choice Questions for this exercise"),
+            ApiResponse(responseCode = "404", description = "ExerciseNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+            ApiResponse(responseCode = "400", description = "InvalidExerciseIdException", content = [Content(schema = Schema(hidden = true))]),
+            ApiResponse(responseCode = "400", description = "InvalidQuestionIdException", content = [Content(schema = Schema(hidden = true))]),
+            ApiResponse(responseCode = "400", description = "InvalidAnswerIdException", content = [Content(schema = Schema(hidden = true))])
+        ])
+    @PostMapping("/exercises/mc/{exerciseId}")
+    fun addMcToExercise(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser,
+                        @PathVariable exerciseId: Int,
+                        @RequestBody questions: List<MultipleChoiceQuestion>
+    ): List<MultipleChoiceQuestion> {
+        return exerciseService.addMcToExercise(user, exerciseId, questions)
+    }
+
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "OK - Returns Multiple Choice Questions for this exercise"),
+            ApiResponse(responseCode = "404", description = "ExerciseNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+            ApiResponse(responseCode = "400", description = "InvalidExerciseIdException", content = [Content(schema = Schema(hidden = true))]),
+            ApiResponse(responseCode = "404", description = "QuestionNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+            ApiResponse(responseCode = "404", description = "AnswerNotFoundException", content = [Content(schema = Schema(hidden = true))])
+        ])
+    @PutMapping("/exercises/mc/{exerciseId}")
+    fun editMcForExercise(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser,
+                        @PathVariable exerciseId: Int,
+                        @RequestBody questions: List<MultipleChoiceQuestion>
+    ): List<MultipleChoiceQuestion> {
+        return exerciseService.editMcInExercise(user, exerciseId, questions)
+    }
+
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "OK - Returns Multiple Choice Questions for this exercise"),
+            ApiResponse(responseCode = "404", description = "ExerciseNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+            ApiResponse(responseCode = "400", description = "InvalidExerciseIdException", content = [Content(schema = Schema(hidden = true))]),
+        ])
+    @DeleteMapping("/exercises/mc/{exerciseId}")
+    fun delMcForExercise(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser,
+                         @PathVariable exerciseId: Int,
+    ): List<MultipleChoiceQuestion> {
+        return exerciseService.delMcForExercise(user, exerciseId)
     }
 }

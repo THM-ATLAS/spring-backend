@@ -42,7 +42,7 @@ class GlobalExceptionHandler {
     // Invalid Exercise ID when creating exercise
     @ExceptionHandler(value = [InvalidExerciseIDException::class])
     fun exception(exception: InvalidExerciseIDException): ResponseEntity<ApiError> {
-        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidExerciseIDException", "Exercise ID must be zero when creating new exercise.")
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidExerciseIDException", "Exercise ID must be zero when creating new exercise, or has to be a multiple choice exercise when requesting Multiple Choice questions.")
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
@@ -100,6 +100,18 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = [InvalidAssetIDException::class])
     fun exception(exception: InvalidAssetIDException): ResponseEntity<ApiError> {
         val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidAssetIDException", "Asset ID must be zero when creating a new asset.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(value = [InvalidQuestionIDException::class])
+    fun exception(exception: InvalidQuestionIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidQuestionIDException", "Question ID must be zero when creating a new question.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(value = [InvalidAnswerIDException::class])
+    fun exception(exception: InvalidAnswerIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidAnswerIDException", "Answer ID must be zero when creating a new answer.")
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
@@ -342,6 +354,20 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = [SubmissionNotFoundException::class])
     fun exception(exception: SubmissionNotFoundException): ResponseEntity<ApiError> {
         val err = ApiError(404, HttpStatus.NOT_FOUND, "SubmissionNotFoundException", "Couldn't find requested submission.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
+    // Question ID doesn't exist
+    @ExceptionHandler(value = [QuestionNotFoundException::class])
+    fun exception(exception: QuestionNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "QuestionNotFoundException", "Couldn't find requested question.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
+    // Answer ID doesn't exist
+    @ExceptionHandler(value = [AnswerNotFoundException::class])
+    fun exception(exception: AnswerNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "AnswerNotFoundException", "Couldn't find requested answer.")
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 

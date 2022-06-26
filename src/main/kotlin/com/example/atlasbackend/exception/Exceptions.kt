@@ -22,6 +22,13 @@ object InvalidExerciseIDException : RuntimeException()
 // Invalid Module ID when creating module
 object InvalidModuleIDException : RuntimeException()
 
+
+//Invalid Question ID when creating question
+object InvalidQuestionIDException : RuntimeException()
+
+//Invalid Answer ID when creating question
+object InvalidAnswerIDException : RuntimeException()
+
 // Invalid User ID when creating user
 object InvalidUserIDException : RuntimeException()
 
@@ -144,6 +151,12 @@ object ExerciseNotFoundException : RuntimeException()
 
 // Module ID doesn't exist
 object ModuleNotFoundException : RuntimeException()
+
+// Question ID doesn't exist
+object QuestionNotFoundException : RuntimeException()
+
+// Answer ID doesn't exist
+object AnswerNotFoundException : RuntimeException()
 
 // User ID doesn't exist
 object UserNotFoundException : RuntimeException()

@@ -57,7 +57,7 @@ class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val m
         // Functionality
         tagRep.addExerciseTag(exerciseID,tagID)
         val exercise = exRep.findById(exerciseID).get()
-        return ExerciseRet(exerciseID, modRep.findById(exercise.module_id).get(), exercise.title,exercise.content,exercise.description, exercise.exercisePublic, ratRep.averageExerciseRating(exerciseID), exTyRep.getExerciseTypeName(exercise.type_id),tagRep.getExerciseTags(exerciseID))
+        return ExerciseRet(exerciseID, modRep.findById(exercise.module_id).get(), exercise.title,exercise.content,exercise.description, exercise.exercisePublic, ratRep.averageExerciseRating(exerciseID), exTyRep.getExerciseTypeName(exercise.type_id),tagRep.getExerciseTags(exerciseID), exercise.is_mc)
     }
 
     fun deleteTag(user: AtlasUser, tagID: Int): Tag {
@@ -84,6 +84,6 @@ class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val m
         // Functionality
         tagRep.removeExerciseTag(exerciseID,tagID)
         val exercise = exRep.findById(exerciseID).get()
-        return ExerciseRet(exerciseID, modRep.findById(exercise.module_id).get(), exercise.title,exercise.content,exercise.description, exercise.exercisePublic, ratRep.averageExerciseRating(exerciseID), exTyRep.getExerciseTypeName(exercise.type_id),tagRep.getExerciseTags(exerciseID))
+        return ExerciseRet(exerciseID, modRep.findById(exercise.module_id).get(), exercise.title,exercise.content,exercise.description, exercise.exercisePublic, ratRep.averageExerciseRating(exerciseID), exTyRep.getExerciseTypeName(exercise.type_id),tagRep.getExerciseTags(exerciseID), exercise.is_mc)
     }
 }

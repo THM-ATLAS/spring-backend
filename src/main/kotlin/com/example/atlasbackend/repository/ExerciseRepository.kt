@@ -2,6 +2,8 @@ package com.example.atlasbackend.repository
 
 import com.example.atlasbackend.classes.AtlasModule
 import com.example.atlasbackend.classes.Exercise
+import com.example.atlasbackend.classes.MultipleChoiceAnswer
+import com.example.atlasbackend.classes.MultipleChoiceQuestion
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
@@ -21,4 +23,5 @@ interface ExerciseRepository: CrudRepository<Exercise, Int> {
 
     @Query("SELECT module_id FROM exercise WHERE exercise_id = :id")
     fun getModuleByIDExercise(@Param("id") id: Int): Int
+
 }
