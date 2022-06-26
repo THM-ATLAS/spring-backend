@@ -85,7 +85,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
             throw TagNotFoundException
 
 
-        return exRep.getExercisesTag(tagID).map {  e ->
+        return exRep.getExercisesbyTag(tagID).map {  e ->
             ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get() , e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id)
         }.toList()
     }

@@ -23,5 +23,5 @@ interface ExerciseRepository: CrudRepository<Exercise, Int> {
     fun getModuleByIDExercise(@Param("id") id: Int): Int
 
     @Query("SELECT * FROM exercise WHERE tag_id = :id")
-    fun getExercisesTag(@Param("id") id: Int): List<Exercise>
+    fun getExercisesbyTag(@Param("id") id: Int): List<Exercise>
 }
