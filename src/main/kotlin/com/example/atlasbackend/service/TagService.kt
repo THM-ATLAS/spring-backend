@@ -41,8 +41,7 @@ class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val m
         if (!user.roles.any { r -> r.role_id < 3}) throw NoPermissionToModifyTagsException   // Check for admin/teacher
 
         // Functionality
-        tagRep.save(tag)
-        return tag
+        return tagRep.save(tag)
     }
 
     fun addExerciseTag(user: AtlasUser, exerciseID: Int, tagID: Int): ExerciseRet {
