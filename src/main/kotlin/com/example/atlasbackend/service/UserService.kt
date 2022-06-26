@@ -101,8 +101,8 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         }
 
         setRep.createSettings(atlasUser.user_id)
-        newUser.roles = roleRep.getRolesByUser(newUser.user_id).toMutableList()
-        return newUser
+        atlasUser.roles = roleRep.getRolesByUser(newUser.user_id).toMutableList()
+        return atlasUser
     }
 
     fun addUsers(user: AtlasUser, newUsers: List<AtlasUser>): List<AtlasUser> {
@@ -131,8 +131,8 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
             }
 
             setRep.createSettings(atlasUser.user_id)
-            u.roles = roleRep.getRolesByUser(u.user_id).toMutableList()
-            userRet.add(u)
+            atlasUser.roles = roleRep.getRolesByUser(u.user_id).toMutableList()
+            userRet.add(atlasUser)
         }
 
         return userRet

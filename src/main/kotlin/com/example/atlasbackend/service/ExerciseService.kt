@@ -106,14 +106,14 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
             throw NoPermissionToEditExerciseException
 
         // Functionality
-        exRep.save(e)
+        val ex = exRep.save(e)
         // Notification
         val notification = Notification(0,e.title,"", Timestamp(System.currentTimeMillis()),1,e.module_id,e.exercise_id,null)
         notifRep.save(notification)
         modRep.getUsersByModule(e.module_id).forEach {u ->
             notifRep.addNotificationByUser(u.user_id,notification.notification_id)
         }
-        return ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+        return ExerciseRet(ex.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
     }
 
     fun deleteExercise(@AuthenticationPrincipal user: AtlasUser, exerciseID: Int): ExerciseRet {
