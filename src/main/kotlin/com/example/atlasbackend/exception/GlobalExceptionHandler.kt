@@ -88,6 +88,14 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
+    // Invalid Notification ID when creating notification
+    @ExceptionHandler(value = [InvalidNotificationIDException::class])
+    fun exception(exception: InvalidNotificationIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidNotificationIDException", "Notification ID must be zero when creating new notification")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
+
     // Invalid Asset ID when creating asset
     @ExceptionHandler(value = [InvalidAssetIDException::class])
     fun exception(exception: InvalidAssetIDException): ResponseEntity<ApiError> {
@@ -278,6 +286,27 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
+    // User is not allowed to Post this Notification
+    @ExceptionHandler(value = [NoPermissionToPostNotificationException::class])
+    fun exception(exception: NoPermissionToPostNotificationException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToPostNotificationException", "User has no Permission to Send this Notification")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to delete this Notification relation to a User
+    @ExceptionHandler(value = [NoPermissionToRemoveNotificationRelationException::class])
+    fun exception(exception: NoPermissionToRemoveNotificationRelationException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToRemoveNotificationRelationException", "User has no Permission remove this Notification for this user")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to delete this Notification
+    @ExceptionHandler(value = [NoPermissionToDeleteNotificationException::class])
+    fun exception(exception: NoPermissionToDeleteNotificationException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToRemoveNotificationException", "User has no Permission remove this Notification")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
 
     /** [404] NOT FOUND **/
 
@@ -341,6 +370,13 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = [SettingNotFoundException::class])
     fun exception(exception: SettingNotFoundException): ResponseEntity<ApiError> {
         val err = ApiError(404, HttpStatus.NOT_FOUND, "SettingNotFoundException", "Couldn't find requested setting.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
+    // Notification ID doesn't exist
+    @ExceptionHandler(value = [NotificationNotFoundException::class])
+    fun exception(exception: NotificationNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "NotificationNotFoundException", "Couldn't find requested notification.")
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 
