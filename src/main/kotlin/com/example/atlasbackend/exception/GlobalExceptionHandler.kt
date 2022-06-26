@@ -88,6 +88,21 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
+    // Invalid Notification ID when creating notification
+    @ExceptionHandler(value = [InvalidNotificationIDException::class])
+    fun exception(exception: InvalidNotificationIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidNotificationIDException", "Notification ID must be zero when creating new notification")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
+
+    // Invalid Asset ID when creating asset
+    @ExceptionHandler(value = [InvalidAssetIDException::class])
+    fun exception(exception: InvalidAssetIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidAssetIDException", "Asset ID must be zero when creating a new asset.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
 
     /** [401] UNAUTHORIZED **/
 
@@ -271,6 +286,27 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
+    // User is not allowed to Post this Notification
+    @ExceptionHandler(value = [NoPermissionToPostNotificationException::class])
+    fun exception(exception: NoPermissionToPostNotificationException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToPostNotificationException", "User has no Permission to Send this Notification")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to delete this Notification relation to a User
+    @ExceptionHandler(value = [NoPermissionToRemoveNotificationRelationException::class])
+    fun exception(exception: NoPermissionToRemoveNotificationRelationException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToRemoveNotificationRelationException", "User has no Permission remove this Notification for this user")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to delete this Notification
+    @ExceptionHandler(value = [NoPermissionToDeleteNotificationException::class])
+    fun exception(exception: NoPermissionToDeleteNotificationException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToRemoveNotificationException", "User has no Permission remove this Notification")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
 
     /** [404] NOT FOUND **/
 
@@ -337,6 +373,20 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 
+    // Notification ID doesn't exist
+    @ExceptionHandler(value = [NotificationNotFoundException::class])
+    fun exception(exception: NotificationNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "NotificationNotFoundException", "Couldn't find requested notification.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
+    // Asset ID doesn't exist
+    @ExceptionHandler(value = [AssetNotFoundException::class])
+    fun exception(exception: AssetNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "AssetNotFoundException", "Couldn't find requested asset.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
 
     /** [422] UNPROCESSABLE ENTITY **/
 
@@ -353,6 +403,14 @@ class GlobalExceptionHandler {
         val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "The provided username already exists. Edit the existing user or choose a different username.")
         return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
     }
+
+    // Submission with that user_id and that exercise_id already exists
+    @ExceptionHandler(value = [SubmissionAlreadyExistsException::class])
+    fun exception(exception: SubmissionAlreadyExistsException): ResponseEntity<ApiError> {
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "User already submitted to that task")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
+
 
 
     /***** [5xx] SERVER ERRORS *****/

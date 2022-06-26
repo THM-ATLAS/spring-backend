@@ -37,6 +37,12 @@ object InvalidTagIDException : RuntimeException()
 // Invalid Role ID when assigning role
 object InvalidRoleIDException: RuntimeException()
 
+// Invalid Notification ID when creating notification
+object  InvalidNotificationIDException : RuntimeException()
+
+// Invalid Asset ID when creating Asset
+object InvalidAssetIDException : RuntimeException()
+
 
 /** [401] UNAUTHORIZED **/
 
@@ -119,6 +125,14 @@ object NoAccessToExerciseException : RuntimeException()
 // User didn't enter Submission for this Exercise, can't rate exercise
 object UserNeedsToSubmitBeforeRatingException : RuntimeException()
 
+// User is not allowed to Post this Notification
+object NoPermissionToPostNotificationException : RuntimeException()
+
+// User is not allowed to delete this Notification relation to a User
+object NoPermissionToRemoveNotificationRelationException : RuntimeException()
+
+// User is not allowed to delete this Notification
+object NoPermissionToDeleteNotificationException : RuntimeException()
 
 /** [404] NOT FOUND **/
 
@@ -149,6 +163,12 @@ object RoleNotFoundException : RuntimeException()
 // Setting ID doesn't exist
 object SettingNotFoundException : RuntimeException()
 
+// Notification ID doesn't exist
+object NotificationNotFoundException : RuntimeException()
+
+// Asset ID doesn't exist
+object AssetNotFoundException : RuntimeException()
+
 
 /** [422] UNPROCESSABLE ENTITY **/
 
@@ -157,6 +177,9 @@ object UnprocessableEntityException : RuntimeException()
 
 // Username already exists in the database
 object UserAlreadyExistsException : RuntimeException()
+
+// User already submitted to that exercise
+object SubmissionAlreadyExistsException: RuntimeException()
 
 
 
