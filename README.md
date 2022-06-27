@@ -17,3 +17,6 @@
 
 - Das Frontend zu ATLAS finden Sie hier: https://github.com/THM-ATLAS/vue-frontend
 - Eine Dokumentation der API, wie sie auf http://brueckenkurs-programmieren.thm.de/api läuft, finden Sie hier: http://brueckenkurs-programmieren.thm.de/api/docs (nur aus dem THM Netz erreichbar).
+
+
+
