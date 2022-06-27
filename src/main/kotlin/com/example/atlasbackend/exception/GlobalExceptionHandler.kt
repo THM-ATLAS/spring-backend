@@ -88,6 +88,21 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
+    // Invalid Notification ID when creating notification
+    @ExceptionHandler(value = [InvalidNotificationIDException::class])
+    fun exception(exception: InvalidNotificationIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidNotificationIDException", "Notification ID must be zero when creating new notification")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
+
+    // Invalid Asset ID when creating asset
+    @ExceptionHandler(value = [InvalidAssetIDException::class])
+    fun exception(exception: InvalidAssetIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidAssetIDException", "Asset ID must be zero when creating a new asset.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
 
     /** [401] UNAUTHORIZED **/
 
@@ -180,6 +195,13 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
+    // User is not allowed to edit these settings
+    @ExceptionHandler(value = [NoPermissionToModifySettingsException::class])
+    fun exception(exception: NoPermissionToModifySettingsException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifySettingsException","Not allowed to edit the settings of another user.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
     // User is not allowed to create/edit/delete tags
     @ExceptionHandler(value = [NoPermissionToModifyTagsException::class])
     fun exception(exception: NoPermissionToModifyTagsException): ResponseEntity<ApiError> {
@@ -191,6 +213,27 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = [NoPermissionToModifyExerciseTagsException::class])
     fun exception(exception: NoPermissionToModifyExerciseTagsException): ResponseEntity<ApiError> {
         val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyExerciseTagsException", "Insufficient permission to modify the tags of this exercise.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to assign/remove roles of a user
+    @ExceptionHandler(value = [NoPermissionToModifyUserRolesException::class])
+    fun exception(exception: NoPermissionToModifyUserRolesException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyUserRolesException", "Insufficient permission to modify the roles of a user.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to add/remove multiple users at once
+    @ExceptionHandler(value = [NoPermissionToModifyMultipleUsersException::class])
+    fun exception(exception: NoPermissionToModifyMultipleUsersException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyMultipleUsersException", "Insufficient permission to modify multiple users at once.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to modify admins (no one is)
+    @ExceptionHandler(value = [NoPermissionToModifyAdminException::class])
+    fun exception(exception: NoPermissionToModifyAdminException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyAdminException", "Can't modify administrators.")
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
@@ -226,6 +269,41 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = [SubmissionAfterDeadlineException::class])
     fun exception(exception: SubmissionAfterDeadlineException): ResponseEntity<ApiError> {
         val err = ApiError(403, HttpStatus.FORBIDDEN, "SubmissionAfterDeadlineException", "Time threshold for submission exceeded.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User doesn't have access to exercise (Not in module & exercise private)
+    @ExceptionHandler(value = [NoAccessToExerciseException::class])
+    fun exception(exception: NoAccessToExerciseException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoAccessToExerciseException", "User has to join module or exercise has to be public to submit.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User didn't enter Submission for this Exercise, can't rate exercise
+    @ExceptionHandler(value = [UserNeedsToSubmitBeforeRatingException::class])
+    fun exception(exception: UserNeedsToSubmitBeforeRatingException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "UserNeedsToSubmitBeforeRatingException", "User needs to submit first before rating an exercise.")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to Post this Notification
+    @ExceptionHandler(value = [NoPermissionToPostNotificationException::class])
+    fun exception(exception: NoPermissionToPostNotificationException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToPostNotificationException", "User has no Permission to Send this Notification")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to delete this Notification relation to a User
+    @ExceptionHandler(value = [NoPermissionToRemoveNotificationRelationException::class])
+    fun exception(exception: NoPermissionToRemoveNotificationRelationException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToRemoveNotificationRelationException", "User has no Permission remove this Notification for this user")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to delete this Notification
+    @ExceptionHandler(value = [NoPermissionToDeleteNotificationException::class])
+    fun exception(exception: NoPermissionToDeleteNotificationException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToRemoveNotificationException", "User has no Permission remove this Notification")
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
@@ -295,6 +373,20 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 
+    // Notification ID doesn't exist
+    @ExceptionHandler(value = [NotificationNotFoundException::class])
+    fun exception(exception: NotificationNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "NotificationNotFoundException", "Couldn't find requested notification.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
+    // Asset ID doesn't exist
+    @ExceptionHandler(value = [AssetNotFoundException::class])
+    fun exception(exception: AssetNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "AssetNotFoundException", "Couldn't find requested asset.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
 
     /** [422] UNPROCESSABLE ENTITY **/
 
@@ -302,6 +394,27 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = [UnprocessableEntityException::class])
     fun exception(exception: UnprocessableEntityException): ResponseEntity<ApiError> {
         val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "Not able to process one of the provided entities.")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
+
+    // Username already exists in the database
+    @ExceptionHandler(value = [UserAlreadyExistsException::class])
+    fun exception(exception: UserAlreadyExistsException): ResponseEntity<ApiError> {
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "The provided username already exists. Edit the existing user or choose a different username.")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
+
+    // Submission with that user_id and that exercise_id already exists
+    @ExceptionHandler(value = [SubmissionAlreadyExistsException::class])
+    fun exception(exception: SubmissionAlreadyExistsException): ResponseEntity<ApiError> {
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "User already submitted to that task")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
+
+    // Username is reserved for LDAP users
+    @ExceptionHandler(value = [ReservedLdapUsernameException::class])
+    fun exception(exception: ReservedLdapUsernameException): ResponseEntity<ApiError> {
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "The chosen username is reserved for LDAP users")
         return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
     }
 

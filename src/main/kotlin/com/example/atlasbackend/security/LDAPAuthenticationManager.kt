@@ -2,6 +2,7 @@ package com.example.atlasbackend.security
 
 import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.exception.InvalidCredentialsException
+import com.example.atlasbackend.repository.SettingsRepository
 import org.springframework.ldap.core.AttributesMapper
 import org.springframework.ldap.core.LdapTemplate
 import org.springframework.ldap.core.support.LdapContextSource
@@ -14,8 +15,10 @@ import org.springframework.stereotype.Component
 
 @Component
 class LDAPAuthenticationManager(
-    val userDetailsService: UserDetailsService
-): AuthenticationManager {
+    val userDetailsService: UserDetailsService,
+    val setRepo: SettingsRepository,
+) : AuthenticationManager {
+    var newUser = false
 
     private fun initLdap(): LdapTemplate {
         val ldapContextSource = LdapContextSource()
@@ -34,7 +37,12 @@ class LDAPAuthenticationManager(
     }
 
     fun getUserProperties(user: String): AtlasUser {
-        val atlasUser = userDetailsService.loadUserByUsername(user) as AtlasUser
+        var atlasUser = userDetailsService.loadUserByUsername(user) as AtlasUser?
+        if (atlasUser == null) {
+            newUser = true
+            atlasUser = AtlasUser(0, "", "", "")
+        }
+
         initLdap().search(
             LdapQueryBuilder
                 .query()
@@ -63,21 +71,33 @@ class LDAPAuthenticationManager(
     }
 
     override fun authenticate(authentication: Authentication): Authentication {
-        println(authentication)
         authentication as UsernamePasswordAuthenticationToken
         val username = authentication.principal as String
         val password = authentication.credentials as String
 
-        try {
-            initLdap().contextSource.getContext(findUserDn(username), password)
-        } catch(error: java.lang.Exception) {
-            if(!(BCryptPasswordEncoder().matches(password, userDetailsService.loadUserByUsername(username).password))) {
+        val userDn: String
+
+        userDn = findUserDn(username)
+        if (userDn == "") {
+            val user = userDetailsService.loadUserByUsername(username) ?: throw InvalidCredentialsException
+            if (!BCryptPasswordEncoder().matches(password, user.password)) {
                 throw InvalidCredentialsException
+            } else {
+                val user = AtlasAuthentication(userDetailsService.loadUserByUsername(username) as AtlasUser)
+                user.isAuthenticated = true
+                return user
             }
         }
+        try {
+            initLdap().contextSource.getContext(userDn, password)
+        } catch (error: java.lang.Exception) {
+            throw InvalidCredentialsException
+        }
 
-        val user = getUserProperties(username)
-        userDetailsService.userRepository.save(user)
+        var user = getUserProperties(username)
+        user = userDetailsService.userRepository.save(user)
+        if (newUser) setRepo.createSettings(user.user_id)
+        newUser = false
 
         val ret = AtlasAuthentication(user)
         ret.isAuthenticated = true
