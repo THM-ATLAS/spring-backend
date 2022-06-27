@@ -75,6 +75,19 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
         }.toList()
     }
 
+   // Aufgaben nach Tgas zurueckgeben
+    fun loadExercisesTag(@AuthenticationPrincipal user: AtlasUser, tagID: Int): List<ExerciseRet> {
+
+
+        if (tagRep.existsById(tagID).not())
+            throw TagNotFoundException
+
+
+        return exRep.getExercisesbyTag(tagID).map {  e ->
+            ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get() , e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id)
+        }.toList()
+    }
+
     fun updateExercise(@AuthenticationPrincipal user: AtlasUser, e: ExerciseRet): ExerciseRet {
 
         // Error Catching
