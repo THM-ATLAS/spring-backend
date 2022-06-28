@@ -34,5 +34,6 @@ out/
 /.nb-gradle/
 
 ### VS Code ###
+/src/main/resources/static/
 .vscode/
 /vue-frontend/
