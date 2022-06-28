@@ -118,13 +118,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
             throw NoPermissionToAddUserToModuleException
 
         modUsers.forEach {  u ->
-            if (userRep.existsById(u.user_id).not()) throw UserNotFoundException
-            if (roleRep.getRolesByUser(u.user_id).size <= 1 && roleRep.getRolesByUser(u.user_id)[0].role_id == 1) throw UserCannotBeAddedToModuleException
-
-        // Functionality
-            if (modRep.getUsersByModule(moduleID).contains(userRep.findById(u.user_id).get()).not()) {
-                modRep.addUser(u.user_id, moduleID,u.module_role.role_id)
-            }
+            addUser(user, u, moduleID)
         }
 
         return modRep.getUsersByModule(moduleID).map {  u ->
@@ -162,13 +156,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
             throw NoPermissionToRemoveUserFromModuleException
 
         modUsers.forEach {  u ->
-            if (userRep.existsById(u.user_id).not()) throw UserNotFoundException
-            if (!modRep.getUsersByModule(moduleID).contains(userRep.findById(u.user_id).get())) throw UserNotInModuleException
-
-        // Functionality
-            if (modRep.getUsersByModule(moduleID).contains(userRep.findById(u.user_id).get())) {
-                modRep.removeUser(u.user_id, moduleID)
-            }
+            removeUser(user, moduleID, u.user_id)
         }
 
         return modRep.getUsersByModule(moduleID).map {  u ->
