@@ -110,29 +110,10 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
 
         // Error Catching
         if (!user.roles.any { r -> r.role_id == 1}) throw NoPermissionToModifyMultipleUsersException   // Check for admin
-        val regex = Regex("([a-zA-Z]{4}\\d{2}|hg\\d+)")
+        newUsers.forEach { u -> if(u.user_id != 0) throw InvalidUserIDException }
 
         newUsers.forEach { u ->
-            if (u.user_id != 0) throw InvalidUserIDException
-            if (userRep.testForUser(u.username) != null) throw UserAlreadyExistsException
-            if(regex.matches(u.username)) throw UserAlreadyExistsException
-
-
-        // Functionality
-            var atlasUser = AtlasUser(u.user_id, u.name, u.username, u.email)
-            atlasUser = userRep.save(atlasUser)
-            if(u.password != "") {
-                userRep.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(u.password))
-            }
-
-            u.roles.forEach { r ->
-                if (r.role_id < 1 || r.role_id > 5 || r.role_id == 3) throw InvalidRoleIDException
-                roleRep.giveRole(atlasUser.user_id, r.role_id)
-            }
-
-            setRep.createSettings(atlasUser.user_id)
-            atlasUser.roles = roleRep.getRolesByUser(u.user_id).toMutableList()
-            userRet.add(atlasUser)
+            userRet.add(addUser(u))
         }
 
         return userRet
@@ -162,19 +143,10 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
 
         // Error Catching
         if (!user.roles.any { r -> r.role_id == 1}) throw NoPermissionToModifyMultipleUsersException   // Check for admin
+        val delUserIds = delUsers.map { u -> u.user_id}
 
-        delUsers.forEach { u ->
-            if (!userRep.existsById(u.user_id)) throw UserNotFoundException
-            if (u.roles.any { r -> r.role_id == 1} &&
-                user.user_id != u.user_id)     // Admin can only delete himself
-                throw NoPermissionToModifyAdminException
-
-        // Functionality
-            val delUser = userRep.findById(u.user_id).get()
-            delUser.roles = roleRep.getRolesByUser(delUser.user_id).toMutableList()
-
-            ret.add(delUser)
-            userRep.deleteById(u.user_id)
+        delUserIds.forEach { u ->
+            ret.add(delUser(user, u))
         }
 
         return ret
