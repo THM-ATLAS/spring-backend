@@ -125,8 +125,7 @@ class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRep
         }
 
         // Functionality
-        subRep.save(s)
-        return Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
+        return subRep.save(s)
     }
 
     fun deleteSubmission(user: AtlasUser, submissionID: Int): Submission {

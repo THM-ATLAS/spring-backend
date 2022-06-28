@@ -47,9 +47,9 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         if (!user.roles.any { r -> r.role_id <= 2}) throw NoPermissionToEditModuleException   // Check for admin/teacher
 
         // Functionality
-        modRep.save(module)
+        val savedModule = modRep.save(module)
         modRep.addUser(user.user_id,module.module_id,2) // when creating a module u should be added as teacher
-        return module
+        return savedModule
     }
 
     fun deleteModule(user: AtlasUser, moduleID: Int): AtlasModule {
