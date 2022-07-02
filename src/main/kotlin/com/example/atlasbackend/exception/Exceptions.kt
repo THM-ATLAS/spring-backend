@@ -136,6 +136,9 @@ object NoPermissionToRemoveNotificationRelationException : RuntimeException()
 // User is not allowed to delete this Notification
 object NoPermissionToDeleteNotificationException : RuntimeException()
 
+// User is not allowed to add a Tag to this Module
+object NoPermissionToModifyModuleTagException : RuntimeException()
+
 /** [404] NOT FOUND **/
 
 // Accessed Page doesn't exist

@@ -313,6 +313,11 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
+    @ExceptionHandler(value = [NoPermissionToModifyModuleTagException::class])
+    fun exception(exception: NoPermissionToModifyModuleTagException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyModuleTagException", "User is not allowed to add a Tag to this Module")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
 
     /** [404] NOT FOUND **/
 

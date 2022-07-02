@@ -20,4 +20,15 @@ interface TagRepository: CrudRepository<Tag, Int> {
     @Query("DELETE FROM exercise_tag WHERE exercise_id = :exercise AND tag_id = :tag")
     @Modifying
     fun removeExerciseTag(@Param("exercise") exercise: Int, @Param("tag") tag: Int)
+
+    @Query("SELECT * FROM tag t JOIN module_tag  mt ON t.tag_id = mt.tag_id WHERE module_id = :module")
+    fun getModuleTags(@Param("module") module: Int): List<Tag>
+
+    @Query("INSERT INTO module_tag (module_id, tag_id) VALUES (:module, :tag)")
+    @Modifying
+    fun addModuleTag(@Param("module") module: Int,@Param("tag") tag: Int)
+
+    @Query("DELETE FROM module_tag WHERE module_id = :module AND tag_id = :tag")
+    @Modifying
+    fun removeModuleTag(@Param("module")module: Int, @Param("tag")tag: Int)
 }
