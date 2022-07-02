@@ -3,6 +3,7 @@ package com.example.atlasbackend.service
 import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.classes.ExerciseRet
 import com.example.atlasbackend.classes.Tag
+import com.example.atlasbackend.classes.TagRet
 import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.*
 import org.springframework.stereotype.Service
@@ -10,8 +11,10 @@ import org.springframework.stereotype.Service
 @Service
 class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val modRep: ModuleRepository, val ratRep: RatingRepository, val exTyRep: ExerciseTypeRepository) {
 
-    fun getAllTags(): List<Tag>{
-        return tagRep.findAll().toList()
+    fun getAllTags(): List<TagRet>{
+        return tagRep.findAll().toList().map { t ->
+            TagRet(t.tag_id, t.name, )
+        }
     }
 
     fun loadExerciseTags(exerciseID: Int): List<Tag> {

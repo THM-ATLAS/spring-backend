@@ -22,7 +22,7 @@ class TagController(val tagService: TagService) {
                 ApiResponse(responseCode = "200", description = "OK - Returns All tags")
             ])
     @GetMapping("/tags")
-    fun getAllTags(): List<Tag>{
+    fun getAllTags(): List<TagRet>{
         return tagService.getAllTags()
     }
 
@@ -32,7 +32,7 @@ class TagController(val tagService: TagService) {
                 ApiResponse(responseCode = "404", description = "ExerciseNotFoundException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/exercises/{exerciseID}/tags")
-    fun loadExerciseTags(@PathVariable exerciseID: Int): List<Tag> {
+    fun loadExerciseTags(@PathVariable exerciseID: Int): List<TagRet> {
         return tagService.loadExerciseTags(exerciseID)
     }
 
@@ -43,7 +43,7 @@ class TagController(val tagService: TagService) {
                 ApiResponse(responseCode = "403", description = "NoPermissionToModifyTagsException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PutMapping("/tags")
-    fun editTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: Tag): Tag{
+    fun editTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: Tag): TagRet{
         return tagService.editTag(user, body)
     }
 
@@ -54,7 +54,7 @@ class TagController(val tagService: TagService) {
                 ApiResponse(responseCode = "403", description = "NoPermissionToModifyTagsException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PostMapping("/tags")
-    fun postTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: Tag): Tag{
+    fun postTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: Tag): TagRet{
         return tagService.postTag(user, body)
     }
 
@@ -76,7 +76,7 @@ class TagController(val tagService: TagService) {
                 ApiResponse(responseCode = "403", description = "NoPermissionToModifyTagsException", content = [Content(schema = Schema(hidden = true))])
             ])
     @DeleteMapping("/tags/{tagID}")
-    fun deleteTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable tagID: Int): Tag{
+    fun deleteTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable tagID: Int): TagRet{
         return tagService.deleteTag(user, tagID)
     }
 

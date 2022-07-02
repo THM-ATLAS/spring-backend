@@ -43,6 +43,8 @@ object  InvalidNotificationIDException : RuntimeException()
 // Invalid Asset ID when creating Asset
 object InvalidAssetIDException : RuntimeException()
 
+// Invalid Icon ID when creating Icon
+object InvalidIconIDException : RuntimeException()
 
 /** [401] UNAUTHORIZED **/
 

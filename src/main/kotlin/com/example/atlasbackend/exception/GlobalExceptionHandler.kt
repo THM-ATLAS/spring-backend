@@ -102,6 +102,12 @@ class GlobalExceptionHandler {
         val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidAssetIDException", "Asset ID must be zero when creating a new asset.")
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
+    // Invalid Icon ID when creating Icon
+    @ExceptionHandler(value = [InvalidIconIDException::class])
+    fun exception(exception: InvalidIconIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidIconIDException", "icon ID must be zero when creating a new icon.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
 
 
     /** [401] UNAUTHORIZED **/
