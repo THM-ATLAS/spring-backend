@@ -139,6 +139,12 @@ object NoPermissionToDeleteNotificationException : RuntimeException()
 // User is not allowed to add a Tag to this Module
 object NoPermissionToModifyModuleTagException : RuntimeException()
 
+// User is not allowed to create this Icon
+object NoPermissionToCreateIconException : RuntimeException()
+
+// User is not allowed to delete this icon
+object  NoPermissionToDeleteIconException : RuntimeException()
+
 /** [404] NOT FOUND **/
 
 // Accessed Page doesn't exist
@@ -174,6 +180,8 @@ object NotificationNotFoundException : RuntimeException()
 // Asset ID doesn't exist
 object AssetNotFoundException : RuntimeException()
 
+// Icon ID doesn't exist
+object IconNotFoundException : RuntimeException()
 
 /** [422] UNPROCESSABLE ENTITY **/
 

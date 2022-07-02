@@ -3,6 +3,7 @@ package com.example.atlasbackend.controller
 import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.classes.ExerciseRet
 import com.example.atlasbackend.classes.Tag
+import com.example.atlasbackend.classes.TagRet
 import com.example.atlasbackend.service.TagService
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -39,22 +40,23 @@ class TagController(val tagService: TagService) {
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Edits tag"),
-                ApiResponse(responseCode = "404", description = "TagNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "404", description = "TagNotFoundException || IconNotFoundException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "NoPermissionToModifyTagsException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PutMapping("/tags")
-    fun editTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: Tag): TagRet{
+    fun editTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: TagRet): TagRet{
         return tagService.editTag(user, body)
     }
 
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Creates tag"),
+                ApiResponse(responseCode = "404", description = "IconNotFoundException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "400", description = "InvalidTagIDException - Tag ID must be 0", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "NoPermissionToModifyTagsException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PostMapping("/tags")
-    fun postTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: Tag): TagRet{
+    fun postTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: TagRet): TagRet{
         return tagService.postTag(user, body)
     }
 
@@ -99,7 +101,7 @@ class TagController(val tagService: TagService) {
                 ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))]),
             ])
     @GetMapping("modules/{moduleID}/tags")
-    fun loadModuleTags(@PathVariable moduleID: Int): List<Tag> {
+    fun loadModuleTags(@PathVariable moduleID: Int): List<TagRet> {
         return tagService.loadModuleTags(moduleID)
     }
 
@@ -110,7 +112,7 @@ class TagController(val tagService: TagService) {
                 ApiResponse(responseCode = "403", description = "NoPermissionToModifyExerciseTagsException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PostMapping("modules/tags/{moduleID}/{tagID}")
-    fun addModuleTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser,@PathVariable moduleID: Int,@PathVariable tagID: Int): List<Tag> {
+    fun addModuleTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser,@PathVariable moduleID: Int,@PathVariable tagID: Int): List<TagRet> {
         return tagService.addModuleTag(user,moduleID,tagID)
     }
 
@@ -121,7 +123,7 @@ class TagController(val tagService: TagService) {
                 ApiResponse(responseCode = "403", description = "NoPermissionToModifyExerciseTagsException", content = [Content(schema = Schema(hidden = true))])
             ])
     @DeleteMapping("module/tags/{moduleID}/{tagID}")
-    fun removeModuleTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser,@PathVariable moduleID: Int,@PathVariable tagID: Int): List<Tag> {
+    fun removeModuleTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser,@PathVariable moduleID: Int,@PathVariable tagID: Int): List<TagRet> {
         return tagService.removeModuleTag(user,moduleID,tagID)
     }
 }

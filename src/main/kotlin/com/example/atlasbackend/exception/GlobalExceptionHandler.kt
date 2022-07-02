@@ -319,6 +319,20 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
+    // User is not allowed to create this Icon
+    @ExceptionHandler(value = [NoPermissionToCreateIconException::class])
+    fun exception(exception: NoPermissionToCreateIconException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToCreateIconException", "Only Admins can create new Icons")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to delete this icon
+    @ExceptionHandler(value = [NoPermissionToDeleteIconException::class])
+    fun exception(exception: NoPermissionToDeleteIconException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NopermissionToDeleteIconException", "Only Admins can delete new Icons")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
     /** [404] NOT FOUND **/
 
     // Accessed Page doesn't exist
@@ -398,6 +412,12 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 
+    // Icon ID doesn't exist
+    @ExceptionHandler(value = [IconNotFoundException::class])
+    fun exception(exception: IconNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "IconNotFoundException", "Couldn't find requested icon.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
 
     /** [422] UNPROCESSABLE ENTITY **/
 
