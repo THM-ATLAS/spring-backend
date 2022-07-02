@@ -34,17 +34,20 @@ class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRep
         //TODO: Alle Submissions für einen User zurückgeben
     }
 
-    fun getSubmission(user: AtlasUser, submissionID: Int): SubmissionTemplate {
+    fun getSubmission(user: AtlasUser, submissionID: Int): Submission {
         //TODO: Fehlerbehandlung
         //TODO: Berechtigungen
 
+        var ret = Submission()
+
         when (subRep.findById(submissionID).get().type) {
-            1 -> return getFreeSubmission(submissionID)
-            2 -> return getCodeSubmission(submissionID)
-            3 -> return getMcSubmission(submissionID)
-            4 -> return getFileSubmission(submissionID)
+            1 -> ret.content = getFreeSubmission(submissionID)
+            2 -> ret.content = getCodeSubmission(submissionID)
+            3 -> ret.content = getMcSubmission(submissionID)
+            4 -> ret.content = getFileSubmission(submissionID)
             else -> throw InvalidTypeException
         }
+        return ret
     }
 
     fun getMcSubmission(submissionID: Int): McSubmission {
@@ -67,16 +70,19 @@ class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRep
         throw NotYetImplementedException
     }
 
-    fun getSubmissionForExercise(user: AtlasUser, exerciseID: Int): SubmissionTemplate {
+    fun getSubmissionForExercise(user: AtlasUser, exerciseID: Int): Submission {
         //TODO: Berechtigungen
         //TODO: Fehlerbehandlung
+        var ret = Submission()
+
         when (exRep.findById(exerciseID).get().type_id) {
-            1 -> return getFreeSubmissionbyExercise(exerciseID)
-            2 -> return getCodeSubmissionByExercise(exerciseID)
-            3 -> return getMcSubmissionByExercise(exerciseID)
-            4 -> return getFileSubmissionByExercise(exerciseID)
+            1 -> ret.content = getFreeSubmissionbyExercise(exerciseID)
+            2 -> ret.content = getCodeSubmissionByExercise(exerciseID)
+            3 -> ret.content = getMcSubmissionByExercise(exerciseID)
+            4 -> ret.content = getFileSubmissionByExercise(exerciseID)
             else -> throw InvalidTypeException
         }
+        return ret
     }
 
     fun getMcSubmissionByExercise(exerciseID: Int): McSubmission {
@@ -98,6 +104,9 @@ class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRep
         //TODO: //TODO: prüfen, ob der User schon eine Abgabe zu der Aufgabe hat, wenn ja: zurückgeben, wenn nein: neu anlegen
         throw NotYetImplementedException
     }
+
+    //TODO: Alle Abgaben für eine Aufgabe zurückgeben
+    //TODO: Eine Abgabe verändern können
 
     /*fun editSubmission(user: AtlasUser, s: Submission): Submission {
         val oldSub = subRep.findById(s.submission_id).get()

@@ -13,4 +13,6 @@ data class Submission(@Id var submission_id: Int,
                       var grade: Int?,
                       var teacher_id: Int?,
                       var comment: String?,
-                      var type: Int)
+                      var type: Int) {
+    @org.springframework.data.annotation.Transient var content: SubmissionTemplate? = null
+}
