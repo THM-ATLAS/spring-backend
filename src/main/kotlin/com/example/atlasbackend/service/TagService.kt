@@ -85,4 +85,37 @@ class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val m
         val exercise = exRep.findById(exerciseID).get()
         return ExerciseRet(exerciseID, modRep.findById(exercise.module_id).get(), exercise.title,exercise.content,exercise.description, exercise.exercisePublic, ratRep.averageExerciseRating(exerciseID), exTyRep.getExerciseTypeName(exercise.type_id),tagRep.getExerciseTags(exerciseID))
     }
+
+    fun loadModuleTags(moduleID: Int): List<Tag> {
+        // Error Catching
+        if(!modRep.existsById(moduleID))throw ModuleNotFoundException
+
+        // functionality
+        return tagRep.getModuleTags(moduleID)
+    }
+
+    fun addModuleTag(user: AtlasUser, moduleID: Int, tagID: Int): List<Tag> {
+        // Error Catching
+        if(!modRep.existsById(moduleID))throw ModuleNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+                modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
+            throw NoPermissionToModifyModuleTagException
+
+        // functionality
+        tagRep.addModuleTag(moduleID,tagID)
+        return tagRep.getModuleTags(moduleID)
+    }
+
+    fun removeModuleTag(user: AtlasUser, moduleID: Int, tagID: Int): List<Tag> {
+        // Error Catching
+        if(!modRep.existsById(moduleID))throw ModuleNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+                modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
+            throw NoPermissionToModifyModuleTagException
+
+        // functionality
+        val tags = tagRep.getModuleTags(moduleID)
+        tagRep.addModuleTag(moduleID,tagID)
+        return tags
+    }
 }

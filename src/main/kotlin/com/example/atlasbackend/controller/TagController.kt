@@ -90,4 +90,20 @@ class TagController(val tagService: TagService) {
     fun deleteExerciseTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable("exerciseID") exerciseID: Int, @PathVariable("tagID") tagID: Int): ExerciseRet {
         return tagService.deleteExerciseTag(user, exerciseID, tagID)
     }
+
+    // Module tags:
+    @GetMapping("modules/{moduleID}/tags")
+    fun loadModuleTags(@PathVariable moduleID: Int): List<Tag> {
+        return tagService.loadModuleTags(moduleID)
+    }
+
+    @PostMapping("modules/tags/{moduleID}/{tagID}")
+    fun addModuleTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser,@PathVariable moduleID: Int,@PathVariable tagID: Int): List<Tag> {
+        return tagService.addModuleTag(user,moduleID,tagID)
+    }
+
+    @DeleteMapping("module/tags/{moduleID}/{tagID}")
+    fun removeModuleTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser,@PathVariable moduleID: Int,@PathVariable tagID: Int): List<Tag> {
+        return tagService.removeModuleTag(user,moduleID,tagID)
+    }
 }
