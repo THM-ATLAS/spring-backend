@@ -8,7 +8,7 @@
 - The documentation automatically starts on http://localhost:8080/api/docs
 ### Include the Frontend
 - Clone the frontend into `/spring-backend/vue-frontend/` using `git clone https://github.com/THM-ATLAS/vue-frontend` or `git clone git@github.com:THM-ATLAS/vue-frontend`
-- Run `gradlew buildFrontend` (`./gradlew.bat` on Windows) to build the frontend, then run `gradlew copyFrontend` to copy all necessary files
+- Run `./gradlew buildFrontend` (`./gradlew.bat` on Windows) to build the frontend, then run `./gradlew copyFrontend` to copy all necessary files
 - Starting the project will now start the frontend on http://localhost:8080 and the backend on http://localhost:8080/api
 
 
