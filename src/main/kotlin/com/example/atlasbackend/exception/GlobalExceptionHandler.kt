@@ -109,6 +109,12 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
+    // Icon is in use and can't be deleted
+    @ExceptionHandler(value = [IconInUseException::class])
+    fun exception(exception: IconInUseException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "IconInUseException", "icon can't be deleted until it isn't used anymore.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
 
     /** [401] UNAUTHORIZED **/
 

@@ -22,7 +22,8 @@ class IconService(var iconRep: IconRepository){
     }
 
     fun deleteIcon(user: AtlasUser, icon_id: Int): List<AtlasIcon> {
-        if(!iconRep.existsById(icon_id))throw IconNotFoundException
+        if (!iconRep.existsById(icon_id))throw IconNotFoundException
+        if (iconRep.moduleIconCount(icon_id) != 0 || iconRep.tagIconCount(icon_id) != 0) throw IconInUseException
         if (!user.roles.any { r -> r.role_id == 1}) throw NoPermissionToDeleteIconException // Check for admin
 
         iconRep.deleteById(icon_id)
