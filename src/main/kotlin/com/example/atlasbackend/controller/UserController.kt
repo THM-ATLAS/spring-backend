@@ -61,7 +61,8 @@ class UserController(val userService: UserService) {
                 ApiResponse(responseCode = "200", description = "OK - Creates User "),
                 ApiResponse(responseCode = "400", description = "InvalidUserIDException - ID must be 0 || InvalidRoleIDException - valid IDs 1,2,4,5", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "422", description = "UserAlreadyExistsException", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "422", description = "ReservedLdapUsernameException", content = [Content(schema = Schema(hidden = true))])
+                ApiResponse(responseCode = "422", description = "ReservedLdapUsernameException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "422", description = "BadPasswordException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PostMapping("/users")
     fun addUser(@RequestBody body: AtlasUser): AtlasUser {
@@ -74,7 +75,8 @@ class UserController(val userService: UserService) {
                 ApiResponse(responseCode = "400", description = "InvalidUserIDException - User ID must be 0 || InvalidRoleIDException - valid IDs 1,2,4,5", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "NoPermissionToModifyMultipleUsersException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "422", description = "UserAlreadyExistsException", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "422", description = "ReservedLdapUsernameException", content = [Content(schema = Schema(hidden = true))])
+                ApiResponse(responseCode = "422", description = "ReservedLdapUsernameException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "422", description = "BadPasswordException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PostMapping("/users/multiple")
     fun addUsers(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: List<AtlasUser>): List<AtlasUser> {
