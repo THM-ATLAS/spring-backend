@@ -8,7 +8,6 @@ import java.sql.Timestamp
 data class Submission(@Id var submission_id: Int,
                       var exercise_id: Int,
                       var user_id: Int,
-                      var file: String,
                       var upload_time: Timestamp,
                       var grade: Int?,
                       var teacher_id: Int?,

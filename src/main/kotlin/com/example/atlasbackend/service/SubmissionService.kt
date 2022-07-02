@@ -6,106 +6,120 @@ import com.example.atlasbackend.repository.*
 import com.sun.jdi.InvalidTypeException
 import org.springframework.stereotype.Service
 import java.sql.Timestamp
+import java.time.LocalDateTime
 
 @Service
-class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRepository, val userRep: UserRepository, val modRep: ModuleRepository, var notifRep: NotificationRepository, var langRepo: LanguageRepository) {
+class SubmissionService(val fileSubRepo: FileSubmissionRepository,
+                        val freeSubRep: FreeSubmissionRepository,
+                        val subRep: SubmissionRepository,
+                        val exRep: ExerciseRepository,
+                        val userRep: UserRepository,
+                        val modRep: ModuleRepository,
+                        var notifRep: NotificationRepository,
+                        var langRepo: LanguageRepository,
+                        var codeSubRepo: CodeSubmissionRepository,
+                        var mcQuestionRep: McQuestionRepository,
+                        var mcAnswerRep: McAnswerRepository
+) {
 
-    fun getAllSubmissions(user: AtlasUser): List<SubmissionTemplate> {
+    fun getAllSubmissions(user: AtlasUser): List<Submission> {
 
         // Error Catching
         if (!user.roles.any { r -> r.role_id == 1}) throw AccessDeniedException    // Check for admin
 
-        // Functionality
-        //return subRep.findAll().map {  s ->
-        //    Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
-        //}.toList()
-
-        //TODO: Rückgabetyp anpassen
-    }
-
-    fun getUserSubmissions(user: AtlasUser, subUserID: Int): List<SubmissionTemplate> {
-
-        // Error Catching
-        if (!userRep.existsById(subUserID)) throw UserNotFoundException
-        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            user.user_id != subUserID)   // Check for self
-            throw AccessDeniedException
-
-        //TODO: Alle Submissions für einen User zurückgeben
+        var ret = subRep.findAll()
+        ret.forEach {
+            when (subRep.findById(it.submission_id).get().type) {
+                1 -> it.content = getFreeSubmission(it.submission_id)
+                2 -> it.content = getCodeSubmission(it.submission_id)
+                3 -> it.content = getMcSubmission(it.submission_id)
+                4 -> it.content = getFileSubmission(it.submission_id)
+            }
+        }
+        return ret.toList()
     }
 
     fun getSubmission(user: AtlasUser, submissionID: Int): Submission {
-        //TODO: Fehlerbehandlung
+
+        if (subRep.existsById(submissionID).not()) throw SubmissionNotFoundException
         //TODO: Berechtigungen
 
-        var ret = Submission()
+        var ret = subRep.findById(submissionID).get()
 
         when (subRep.findById(submissionID).get().type) {
             1 -> ret.content = getFreeSubmission(submissionID)
             2 -> ret.content = getCodeSubmission(submissionID)
             3 -> ret.content = getMcSubmission(submissionID)
             4 -> ret.content = getFileSubmission(submissionID)
-            else -> throw InvalidTypeException
+            else -> throw InvalidSubmissionTypeIDException
         }
         return ret
     }
 
-    fun getMcSubmission(submissionID: Int): McSubmission {
-        //TODO: prüfen, ob der User schon eine Abgabe zu der Aufgabe hat, wenn ja: zurückgeben, wenn nein: neu anlegen
-        throw NotYetImplementedException
-    }
-
-    fun getFreeSubmission(submissionID: Int): FreeSubmission {
-        //TODO: //TODO: prüfen, ob der User schon eine Abgabe zu der Aufgabe hat, wenn ja: zurückgeben, wenn nein: neu anlegen
-        throw NotYetImplementedException
-    }
-
-    fun getFileSubmission(submissionID: Int): FileSubmission {
-        //TODO: //TODO: prüfen, ob der User schon eine Abgabe zu der Aufgabe hat, wenn ja: zurückgeben, wenn nein: neu anlegen
-        throw NotYetImplementedException
-    }
-
-    fun getCodeSubmission(submissionID: Int): CodeSubmission {
-        //TODO: //TODO: prüfen, ob der User schon eine Abgabe zu der Aufgabe hat, wenn ja: zurückgeben, wenn nein: neu anlegen
-        throw NotYetImplementedException
-    }
-
-    fun getSubmissionForExercise(user: AtlasUser, exerciseID: Int): Submission {
+    fun getUserSubmissionForExercise(user: AtlasUser, exerciseID: Int): Submission {
         //TODO: Berechtigungen
         //TODO: Fehlerbehandlung
-        var ret = Submission()
+        var ret = subRep.getExerciseSubmissionForUser(user.user_id, exerciseID)
+
+        if (ret == null) {
+            ret = Submission(0, exerciseID, user.user_id, LocalDateTime.now() as Timestamp, null, null, null, exRep.findById(exerciseID).get().type_id)
+            when (exRep.findById(exerciseID).get().type_id) {
+                1 -> ret.content = FreeSubmission(ret.submission_id, "")
+                2 -> ret.content = CodeSubmission(ret.submission_id, "", 1)
+                3 -> {
+                        var mc = McSubmission(ret.submission_id)
+                        mc.questions = mcQuestionRep.getMcForExercise(ret.exercise_id)
+                        mc.questions!!.forEach {
+                            it.answers = mcAnswerRep.getAnswersForQuestion(it.question_id)
+                        }
+                        ret.content = mc
+                }
+                4 -> ret.content = FileSubmission(ret.submission_id, "")
+                else -> throw InvalidSubmissionIDException
+            }
+        }
 
         when (exRep.findById(exerciseID).get().type_id) {
-            1 -> ret.content = getFreeSubmissionbyExercise(exerciseID)
-            2 -> ret.content = getCodeSubmissionByExercise(exerciseID)
-            3 -> ret.content = getMcSubmissionByExercise(exerciseID)
-            4 -> ret.content = getFileSubmissionByExercise(exerciseID)
-            else -> throw InvalidTypeException
+            1 -> ret.content = getFreeSubmission(ret.submission_id)
+            2 -> ret.content = getCodeSubmission(ret.submission_id)
+            3 -> ret.content = getMcSubmission(ret.submission_id)
+            4 -> ret.content = getFileSubmission(ret.submission_id)
+            else -> throw InvalidSubmissionIDException
         }
+
         return ret
     }
 
-    fun getMcSubmissionByExercise(exerciseID: Int): McSubmission {
-        //TODO: prüfen, ob der User schon eine Abgabe zu der Aufgabe hat, wenn ja: zurückgeben, wenn nein: neu anlegen
-        throw NotYetImplementedException
+    fun getUserSubmissions(user: AtlasUser, subUserID: Int): List<Submission> {
+
+        var ret = subRep.getSubmissionsByUser(subUserID)
+
+        ret.forEach {
+            when (subRep.findById(it.submission_id).get().type) {
+                1 -> it.content = getFreeSubmission(it.submission_id)
+                2 -> it.content = getCodeSubmission(it.submission_id)
+                3 -> it.content = getMcSubmission(it.submission_id)
+                4 -> it.content = getFileSubmission(it.submission_id)
+            }
+        }
+        return ret.toList()
+
     }
 
-    fun getFreeSubmissionbyExercise(exerciseID: Int): FreeSubmission {
-        //TODO: //TODO: prüfen, ob der User schon eine Abgabe zu der Aufgabe hat, wenn ja: zurückgeben, wenn nein: neu anlegen
-        throw NotYetImplementedException
+    fun getExerciseSubmissions(user: AtlasUser, exerciseID: Int): List<Submission> {
+        var ret = subRep.getSubmissionsByExercise(exerciseID)
+
+        ret.forEach {
+            when (subRep.findById(it.submission_id).get().type) {
+                1 -> it.content = getFreeSubmission(it.submission_id)
+                2 -> it.content = getCodeSubmission(it.submission_id)
+                3 -> it.content = getMcSubmission(it.submission_id)
+                4 -> it.content = getFileSubmission(it.submission_id)
+            }
+        }
+        return ret.toList()
     }
 
-    fun getFileSubmissionByExercise(exerciseID: Int): FileSubmission {
-        //TODO: //TODO: prüfen, ob der User schon eine Abgabe zu der Aufgabe hat, wenn ja: zurückgeben, wenn nein: neu anlegen
-        throw NotYetImplementedException
-    }
-
-    fun getCodeSubmissionByExercise(exerciseID: Int): CodeSubmission {
-        //TODO: //TODO: prüfen, ob der User schon eine Abgabe zu der Aufgabe hat, wenn ja: zurückgeben, wenn nein: neu anlegen
-        throw NotYetImplementedException
-    }
-
-    //TODO: Alle Abgaben für eine Aufgabe zurückgeben
     //TODO: Eine Abgabe verändern können
 
     /*fun editSubmission(user: AtlasUser, s: Submission): Submission {
@@ -189,6 +203,37 @@ class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRep
         subRep.deleteById(submissionID)
         return ret
     }*/
+
+    fun getMcSubmission(submissionID: Int): McSubmission {
+        val allAnswers = mcAnswerRep.getAnswersBySubmission(submissionID)
+        val submission = subRep.findById(submissionID).get()
+        val ret = McSubmission(submissionID)
+        ret.questions = mcQuestionRep.getMcForExercise(submission.exercise_id)
+        ret.questions!!.forEach {
+            it.answers = allAnswers.map { a ->
+                val answer = mcAnswerRep.findById(a.answer_id).get()
+                answer.marked = a.marked
+                return@map answer
+            }
+                .filter { a -> a.question_id == it.question_id }
+        }
+        return ret
+    }
+
+    fun getFreeSubmission(submissionID: Int): FreeSubmission {
+        if (freeSubRep.existsById(submissionID)) return freeSubRep.findById(submissionID).get()
+        throw InvalidSubmissionIDException
+    }
+
+    fun getFileSubmission(submissionID: Int): FileSubmission {
+        if (fileSubRepo.existsById(submissionID)) return fileSubRepo.findById(submissionID).get()
+        throw InvalidSubmissionIDException
+    }
+
+    fun getCodeSubmission(submissionID: Int): CodeSubmission {
+        if (codeSubRepo.existsById(submissionID)) return codeSubRepo.findById(submissionID).get()
+        throw InvalidSubmissionIDException
+    }
 
     fun getAllLanguages(user: AtlasUser): List<Language> {
         //TODO: Berechtigungen

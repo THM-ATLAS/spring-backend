@@ -46,6 +46,12 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
+    @ExceptionHandler(value = [InvalidSubmissionTypeIDException::class])
+    fun exception(exception: InvalidSubmissionTypeIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidSubmissionTypeIDException", "Submission Type ID must be between 1 and 4")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
     // Invalid Module ID when creating module
     @ExceptionHandler(value = [InvalidModuleIDException::class])
     fun exception(exception: InvalidModuleIDException): ResponseEntity<ApiError> {

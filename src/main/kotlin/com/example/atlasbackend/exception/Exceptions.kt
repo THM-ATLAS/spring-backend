@@ -22,6 +22,8 @@ object InvalidExerciseIDException : RuntimeException()
 // Invalid Module ID when creating module
 object InvalidModuleIDException : RuntimeException()
 
+//Invalid Submission Type given for an exercise
+object InvalidSubmissionTypeIDException : RuntimeException()
 
 //Invalid Question ID when creating question
 object InvalidQuestionIDException : RuntimeException()
