@@ -80,7 +80,7 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         return atlasUser
     }
 
-    fun addUser(newUser: AtlasUser): AtlasUser {
+    fun addUser(user: AtlasUser, newUser: AtlasUser): AtlasUser {
 
         // Error Catching
         if (newUser.user_id != 0) throw InvalidUserIDException
@@ -89,16 +89,24 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         if(
             newUser.password == "" ||
             !Regex(".{8,}").matches(newUser.password) ||
-            !Regex("\\W+").containsMatchIn(newUser.password) ||
+            (
+                !Regex("\\W+").containsMatchIn(newUser.password) ||
+                Regex("\\s").containsMatchIn(newUser.password)
+            ) ||
             !Regex("\\d+").containsMatchIn(newUser.password) ||
             !Regex("[a-z]+").containsMatchIn(newUser.password) ||
             !Regex("[A-Z]+").containsMatchIn(newUser.password)
         ) throw BadPasswordException
+        if( newUser.roles.any { r -> r.role_id < 5 } && !user.roles.any { r -> r.role_id == 1}) throw NoPermissionToModifyUserRolesException  // If any role above guest is present check for admin
 
         // Functionality
         var atlasUser = AtlasUser(newUser.user_id, newUser.name, newUser.username, newUser.email)
         atlasUser = userRep.save(atlasUser)
         userRep.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(newUser.password))
+
+        if(newUser.roles.isEmpty()) {
+            roleRep.giveRole(atlasUser.user_id, 5)
+        }
 
         newUser.roles.forEach { r  ->
             if (r.role_id < 1 || r.role_id > 5 || r.role_id == 3) throw InvalidRoleIDException
@@ -119,7 +127,7 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         newUsers.forEach { u -> if(u.user_id != 0) throw InvalidUserIDException }
 
         newUsers.forEach { u ->
-            userRet.add(addUser(u))
+            userRet.add(addUser(user, u))
         }
 
         return userRet
