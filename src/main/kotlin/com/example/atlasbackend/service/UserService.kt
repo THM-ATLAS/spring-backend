@@ -44,9 +44,6 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
             user.user_id != editUser.user_id)   // Check for self
             throw NoPermissionToEditUserException
-        if (roleRep.getRolesByUser(editUser.user_id).any { ur -> ur.role_id == 1} &&     // Admin can only modify his own admin role
-            user.user_id != editUser.user_id)
-            throw NoPermissionToModifyAdminException
 
         editUser.roles.forEach { r ->
             if (!roleRep.existsById(r.role_id)) throw RoleNotFoundException
@@ -112,10 +109,8 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         if (!user.roles.any { r -> r.role_id == 1}) throw NoPermissionToModifyMultipleUsersException   // Check for admin
         newUsers.forEach { u -> if(u.user_id != 0) throw InvalidUserIDException }
 
-        newUsers.forEach { u ->
-            userRet.add(addUser(u))
-        }
-
+        // Functionality
+        newUsers.forEach { u -> userRet.add(addUser(u)) }
         return userRet
     }
 
@@ -126,9 +121,6 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
             user.user_id != delUserID)   // Check for self
             throw NoPermissionToDeleteUserException
-        if (userRep.findById(delUserID).get().roles.any { r -> r.role_id == 1} &&
-            user.user_id != delUserID)     // Admin can only delete himself
-            throw NoPermissionToModifyAdminException
 
         // Functionality
         val delUser = userRep.findById(delUserID).get()
@@ -145,10 +137,8 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         if (!user.roles.any { r -> r.role_id == 1}) throw NoPermissionToModifyMultipleUsersException   // Check for admin
         val delUserIds = delUsers.map { u -> u.user_id}
 
-        delUserIds.forEach { u ->
-            ret.add(delUser(user, u))
-        }
-
+        // Functionality
+        delUserIds.forEach { u -> ret.add(delUser(user, u)) }
         return ret
     }
 }

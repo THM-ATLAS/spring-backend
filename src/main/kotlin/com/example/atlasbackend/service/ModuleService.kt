@@ -96,12 +96,8 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
 
         // Functionality
         if (modRep.getUsersByModule(moduleID).contains(userRep.findById(modUser.user_id).get()).not()) {
-            if(user.user_id == modUser.user_id){
-                modRep.addUser(modUser.user_id, moduleID,4)
-            }else{
-                modRep.addUser(modUser.user_id, moduleID,modUser.module_role.role_id)
-            }
-
+            if(user.user_id == modUser.user_id) modRep.addUser(modUser.user_id, moduleID,4)
+            else modRep.addUser(modUser.user_id, moduleID,modUser.module_role.role_id)
         }
 
         return modRep.getUsersByModule(moduleID).map {  u ->
