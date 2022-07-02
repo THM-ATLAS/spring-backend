@@ -85,7 +85,7 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         // Error Catching
         if (newUser.user_id != 0) throw InvalidUserIDException
         if (userRep.testForUser(newUser.username) != null) throw UserAlreadyExistsException
-        if(Regex("([a-zA-Z]{4}\\d{2}|hg\\d+)").matches(newUser.username)) throw UserAlreadyExistsException
+        if(Regex("([a-zA-Z]{4}\\d{2}|hg\\d+)").matches(newUser.username)) throw ReservedLdapUsernameException
         if(
             newUser.password == "" ||
             !Regex(".{8,}").matches(newUser.password) ||
