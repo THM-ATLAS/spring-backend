@@ -187,6 +187,9 @@ object SubmissionAlreadyExistsException: RuntimeException()
 // Username is reserved for LDAP users
 object ReservedLdapUsernameException : RuntimeException()
 
+// Password does not meet the required criteria
+object BadPasswordException : RuntimeException()
+
 
 
 /***** [5xx] SERVER ERRORS *****/
