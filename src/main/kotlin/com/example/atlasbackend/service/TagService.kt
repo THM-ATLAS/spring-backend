@@ -97,6 +97,7 @@ class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val m
     fun addModuleTag(user: AtlasUser, moduleID: Int, tagID: Int): List<Tag> {
         // Error Catching
         if(!modRep.existsById(moduleID))throw ModuleNotFoundException
+        if(!tagRep.existsById(tagID))throw TagNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
                 modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
             throw NoPermissionToModifyModuleTagException
@@ -109,6 +110,7 @@ class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val m
     fun removeModuleTag(user: AtlasUser, moduleID: Int, tagID: Int): List<Tag> {
         // Error Catching
         if(!modRep.existsById(moduleID))throw ModuleNotFoundException
+        if(!tagRep.existsById(tagID))throw TagNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
                 modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
             throw NoPermissionToModifyModuleTagException

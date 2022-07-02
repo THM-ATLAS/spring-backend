@@ -92,16 +92,34 @@ class TagController(val tagService: TagService) {
     }
 
     // Module tags:
+
+    @ApiResponses(
+            value = [
+                ApiResponse(responseCode = "200", description = "OK - Returns Tags of a Module"),
+                ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+            ])
     @GetMapping("modules/{moduleID}/tags")
     fun loadModuleTags(@PathVariable moduleID: Int): List<Tag> {
         return tagService.loadModuleTags(moduleID)
     }
 
+    @ApiResponses(
+            value = [
+                ApiResponse(responseCode = "200", description = "OK - Adds Tag to a Module"),
+                ApiResponse(responseCode = "404", description = "ModuleNotFoundException || TagNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "403", description = "NoPermissionToModifyExerciseTagsException", content = [Content(schema = Schema(hidden = true))])
+            ])
     @PostMapping("modules/tags/{moduleID}/{tagID}")
     fun addModuleTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser,@PathVariable moduleID: Int,@PathVariable tagID: Int): List<Tag> {
         return tagService.addModuleTag(user,moduleID,tagID)
     }
 
+    @ApiResponses(
+            value = [
+                ApiResponse(responseCode = "200", description = "OK - Removes Tag from a Module"),
+                ApiResponse(responseCode = "404", description = "ModuleNotFoundException || TagNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "403", description = "NoPermissionToModifyExerciseTagsException", content = [Content(schema = Schema(hidden = true))])
+            ])
     @DeleteMapping("module/tags/{moduleID}/{tagID}")
     fun removeModuleTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser,@PathVariable moduleID: Int,@PathVariable tagID: Int): List<Tag> {
         return tagService.removeModuleTag(user,moduleID,tagID)
