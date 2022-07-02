@@ -20,7 +20,7 @@ class IconController (val iconService: IconService){
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Returns all Icons")
             ])
-    @GetMapping("/Icons")
+    @GetMapping("/icons")
     fun loadicons():List<AtlasIcon>{
         return iconService.loadIcons()
     }
@@ -31,7 +31,7 @@ class IconController (val iconService: IconService){
                 ApiResponse(responseCode = "400", description = "InvalidIconIDException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "NoPermissionToCreateIconException", content = [Content(schema = Schema(hidden = true))])
             ])
-    @PostMapping("/Icons")
+    @PostMapping("/icons")
     fun createIcon(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody icon: AtlasIcon): List<AtlasIcon>{
         return iconService.createIcon(user,icon)
     }
@@ -42,7 +42,7 @@ class IconController (val iconService: IconService){
                 ApiResponse(responseCode = "404", description = "IconNotFoundException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "NoPermissionToDeleteIconException", content = [Content(schema = Schema(hidden = true))])
             ])
-    @DeleteMapping("Icons/{iconID}")
+    @DeleteMapping("icons/{iconID}")
     fun deleteIcon(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable iconID: Int):List<AtlasIcon>{
         return iconService.deleteIcon(user, iconID)
     }
