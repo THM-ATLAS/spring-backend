@@ -2,6 +2,7 @@ package com.example.atlasbackend.security
 
 import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.exception.InvalidCredentialsException
+import com.example.atlasbackend.repository.RoleRepository
 import com.example.atlasbackend.repository.SettingsRepository
 import org.springframework.ldap.core.AttributesMapper
 import org.springframework.ldap.core.LdapTemplate
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component
 @Component
 class LDAPAuthenticationManager(
     val userDetailsService: UserDetailsService,
+    val roleRepo: RoleRepository,
     val setRepo: SettingsRepository,
 ) : AuthenticationManager {
     var newUser = false
@@ -96,7 +98,10 @@ class LDAPAuthenticationManager(
 
         var user = getUserProperties(username)
         user = userDetailsService.userRepository.save(user)
-        if (newUser) setRepo.createSettings(user.user_id)
+        if (newUser) {
+            setRepo.createSettings(user.user_id)
+            roleRepo.giveRole(user.user_id, 4)
+        }
         newUser = false
 
         val ret = AtlasAuthentication(user)
