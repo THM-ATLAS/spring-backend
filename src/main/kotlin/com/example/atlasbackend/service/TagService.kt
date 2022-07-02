@@ -114,8 +114,8 @@ class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val m
             throw NoPermissionToModifyModuleTagException
 
         // functionality
-        val tags = tagRep.getModuleTags(moduleID)
-        tagRep.addModuleTag(moduleID,tagID)
-        return tags
+
+        tagRep.removeModuleTag(moduleID,tagID)
+        return tagRep.getModuleTags(moduleID)
     }
 }
