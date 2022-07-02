@@ -46,6 +46,9 @@ object InvalidAssetIDException : RuntimeException()
 // Invalid Icon ID when creating Icon
 object InvalidIconIDException : RuntimeException()
 
+// Icon is in use and can't be deleted
+object IconInUseException : RuntimeException()
+
 /** [401] UNAUTHORIZED **/
 
 // Invalid Credentials when trying to log in
