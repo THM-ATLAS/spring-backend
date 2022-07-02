@@ -5,6 +5,7 @@ import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.*
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
+import java.util.Base64
 
 @Service
 class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val setRep: SettingsRepository) {
@@ -79,19 +80,32 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         return atlasUser
     }
 
-    fun addUser(newUser: AtlasUser): AtlasUser {
+    fun addUser(user: AtlasUser, newUser: AtlasUser): AtlasUser {
 
         // Error Catching
         if (newUser.user_id != 0) throw InvalidUserIDException
         if (userRep.testForUser(newUser.username) != null) throw UserAlreadyExistsException
-        val regex = Regex("([a-zA-Z]{4}\\d{2}|hg\\d+)")
-        if(regex.matches(newUser.username)) throw UserAlreadyExistsException
+        if(Regex("([a-zA-Z]{4}\\d{2}|hg\\d+)").matches(newUser.username)) throw ReservedLdapUsernameException
+        if(
+            newUser.password == "" ||
+            !Regex(".{8,}").matches(newUser.password) ||
+            (
+                !Regex("\\W+").containsMatchIn(newUser.password) ||
+                Regex("\\s").containsMatchIn(newUser.password)
+            ) ||
+            !Regex("\\d+").containsMatchIn(newUser.password) ||
+            !Regex("[a-z]+").containsMatchIn(newUser.password) ||
+            !Regex("[A-Z]+").containsMatchIn(newUser.password)
+        ) throw BadPasswordException
+        if( newUser.roles.any { r -> r.role_id < 5 } && !user.roles.any { r -> r.role_id == 1}) throw NoPermissionToModifyUserRolesException  // If any role above guest is present check for admin
 
         // Functionality
         var atlasUser = AtlasUser(newUser.user_id, newUser.name, newUser.username, newUser.email)
         atlasUser = userRep.save(atlasUser)
-        if(newUser.password != "") {
-            userRep.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(newUser.password))
+        userRep.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(newUser.password))
+
+        if(newUser.roles.isEmpty()) {
+            roleRep.giveRole(atlasUser.user_id, 5)
         }
 
         newUser.roles.forEach { r  ->
@@ -113,7 +127,7 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         newUsers.forEach { u -> if(u.user_id != 0) throw InvalidUserIDException }
 
         newUsers.forEach { u ->
-            userRet.add(addUser(u))
+            userRet.add(addUser(user, u))
         }
 
         return userRet

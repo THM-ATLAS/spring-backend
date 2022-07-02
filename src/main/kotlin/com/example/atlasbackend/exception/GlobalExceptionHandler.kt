@@ -419,7 +419,14 @@ class GlobalExceptionHandler {
     // Username is reserved for LDAP users
     @ExceptionHandler(value = [ReservedLdapUsernameException::class])
     fun exception(exception: ReservedLdapUsernameException): ResponseEntity<ApiError> {
-        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "The chosen username is reserved for LDAP users")
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "The submitted username is reserved for LDAP users")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
+
+    // Password does not meet the required criteria
+    @ExceptionHandler(value = [BadPasswordException::class])
+    fun exception(exception: BadPasswordException): ResponseEntity<ApiError> {
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "The submitted password does not meet the required criteria")
         return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
     }
 
