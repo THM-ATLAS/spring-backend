@@ -1,59 +1,65 @@
 package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.AtlasModule
+import com.example.atlasbackend.classes.AtlasModuleRet
 import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.classes.ModuleUser
 import com.example.atlasbackend.exception.*
+import com.example.atlasbackend.repository.IconRepository
 import com.example.atlasbackend.repository.ModuleRepository
 import com.example.atlasbackend.repository.RoleRepository
 import com.example.atlasbackend.repository.UserRepository
 import org.springframework.stereotype.Service
 
 @Service
-class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, val userRep: UserRepository){
+class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, val userRep: UserRepository, val iconRep: IconRepository){
 
     /***** GENERAL MODULE MANAGEMENT *****/
 
-    fun loadModules(): List<AtlasModule> {
-        return modRep.findAll().toList()
+    fun loadModules(): List<AtlasModuleRet> {
+        return modRep.findAll().toList().map { m -> AtlasModuleRet(m.module_id,m.name, m.description, m.modulePublic, iconRep.findById(m.icon_id).get()) }
     }
 
-    fun getModule(moduleID: Int): AtlasModule {
+    fun getModule(moduleID: Int): AtlasModuleRet {
 
         // Error Catching
         if (!modRep.existsById(moduleID)) throw ModuleNotFoundException
 
         // Functionality
-        return modRep.findById(moduleID).get()
+        val m = modRep.findById(moduleID).get()
+        return AtlasModuleRet (m.module_id, m.name, m.description, m.modulePublic, iconRep.findById(m.module_id).get())
     }
 
-    fun updateModule(user: AtlasUser, module: AtlasModule): AtlasModule {
+    fun updateModule(user: AtlasUser, module: AtlasModuleRet): AtlasModuleRet {
 
         // Error Catching
         if (!modRep.existsById(module.module_id)) throw ModuleNotFoundException
+        if (!iconRep.existsById(module.icon.icon_id)) throw IconNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
             modRep.getModuleRoleByUser(user.user_id, module.module_id).let { mru -> mru == null || mru.role_id != 2 } )   // Check for teacher
             throw NoPermissionToEditModuleException
 
         // Functionality
-        modRep.save(module)
-        return module
+        val m = modRep.save(AtlasModule(module.module_id, module.name, module.description, module.modulePublic,module.icon.icon_id))
+        return AtlasModuleRet(m.module_id, m.name, m.description, m.modulePublic, iconRep.findById(m.icon_id).get())
     }
 
-    fun createModule(user: AtlasUser, module: AtlasModule): AtlasModule {
+    fun createModule(user: AtlasUser, module: AtlasModuleRet): AtlasModuleRet {
 
         // Error Catching
         if (module.module_id != 0) throw InvalidModuleIDException
+        if (!iconRep.existsById(module.icon.icon_id)) throw IconNotFoundException
         if (!user.roles.any { r -> r.role_id <= 2}) throw NoPermissionToEditModuleException   // Check for admin/teacher
 
         // Functionality
         if(module.modulePublic == null) module.modulePublic = false // Accept NULL value, but convert to false
-        val savedModule = modRep.save(module)
+        val m = modRep.save(AtlasModule(module.module_id, module.name, module.description, module.modulePublic,module.icon.icon_id))
+
         modRep.addUser(user.user_id,module.module_id,2) // when creating a module u should be added as teacher
-        return savedModule
+        return AtlasModuleRet(m.module_id, m.name, m.description, m.modulePublic, iconRep.findById(m.icon_id).get())
     }
 
-    fun deleteModule(user: AtlasUser, moduleID: Int): AtlasModule {
+    fun deleteModule(user: AtlasUser, moduleID: Int): AtlasModuleRet {
 
         // Error Catching
         if (!modRep.existsById(moduleID)) throw ModuleNotFoundException
@@ -62,9 +68,9 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
             throw NoPermissionToDeleteModuleException
 
         // Functionality
-        val module = modRep.findById(moduleID).get()
+        val m = modRep.findById(moduleID).get()
         modRep.deleteById(moduleID)
-        return module
+        return AtlasModuleRet(m.module_id, m.name, m.description, m.modulePublic, iconRep.findById(m.icon_id).get())
     }
 
 

@@ -1,8 +1,6 @@
 package com.example.atlasbackend.controller
 
-import com.example.atlasbackend.classes.AtlasModule
-import com.example.atlasbackend.classes.AtlasUser
-import com.example.atlasbackend.classes.ModuleUser
+import com.example.atlasbackend.classes.*
 import com.example.atlasbackend.service.ModuleService
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -31,7 +29,7 @@ class ModuleController(val moduleService: ModuleService) {
                 ApiResponse(responseCode = "200", description = "OK - Returns All Modules")
             ])
     @GetMapping("/modules")
-    fun loadModules(): List<AtlasModule> {
+    fun loadModules(): List<AtlasModuleRet> {
         return moduleService.loadModules()
     }
 
@@ -41,29 +39,30 @@ class ModuleController(val moduleService: ModuleService) {
                 ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/modules/{moduleID}")
-    fun getModule(@PathVariable moduleID: Int): AtlasModule {
+    fun getModule(@PathVariable moduleID: Int): AtlasModuleRet {
         return moduleService.getModule(moduleID)
     }
 
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Edits Module "),
-                ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "404", description = "ModuleNotFoundException || IconNotFoundException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "NoPermissionToEditModuleException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PutMapping("/modules")
-    fun editModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: AtlasModule): AtlasModule {
+    fun editModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: AtlasModuleRet): AtlasModuleRet {
         return moduleService.updateModule(user, body)
     }
 
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Creates Module "),
+                ApiResponse(responseCode = "404", description = "IconNotFoundException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "400", description = "InvalidModuleIDException - Module ID must be 0", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))]),
             ])
     @PostMapping("/modules")
-    fun postModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody module: AtlasModule): AtlasModule{
+    fun postModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody module: AtlasModuleRet): AtlasModuleRet{
         return moduleService.createModule(user, module)
     }
 
@@ -74,7 +73,7 @@ class ModuleController(val moduleService: ModuleService) {
                 ApiResponse(responseCode = "403", description = "NoPermissionToDeleteModuleException", content = [Content(schema = Schema(hidden = true))])
             ])
     @DeleteMapping("/modules/{moduleID}")
-    fun deleteModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int): AtlasModule {
+    fun deleteModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int): AtlasModuleRet {
         return moduleService.deleteModule(user, moduleID)
     }
 
