@@ -120,7 +120,7 @@ class TagController(val tagService: TagService) {
                 ApiResponse(responseCode = "404", description = "ModuleNotFoundException || TagNotFoundException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "NoPermissionToModifyExerciseTagsException", content = [Content(schema = Schema(hidden = true))])
             ])
-    @DeleteMapping("module/tags/{moduleID}/{tagID}")
+    @DeleteMapping("modules/tags/{moduleID}/{tagID}")
     fun removeModuleTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser,@PathVariable moduleID: Int,@PathVariable tagID: Int): List<Tag> {
         return tagService.removeModuleTag(user,moduleID,tagID)
     }
