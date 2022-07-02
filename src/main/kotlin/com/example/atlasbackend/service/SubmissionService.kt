@@ -1,43 +1,29 @@
 package com.example.atlasbackend.service
 
-import com.example.atlasbackend.classes.AtlasUser
-import com.example.atlasbackend.classes.Notification
-import com.example.atlasbackend.classes.Submission
-import com.example.atlasbackend.classes.SubmissionGrade
+import com.example.atlasbackend.classes.*
 import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.*
+import com.sun.jdi.InvalidTypeException
 import org.springframework.stereotype.Service
 import java.sql.Timestamp
 
 @Service
-class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRepository, val userRep: UserRepository, val modRep: ModuleRepository, var notifRep: NotificationRepository) {
+class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRepository, val userRep: UserRepository, val modRep: ModuleRepository, var notifRep: NotificationRepository, var langRepo: LanguageRepository) {
 
-    fun getAllSubmissions(user: AtlasUser): List<Submission> {
+    fun getAllSubmissions(user: AtlasUser): List<SubmissionTemplate> {
 
         // Error Catching
         if (!user.roles.any { r -> r.role_id == 1}) throw AccessDeniedException    // Check for admin
 
         // Functionality
-        return subRep.findAll().map {  s ->
-            Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
-        }.toList()
+        //return subRep.findAll().map {  s ->
+        //    Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
+        //}.toList()
+
+        //TODO: Rückgabetyp anpassen
     }
 
-    fun getExerciseSubmissions(user: AtlasUser, exerciseID: Int): List<Submission> {
-
-        // Error Catching
-        if (!exRep.existsById(exerciseID)) throw ExerciseNotFoundException
-        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, exRep.getModuleByExercise(exerciseID).module_id).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
-            throw AccessDeniedException
-
-        // Functionality
-        return subRep.getSubmissionsByExercise(exerciseID).map {  s ->
-            Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
-        }.toList()
-    }
-
-    fun getUserSubmissions(user: AtlasUser, subUserID: Int): List<Submission> {
+    fun getUserSubmissions(user: AtlasUser, subUserID: Int): List<SubmissionTemplate> {
 
         // Error Catching
         if (!userRep.existsById(subUserID)) throw UserNotFoundException
@@ -45,27 +31,75 @@ class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRep
             user.user_id != subUserID)   // Check for self
             throw AccessDeniedException
 
-        // Functionality
-        return subRep.getSubmissionsByUser(subUserID).map {  s ->
-            Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
-        }.toList()
+        //TODO: Alle Submissions für einen User zurückgeben
     }
 
-    fun getSubmission(user: AtlasUser, exerciseID: Int, submissionID: Int): Submission {
+    fun getSubmission(user: AtlasUser, submissionID: Int): SubmissionTemplate {
+        //TODO: Fehlerbehandlung
+        //TODO: Berechtigungen
 
-        // Error Catching
-        if (!exRep.existsById(exerciseID)) throw ExerciseNotFoundException
-        if (!subRep.existsById(submissionID)) throw SubmissionNotFoundException
-        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, exRep.getModuleByExercise(exerciseID).module_id).let { mru -> mru == null || mru.role_id > 3 } &&   // Check for tutor/teacher
-            user.user_id != subRep.findById(submissionID).get().user_id)   // Check for self
-            throw AccessDeniedException
-
-        // Functionality
-        return subRep.findById(submissionID).get()
+        when (subRep.findById(submissionID).get().type) {
+            1 -> return getFreeSubmission(submissionID)
+            2 -> return getCodeSubmission(submissionID)
+            3 -> return getMcSubmission(submissionID)
+            4 -> return getFileSubmission(submissionID)
+            else -> throw InvalidTypeException
+        }
     }
 
-    fun editSubmission(user: AtlasUser, s: Submission): Submission {
+    fun getMcSubmission(submissionID: Int): McSubmission {
+        //TODO: prüfen, ob der User schon eine Abgabe zu der Aufgabe hat, wenn ja: zurückgeben, wenn nein: neu anlegen
+        throw NotYetImplementedException
+    }
+
+    fun getFreeSubmission(submissionID: Int): FreeSubmission {
+        //TODO: //TODO: prüfen, ob der User schon eine Abgabe zu der Aufgabe hat, wenn ja: zurückgeben, wenn nein: neu anlegen
+        throw NotYetImplementedException
+    }
+
+    fun getFileSubmission(submissionID: Int): FileSubmission {
+        //TODO: //TODO: prüfen, ob der User schon eine Abgabe zu der Aufgabe hat, wenn ja: zurückgeben, wenn nein: neu anlegen
+        throw NotYetImplementedException
+    }
+
+    fun getCodeSubmission(submissionID: Int): CodeSubmission {
+        //TODO: //TODO: prüfen, ob der User schon eine Abgabe zu der Aufgabe hat, wenn ja: zurückgeben, wenn nein: neu anlegen
+        throw NotYetImplementedException
+    }
+
+    fun getSubmissionForExercise(user: AtlasUser, exerciseID: Int): SubmissionTemplate {
+        //TODO: Berechtigungen
+        //TODO: Fehlerbehandlung
+        when (exRep.findById(exerciseID).get().type_id) {
+            1 -> return getFreeSubmissionbyExercise(exerciseID)
+            2 -> return getCodeSubmissionByExercise(exerciseID)
+            3 -> return getMcSubmissionByExercise(exerciseID)
+            4 -> return getFileSubmissionByExercise(exerciseID)
+            else -> throw InvalidTypeException
+        }
+    }
+
+    fun getMcSubmissionByExercise(exerciseID: Int): McSubmission {
+        //TODO: prüfen, ob der User schon eine Abgabe zu der Aufgabe hat, wenn ja: zurückgeben, wenn nein: neu anlegen
+        throw NotYetImplementedException
+    }
+
+    fun getFreeSubmissionbyExercise(exerciseID: Int): FreeSubmission {
+        //TODO: //TODO: prüfen, ob der User schon eine Abgabe zu der Aufgabe hat, wenn ja: zurückgeben, wenn nein: neu anlegen
+        throw NotYetImplementedException
+    }
+
+    fun getFileSubmissionByExercise(exerciseID: Int): FileSubmission {
+        //TODO: //TODO: prüfen, ob der User schon eine Abgabe zu der Aufgabe hat, wenn ja: zurückgeben, wenn nein: neu anlegen
+        throw NotYetImplementedException
+    }
+
+    fun getCodeSubmissionByExercise(exerciseID: Int): CodeSubmission {
+        //TODO: //TODO: prüfen, ob der User schon eine Abgabe zu der Aufgabe hat, wenn ja: zurückgeben, wenn nein: neu anlegen
+        throw NotYetImplementedException
+    }
+
+    /*fun editSubmission(user: AtlasUser, s: Submission): Submission {
         val oldSub = subRep.findById(s.submission_id).get()
 
         // Error Catching
@@ -106,7 +140,9 @@ class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRep
         return updatedSubmission
     }
 
-    fun postSubmission(user: AtlasUser, s: Submission): Submission {
+    fun postSubmission(user: AtlasUser, s: SubmissionTemplate): Submission {
+
+        //TODO: auf SubmissionTemplate umschreiben
 
         // Error Catching
         if (s.submission_id != 0) throw InvalidSubmissionIDException
@@ -143,5 +179,17 @@ class SubmissionService(val subRep: SubmissionRepository, val exRep: ExerciseRep
         val ret = Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
         subRep.deleteById(submissionID)
         return ret
+    }*/
+
+    fun getAllLanguages(user: AtlasUser): List<Language> {
+        //TODO: Berechtigungen
+        //TODO: Fehlerbehandlung
+        return langRepo.findAll().toList()
+    }
+
+    fun getLanguage(user: AtlasUser, langId: Int): Language {
+        //TODO: Berechtigungen
+        //TODO: Fehlerbehandlung
+        return langRepo.findById(langId).get()
     }
 }

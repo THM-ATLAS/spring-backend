@@ -12,6 +12,5 @@ data class Submission(@Id var submission_id: Int,
                       var upload_time: Timestamp,
                       var grade: Int?,
                       var teacher_id: Int?,
-                      var comment: String?) {
-    @org.springframework.data.annotation.Transient var mc: List<MultipleChoiceQuestion>? = null
-}
+                      var comment: String?,
+                      var type: Int)

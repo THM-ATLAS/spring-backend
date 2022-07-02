@@ -1,6 +1,7 @@
 package com.example.atlasbackend.controller
 
 import com.example.atlasbackend.classes.AtlasUser
+import com.example.atlasbackend.classes.Language
 import com.example.atlasbackend.classes.Submission
 import com.example.atlasbackend.classes.SubmissionGrade
 import com.example.atlasbackend.service.SubmissionService
@@ -102,5 +103,10 @@ class SubmissionController(val submissionService: SubmissionService) {
     @DeleteMapping("/submissions/{submissionID}")
     fun deleteSubmission(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable submissionID: Int): Submission {
         return submissionService.deleteSubmission(user, submissionID)
+    }
+
+    @GetMapping("/submissions/code/languages")
+    fun getAllLanguages(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser): List<Language> {
+        return submissionService.getAllLanguages(user)
     }
 }
