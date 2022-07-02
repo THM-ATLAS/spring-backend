@@ -27,7 +27,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
 
         // Functionality
         val m = modRep.findById(moduleID).get()
-        return AtlasModuleRet (m.module_id, m.name, m.description, m.modulePublic, iconRep.findById(m.module_id).get())
+        return AtlasModuleRet (m.module_id, m.name, m.description, m.modulePublic, iconRep.findById(m.icon_id).get())
     }
 
     fun updateModule(user: AtlasUser, module: AtlasModuleRet): AtlasModuleRet {
