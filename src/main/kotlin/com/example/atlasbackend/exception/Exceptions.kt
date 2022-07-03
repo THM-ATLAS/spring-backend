@@ -148,6 +148,9 @@ object NoPermissionToCreateIconException : RuntimeException()
 // User is not allowed to delete this icon
 object  NoPermissionToDeleteIconException : RuntimeException()
 
+// User is not allowed to delete this icon
+object  NoPermissionToMarkAsReadException : RuntimeException()
+
 /** [404] NOT FOUND **/
 
 // Accessed Page doesn't exist

@@ -335,7 +335,14 @@ class GlobalExceptionHandler {
     // User is not allowed to delete this icon
     @ExceptionHandler(value = [NoPermissionToDeleteIconException::class])
     fun exception(exception: NoPermissionToDeleteIconException): ResponseEntity<ApiError> {
-        val err = ApiError(403, HttpStatus.FORBIDDEN, "NopermissionToDeleteIconException", "Only Admins can delete new Icons")
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToDeleteIconException", "Only Admins can delete new Icons")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to delete this icon
+    @ExceptionHandler(value = [NoPermissionToMarkAsReadException::class])
+    fun exception(exception: NoPermissionToMarkAsReadException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToMarkAsReadException", "Users may only mark their own notifications as read")
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
