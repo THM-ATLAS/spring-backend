@@ -13,6 +13,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
+import java.sql.Timestamp
+import java.time.LocalDateTime
 
 @Component
 class LDAPAuthenticationManager(
@@ -42,7 +44,7 @@ class LDAPAuthenticationManager(
         var atlasUser = userDetailsService.loadUserByUsername(user) as AtlasUser?
         if (atlasUser == null) {
             newUser = true
-            atlasUser = AtlasUser(0, "", "", "")
+            atlasUser = AtlasUser(0, "", "", "", Timestamp.valueOf(LocalDateTime.now()))
         }
 
         initLdap().search(
@@ -97,6 +99,7 @@ class LDAPAuthenticationManager(
         }
 
         var user = getUserProperties(username)
+        user.last_login = Timestamp.valueOf(LocalDateTime.now())
         user = userDetailsService.userRepository.save(user)
         if (newUser) {
             setRepo.createSettings(user.user_id)
