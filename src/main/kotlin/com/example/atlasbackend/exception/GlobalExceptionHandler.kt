@@ -443,6 +443,12 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
     }
 
+    @ExceptionHandler(value = [WrongSubmissionTypeException::class])
+    fun exception(exception: WrongSubmissionTypeException): ResponseEntity<ApiError> {
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "WrongSubmissionTypeException", "Exercise Type and submission types have to match. The submission type given inside the submission and the actually given type have to match")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
+
 
 
     /***** [5xx] SERVER ERRORS *****/

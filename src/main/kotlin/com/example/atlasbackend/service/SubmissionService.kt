@@ -3,7 +3,6 @@ package com.example.atlasbackend.service
 import com.example.atlasbackend.classes.*
 import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.*
-import com.sun.jdi.InvalidTypeException
 import org.springframework.stereotype.Service
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -13,13 +12,13 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
                         val freeSubRep: FreeSubmissionRepository,
                         val subRep: SubmissionRepository,
                         val exRep: ExerciseRepository,
+                        val langRepo: LanguageRepository,
+                        val notifRep: NotificationRepository,
                         val userRep: UserRepository,
                         val modRep: ModuleRepository,
-                        var notifRep: NotificationRepository,
-                        var langRepo: LanguageRepository,
-                        var codeSubRepo: CodeSubmissionRepository,
-                        var mcQuestionRep: McQuestionRepository,
-                        var mcAnswerRep: McAnswerRepository
+                        val codeSubRepo: CodeSubmissionRepository,
+                        val mcQuestionRep: McQuestionRepository,
+                        val mcAnswerRep: McAnswerRepository
 ) {
 
     fun getAllSubmissions(user: AtlasUser): List<Submission> {
@@ -27,7 +26,7 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
         // Error Catching
         if (!user.roles.any { r -> r.role_id == 1}) throw AccessDeniedException    // Check for admin
 
-        var ret = subRep.findAll()
+        val ret = subRep.findAll()
         ret.forEach {
             when (subRep.findById(it.submission_id).get().type) {
                 1 -> it.content = getFreeSubmission(it.submission_id)
@@ -44,7 +43,7 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
         if (subRep.existsById(submissionID).not()) throw SubmissionNotFoundException
         //TODO: Berechtigungen
 
-        var ret = subRep.findById(submissionID).get()
+        val ret = subRep.findById(submissionID).get()
 
         when (subRep.findById(submissionID).get().type) {
             1 -> ret.content = getFreeSubmission(submissionID)
@@ -62,12 +61,12 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
         var ret = subRep.getExerciseSubmissionForUser(user.user_id, exerciseID)
 
         if (ret == null) {
-            ret = Submission(0, exerciseID, user.user_id, LocalDateTime.now() as Timestamp, null, null, null, exRep.findById(exerciseID).get().type_id)
+            ret = Submission(0, exerciseID, user.user_id, Timestamp.valueOf(LocalDateTime.now()), null, null, null, exRep.findById(exerciseID).get().type_id)
             when (exRep.findById(exerciseID).get().type_id) {
                 1 -> ret.content = FreeSubmission(ret.submission_id, "")
                 2 -> ret.content = CodeSubmission(ret.submission_id, "", 1)
                 3 -> {
-                        var mc = McSubmission(ret.submission_id)
+                        val mc = McSubmission(ret.submission_id)
                         mc.questions = mcQuestionRep.getMcForExercise(ret.exercise_id)
                         mc.questions!!.forEach {
                             it.answers = mcAnswerRep.getAnswersForQuestion(it.question_id)
@@ -77,14 +76,8 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
                 4 -> ret.content = FileSubmission(ret.submission_id, "")
                 else -> throw InvalidSubmissionIDException
             }
-        }
-
-        when (exRep.findById(exerciseID).get().type_id) {
-            1 -> ret.content = getFreeSubmission(ret.submission_id)
-            2 -> ret.content = getCodeSubmission(ret.submission_id)
-            3 -> ret.content = getMcSubmission(ret.submission_id)
-            4 -> ret.content = getFileSubmission(ret.submission_id)
-            else -> throw InvalidSubmissionIDException
+        } else {
+            ret.content = getSubmissionContent(ret.submission_id)
         }
 
         return ret
@@ -92,39 +85,27 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
 
     fun getUserSubmissions(user: AtlasUser, subUserID: Int): List<Submission> {
 
-        var ret = subRep.getSubmissionsByUser(subUserID)
+        val ret = subRep.getSubmissionsByUser(subUserID)
 
         ret.forEach {
-            when (subRep.findById(it.submission_id).get().type) {
-                1 -> it.content = getFreeSubmission(it.submission_id)
-                2 -> it.content = getCodeSubmission(it.submission_id)
-                3 -> it.content = getMcSubmission(it.submission_id)
-                4 -> it.content = getFileSubmission(it.submission_id)
-            }
+            it.content = getSubmissionContent(it.submission_id)
         }
         return ret.toList()
 
     }
 
     fun getExerciseSubmissions(user: AtlasUser, exerciseID: Int): List<Submission> {
-        var ret = subRep.getSubmissionsByExercise(exerciseID)
+        val ret = subRep.getSubmissionsByExercise(exerciseID)
 
         ret.forEach {
-            when (subRep.findById(it.submission_id).get().type) {
-                1 -> it.content = getFreeSubmission(it.submission_id)
-                2 -> it.content = getCodeSubmission(it.submission_id)
-                3 -> it.content = getMcSubmission(it.submission_id)
-                4 -> it.content = getFileSubmission(it.submission_id)
-            }
+            it.content = getSubmissionContent(it.submission_id)
         }
         return ret.toList()
     }
 
     //TODO: Eine Abgabe verändern können
 
-    /*fun editSubmission(user: AtlasUser, s: Submission): Submission {
-        val oldSub = subRep.findById(s.submission_id).get()
-
+    fun editSubmission(user: AtlasUser, s: Submission): Submission {
         // Error Catching
         if (!subRep.existsById(s.submission_id)) throw SubmissionNotFoundException
         if (!exRep.existsById(s.exercise_id)) throw ExerciseNotFoundException
@@ -134,25 +115,43 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
             throw NoPermissionToEditSubmissionException
 
         // Functionality
-        var updatedSubmission = Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
+        val oldSub = getSubmission(user, s.submission_id)
+        var updatedSubmission = Submission(s.submission_id, s.exercise_id, s.user_id, s.upload_time, s.grade, s.teacher_id, s.comment, s.type)
+        val newSubmissionContent = s.content
         if(user.user_id == s.user_id && !user.roles.any { r -> r.role_id == 1}) {     // User can't edit his own grade, unless admin
-            updatedSubmission = Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, oldSub.grade, oldSub.teacher_id, oldSub.comment)
+            updatedSubmission = Submission(s.submission_id, oldSub.exercise_id, oldSub.user_id, s.upload_time, oldSub.grade, oldSub.teacher_id, oldSub.comment, oldSub.type)
+        }
+        when (s.type) {
+            1 -> freeSubRep.save(FreeSubmission(s.submission_id, (newSubmissionContent as FreeSubmission).content))
+            2 -> codeSubRepo.save(CodeSubmission(s.submission_id, (newSubmissionContent as CodeSubmission).content, newSubmissionContent.language))
+            3 -> {
+                val answers: MutableList<SubmissionMcAnswer> = arrayListOf()
+                (newSubmissionContent as McSubmission).questions!!.forEach { _ ->
+                    answers.forEach { a ->
+                        answers.add(a)
+                    }
+                }
+                answers.forEach {
+                    mcAnswerRep.editAnswersBySubmission(s.submission_id, it.answer_id, it.marked)
+                }
+            }
+            4 -> fileSubRepo.save(FileSubmission(s.submission_id, (newSubmissionContent as FileSubmission).file))
         }
         subRep.save(updatedSubmission)
-        return updatedSubmission
+        return getSubmission(user, s.submission_id)
     }
 
     fun editSubmissionGrade(user: AtlasUser, sr: SubmissionGrade): Submission {
-        val s = subRep.findById(sr.submission_id).get()
 
         // Error Catching
         if (!subRep.existsById(sr.submission_id)) throw SubmissionNotFoundException
+        val s = getSubmission(user, sr.submission_id)
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
             modRep.getModuleRoleByUser(user.user_id, exRep.getModuleByExercise(s.exercise_id).module_id).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
             throw NoPermissionToEditSubmissionException
 
         // Functionality
-        val updatedSubmission = Submission(sr.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, sr.grade, sr.teacher_id, sr.comment)
+        val updatedSubmission = Submission(sr.submission_id, s.exercise_id, s.user_id, s.upload_time, sr.grade, user.user_id, sr.comment, s.type)
         subRep.save(updatedSubmission)
 
         // Notification
@@ -163,46 +162,99 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
         return updatedSubmission
     }
 
-    fun postSubmission(user: AtlasUser, s: SubmissionTemplate): Submission {
-
-        //TODO: auf SubmissionTemplate umschreiben
+    fun postSubmission(user: AtlasUser, s: Submission): Submission {
 
         // Error Catching
         if (s.submission_id != 0) throw InvalidSubmissionIDException
         if (!exRep.existsById(s.exercise_id)) throw ExerciseNotFoundException
         if (!userRep.existsById(s.user_id)) throw UserNotFoundException
-        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+        if (!user.roles.any { r -> r.role_id == 1 } &&   // Check for admin
             !exRep.findById(s.exercise_id).get().exercisePublic &&     // Check if exercise public
-            !modRep.getUsersByModule(exRep.getModuleByExercise(s.exercise_id).module_id).any { u -> u.user_id == user.user_id })     // Check if user in module
+            !modRep.getUsersByModule(exRep.getModuleByExercise(s.exercise_id).module_id)
+                .any { u -> u.user_id == user.user_id })     // Check if user in module
             throw NoAccessToExerciseException
-        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+        if (!user.roles.any { r -> r.role_id == 1 } &&   // Check for admin
             user.user_id != s.user_id)   // Check for self
             throw NoPermissionToEditSubmissionException
 
-        if (subRep.getSubmissionsByUser(s.user_id).filter { it.exercise_id == s.exercise_id }.isEmpty().not()) {
+
+        if (subRep.getSubmissionsByUser(s.user_id).none { it.exercise_id == s.exercise_id }.not()) {
             throw SubmissionAlreadyExistsException
         }
 
-        // Functionality
-        subRep.save(s)
-        return Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
+        if (exRep.findById(s.exercise_id).get().type_id != s.type) throw WrongSubmissionTypeException
+        when (s.type) {
+            1 -> {
+                if (s.content !is FreeSubmission) throw WrongSubmissionTypeException
+                freeSubRep.save(s.content as FreeSubmission)
+            }
+            2 -> {
+                if (s.content !is CodeSubmission) throw WrongSubmissionTypeException
+                codeSubRepo.save(s.content as CodeSubmission)
+            }
+            3 -> {
+                val answers: MutableList<SubmissionMcAnswer> = arrayListOf()
+                (s.content as McSubmission).questions!!.forEach { _ ->
+                    answers.forEach { a ->
+                        answers.add(a)
+                    }
+                }
+                answers.forEach {
+                    mcAnswerRep.addAnswersBySubmission(s.submission_id, it.answer_id, it.marked)
+                }
+            }
+            4 -> {
+                if (s.content !is FileSubmission) throw WrongSubmissionTypeException
+                fileSubRepo.save(s.content as FileSubmission)
+            }
+        }
+
+        return subRep.save(s)
     }
 
     fun deleteSubmission(user: AtlasUser, submissionID: Int): Submission {
-        val s = subRep.findById(submissionID).get()
-
         // Error Catching
         if (!subRep.existsById(submissionID)) throw SubmissionNotFoundException
+        val s = getSubmission(user, submissionID)
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
             modRep.getModuleRoleByUser(user.user_id, exRep.getModuleByExercise(s.exercise_id).module_id).let { mru -> mru == null || mru.role_id > 3 } &&   // Check for tutor/teacher
             user.user_id != s.user_id)   // Check for self
             throw NoPermissionToDeleteSubmissionException
 
         // Functionality
-        val ret = Submission(s.submission_id, s.exercise_id, s.user_id, s.file, s.upload_time, s.grade, s.teacher_id, s.comment)
+
+        when (s.type) {
+            1 -> freeSubRep.deleteById(submissionID)
+            2 -> codeSubRepo.deleteById(submissionID)
+            3 -> mcAnswerRep.deleteAnswersBySubmission(submissionID)
+            4 -> fileSubRepo.deleteById(submissionID)
+        }
         subRep.deleteById(submissionID)
-        return ret
-    }*/
+        return s
+    }
+
+    fun getAllLanguages(user: AtlasUser): List<Language> {
+        //TODO: Berechtigungen
+        //TODO: Fehlerbehandlung
+        return langRepo.findAll().toList()
+    }
+
+    fun getLanguage(user: AtlasUser, langId: Int): Language {
+        //TODO: Berechtigungen
+        //TODO: Fehlerbehandlung
+        return langRepo.findById(langId).get()
+    }
+
+    //helpers
+    fun getSubmissionContent(submissionID: Int): SubmissionTemplate {
+        return when (subRep.findById(submissionID).get().type) {
+            1 -> getFreeSubmission(submissionID)
+            2 -> getCodeSubmission(submissionID)
+            3 -> getMcSubmission(submissionID)
+            4 -> getFileSubmission(submissionID)
+            else -> throw InvalidSubmissionTypeIDException
+        }
+    }
 
     fun getMcSubmission(submissionID: Int): McSubmission {
         val allAnswers = mcAnswerRep.getAnswersBySubmission(submissionID)
@@ -233,17 +285,5 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
     fun getCodeSubmission(submissionID: Int): CodeSubmission {
         if (codeSubRepo.existsById(submissionID)) return codeSubRepo.findById(submissionID).get()
         throw InvalidSubmissionIDException
-    }
-
-    fun getAllLanguages(user: AtlasUser): List<Language> {
-        //TODO: Berechtigungen
-        //TODO: Fehlerbehandlung
-        return langRepo.findAll().toList()
-    }
-
-    fun getLanguage(user: AtlasUser, langId: Int): Language {
-        //TODO: Berechtigungen
-        //TODO: Fehlerbehandlung
-        return langRepo.findById(langId).get()
     }
 }

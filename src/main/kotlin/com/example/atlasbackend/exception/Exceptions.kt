@@ -196,6 +196,8 @@ object UserAlreadyExistsException : RuntimeException()
 // User already submitted to that exercise
 object SubmissionAlreadyExistsException: RuntimeException()
 
+object WrongSubmissionTypeException: RuntimeException()
+
 
 
 /***** [5xx] SERVER ERRORS *****/

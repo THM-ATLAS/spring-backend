@@ -49,15 +49,15 @@ class SubmissionController(val submissionService: SubmissionService) {
         return submissionService.getUserSubmissions(user, subUserID)
     }
 
-    @ApiResponses(
-            value = [
-                ApiResponse(responseCode = "200", description = "OK - Returns Submission with requested ID "),
-                ApiResponse(responseCode = "404", description = "ExerciseNotFoundException || SubmissionNotFoundException", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
-            ])
-    @GetMapping("/exercises/{exerciseID}/submissions/{submissionID}")
-    fun getSubmission(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable("exerciseID") exerciseID: Int, @PathVariable("submissionID") submissionID: Int): Submission {
-        return submissionService.getSubmission(user, exerciseID, submissionID)
+
+    @GetMapping("/submissions/{submissionID}")
+    fun getSubmission(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable("submissionID") submissionID: Int): Submission {
+        return submissionService.getSubmission(user, submissionID)
+    }
+
+    @GetMapping("/exercise/{exerciseID}/submission")
+    fun getSubmissionForExercise(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @PathVariable("exerciseID") exerciseID: Int): Submission {
+        return submissionService.getUserSubmissionForExercise(user, exerciseID)
     }
 
     @ApiResponses(
@@ -108,5 +108,10 @@ class SubmissionController(val submissionService: SubmissionService) {
     @GetMapping("/submissions/code/languages")
     fun getAllLanguages(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser): List<Language> {
         return submissionService.getAllLanguages(user)
+    }
+
+    @GetMapping("/submissions/code/languages/{languageID}")
+    fun getLanguage(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @PathVariable languageID: Int): Language {
+        return submissionService.getLanguage(user, languageID)
     }
 }

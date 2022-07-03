@@ -13,5 +13,5 @@ interface ExerciseTypeRepository: CrudRepository<ExerciseType, Int> {
     fun getExerciseTypeName(@Param("id") id: Int?): String?
 
     @Query("SELECT type_id FROM exercise_type WHERE name = :name")
-    fun getExerciseTypeID(@Param("name") id: String?): Int?
+    fun getExerciseTypeID(@Param("name") id: String?): Int
 }

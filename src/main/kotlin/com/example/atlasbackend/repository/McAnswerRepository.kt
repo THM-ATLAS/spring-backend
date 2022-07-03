@@ -21,4 +21,16 @@ interface McAnswerRepository: CrudRepository<MultipleChoiceAnswer, Int> {
 
     @Query("SELECT * FROM mc_submission WHERE submission_id = :id")
     fun getAnswersBySubmission(@Param("id") submissionID: Int): List<SubmissionMcAnswer>
+
+    @Modifying
+    @Query("INSERT INTO mc_submission (submission_id, answer_id, marked) VALUES (:subId, :ansId, :marked)")
+    fun addAnswersBySubmission(@Param("subId") submissionID: Int, @Param("ansId") answerId: Int, @Param("marked") marked: Boolean)
+
+    @Modifying
+    @Query("UPDATE mc_submission SET submission_id = :subId, answer_id = :ansId, marked = :marked WHERE submission_id = :subId AND answer_id = :ansId")
+    fun editAnswersBySubmission(@Param("subId") submissionID: Int, @Param("ansId") answerId: Int, @Param("marked") marked: Boolean)
+
+    @Modifying
+    @Query("DELETE FROM mc_submission WHERE submission_id = :subId")
+    fun deleteAnswersBySubmission(@Param("subId") submissionID: Int)
 }
