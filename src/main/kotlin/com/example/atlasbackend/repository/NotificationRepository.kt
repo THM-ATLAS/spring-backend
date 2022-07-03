@@ -36,5 +36,9 @@ interface NotificationRepository:CrudRepository<Notification,Int> {
 
     @Query("SELECT COUNT(*) FROM user_notification WHERE notification_id = :notification")
     fun countNotificationRelations(@Param("notification")notification_id: Int):Int
+
+    @Query("UPDATE user_notification SET read = :status WHERE user_id = :user_id AND notification_id = :notification_id")
+    @Modifying
+    fun updateReadStatus(@Param("notification_id") notification_id: Int, @Param("user_id") user_id: Int, @Param("status") status: Boolean)
 }
 
