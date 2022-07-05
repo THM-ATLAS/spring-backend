@@ -9,7 +9,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import java.sql.Timestamp
 import java.time.LocalDateTime
-import java.util.Base64
 
 @Service
 @EnableScheduling
@@ -128,12 +127,11 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         if (!user.roles.any { r -> r.role_id == 1}) throw NoPermissionToModifyMultipleUsersException   // Check for admin
         newUsers.forEach { u -> if(u.user_id != 0) throw InvalidUserIDException }
 
+        // Functionality
         newUsers.forEach { u ->
             userRet.add(addUser(user, u))
         }
 
-        // Functionality
-        newUsers.forEach { u -> userRet.add(addUser(u)) }
         return userRet
     }
 

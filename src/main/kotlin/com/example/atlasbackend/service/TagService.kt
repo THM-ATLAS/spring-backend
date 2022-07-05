@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service
 @Service
 class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val modRep: ModuleRepository, val ratRep: RatingRepository, val exTyRep: ExerciseTypeRepository, val iconRep: IconRepository) {
 
+    /***** GENERAL TAG MANAGEMENT *****/
+
     fun getAllTags(): List<TagRet>{
         return tagRep.findAll().toList().map { t -> TagRet(t.tag_id, t.name, iconRep.findById(t.icon_id).get())}
     }
@@ -47,6 +49,8 @@ class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val m
         val t = tagRep.save(Tag(tag.tag_id,tag.name, tag.icon.icon_id))
         return  TagRet(t.tag_id, t.name, iconRep.findById(t.icon_id).get())
     }
+
+    /***** EXERCISE TAG MANAGEMENT *****/
 
     fun addExerciseTag(user: AtlasUser, exerciseID: Int, tagID: Int): ExerciseRet {
 
@@ -90,16 +94,20 @@ class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val m
         return ExerciseRet(exerciseID, modRep.findById(exercise.module_id).get(), exercise.title,exercise.content,exercise.description, exercise.exercisePublic, ratRep.averageExerciseRating(exerciseID), exTyRep.getExerciseTypeName(exercise.type_id),tagRep.getExerciseTags(exerciseID))
     }
 
+    /***** MODULE TAG MANAGEMENT *****/
+
     fun loadModuleTags(moduleID: Int): List<TagRet> {
+
         // Error Catching
         if(!modRep.existsById(moduleID))throw ModuleNotFoundException
 
-        // functionality
+        // Functionality
         val tags = tagRep.getModuleTags(moduleID)
         return tags.map { t -> TagRet(t.tag_id, t.name, iconRep.findById(t.icon_id).get()) }
     }
 
     fun addModuleTag(user: AtlasUser, moduleID: Int, tagID: Int): List<TagRet> {
+
         // Error Catching
         if(!modRep.existsById(moduleID))throw ModuleNotFoundException
         if(!tagRep.existsById(tagID))throw TagNotFoundException
@@ -107,13 +115,14 @@ class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val m
                 modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
             throw NoPermissionToModifyModuleTagException
 
-        // functionality
+        // Functionality
         tagRep.addModuleTag(moduleID,tagID)
         val tags = tagRep.getModuleTags(moduleID)
         return tags.map { t -> TagRet(t.tag_id, t.name, iconRep.findById(t.icon_id).get()) }
     }
 
     fun removeModuleTag(user: AtlasUser, moduleID: Int, tagID: Int): List<TagRet> {
+
         // Error Catching
         if(!modRep.existsById(moduleID))throw ModuleNotFoundException
         if(!tagRep.existsById(tagID))throw TagNotFoundException
@@ -121,8 +130,7 @@ class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val m
                 modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
             throw NoPermissionToModifyModuleTagException
 
-        // functionality
-
+        // Functionality
         tagRep.removeModuleTag(moduleID,tagID)
         val tags =tagRep.getModuleTags(moduleID)
         return tags.map { t -> TagRet(t.tag_id, t.name, iconRep.findById(t.icon_id).get()) }
