@@ -23,6 +23,18 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
         }.toList()
     }
 
+    fun loadExercisesByPage(user: AtlasUser, pageSize: Int, pageNr: Int): List<ExerciseRet> {
+        // Error Catching
+        if (!user.roles.any { r -> r.role_id == 1}) throw AccessDeniedException   // Check for admin
+
+        // Functionality
+        val size = pageSize
+        val offset = pageSize*(pageNr-1)
+        return exRep.loadPage(size, offset).map {  e ->
+            ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+        }.toList()
+    }
+
     fun loadExercisesUser(@AuthenticationPrincipal user: AtlasUser, @PathVariable userId: Int): Set<ExerciseRet> {
 
         // Error Catching
@@ -33,6 +45,21 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
 
         // Functionality
         return exRep.getExercisesByUser(userId).map {  e ->
+            ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+        }.toSet()
+    }
+
+    fun loadExercisesUserByPage(user: AtlasUser, userId: Int, pageSize: Int, pageNr: Int): Set<ExerciseRet> {
+        // Error Catching
+        if (!userRep.existsById(userId)) throw UserNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+                user.user_id != userId)   // Check for self
+            throw AccessDeniedException
+
+        // Functionality
+        val size = pageSize
+        val offset = pageSize*(pageNr-1)
+        return exRep.getExercisesByUserByPage(userId, size, offset).map {  e ->
             ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
         }.toSet()
     }
@@ -130,4 +157,8 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
         exRep.deleteById(exerciseID)
         return ret
     }
+
+
+
+
 }

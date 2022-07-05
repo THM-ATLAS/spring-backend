@@ -26,6 +26,10 @@ class ExerciseController(val exerciseService: ExerciseService) {
     fun loadExercises(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser): List<ExerciseRet> {
         return exerciseService.loadExercises(user)
     }
+    @GetMapping("/exercises/{pageSize}/{pageNr}")
+    fun loadExercisebyPage(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser,@PathVariable pageSize: Int,@PathVariable pageNr: Int): List<ExerciseRet>{
+        return exerciseService.loadExercisesByPage(user, pageSize, pageNr)
+    }
 
     @ApiResponses(
             value = [
@@ -37,6 +41,13 @@ class ExerciseController(val exerciseService: ExerciseService) {
     fun loadExercises(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable userID: Int): Set<ExerciseRet> {
         return exerciseService.loadExercisesUser(user, userID)
     }
+
+    @GetMapping("/exercises/user/{userID}/{pageSize}/{pageNr}")
+    fun loadExercisesByPage(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable userID: Int,@PathVariable pageSize: Int, @PathVariable pageNr: Int): Set<ExerciseRet> {
+        return exerciseService.loadExercisesUserByPage(user, userID, pageSize, pageNr)
+    }
+
+
 
     @ApiResponses(
             value = [
