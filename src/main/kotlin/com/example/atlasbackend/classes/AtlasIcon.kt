@@ -3,5 +3,5 @@ package com.example.atlasbackend.classes
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
 
-@Table("tag")
-data class Tag(@Id var tag_id: Int, var name: String, var icon_id: Int)
+@Table("icon")
+data class AtlasIcon(@Id var icon_id: Int, var reference: String)

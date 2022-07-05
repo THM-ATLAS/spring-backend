@@ -3,10 +3,16 @@ package com.example.atlasbackend.service
 import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.*
+import org.springframework.scheduling.annotation.EnableScheduling
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
+import java.sql.Timestamp
+import java.time.LocalDateTime
+import java.util.Base64
 
 @Service
+@EnableScheduling
 class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val setRep: SettingsRepository) {
     fun getAllUsers(user: AtlasUser?): List<AtlasUser> {
 
@@ -76,19 +82,32 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         return atlasUser
     }
 
-    fun addUser(newUser: AtlasUser): AtlasUser {
+    fun addUser(user: AtlasUser, newUser: AtlasUser): AtlasUser {
 
         // Error Catching
         if (newUser.user_id != 0) throw InvalidUserIDException
         if (userRep.testForUser(newUser.username) != null) throw UserAlreadyExistsException
-        val regex = Regex("([a-zA-Z]{4}\\d{2}|hg\\d+)")
-        if(regex.matches(newUser.username)) throw UserAlreadyExistsException
+        if(Regex("([a-zA-Z]{4}\\d{2}|hg\\d+)").matches(newUser.username)) throw ReservedLdapUsernameException
+        if(
+            newUser.password == "" ||
+            !Regex(".{8,}").matches(newUser.password) ||
+            (
+                !Regex("\\W+").containsMatchIn(newUser.password) ||
+                Regex("\\s").containsMatchIn(newUser.password)
+            ) ||
+            !Regex("\\d+").containsMatchIn(newUser.password) ||
+            !Regex("[a-z]+").containsMatchIn(newUser.password) ||
+            !Regex("[A-Z]+").containsMatchIn(newUser.password)
+        ) throw BadPasswordException
+        if( newUser.roles.any { r -> r.role_id < 5 } && !user.roles.any { r -> r.role_id == 1}) throw NoPermissionToModifyUserRolesException  // If any role above guest is present check for admin
 
         // Functionality
-        var atlasUser = AtlasUser(newUser.user_id, newUser.name, newUser.username, newUser.email)
+        var atlasUser = AtlasUser(newUser.user_id, newUser.name, newUser.username, newUser.email, null)
         atlasUser = userRep.save(atlasUser)
-        if(newUser.password != "") {
-            userRep.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(newUser.password))
+        userRep.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(newUser.password))
+
+        if(newUser.roles.isEmpty()) {
+            roleRep.giveRole(atlasUser.user_id, 5)
         }
 
         newUser.roles.forEach { r  ->
@@ -108,6 +127,10 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         // Error Catching
         if (!user.roles.any { r -> r.role_id == 1}) throw NoPermissionToModifyMultipleUsersException   // Check for admin
         newUsers.forEach { u -> if(u.user_id != 0) throw InvalidUserIDException }
+
+        newUsers.forEach { u ->
+            userRet.add(addUser(user, u))
+        }
 
         // Functionality
         newUsers.forEach { u -> userRet.add(addUser(u)) }
@@ -140,5 +163,17 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         // Functionality
         delUserIds.forEach { u -> ret.add(delUser(user, u)) }
         return ret
+    }
+
+    @Scheduled(cron = "0 0 0 * * ?") // run every day at 12 AM
+    fun guestUserExpired() {
+        userRep.findAll().forEach {
+            if(!roleRep.getRolesByUser(it.user_id).any { r -> r.role_id < 5 }) {
+                val isExpired = it.last_login?.compareTo(Timestamp.valueOf(LocalDateTime.now().minusDays(30))) ?: -1
+                if(isExpired < 0) {
+                    delUser(it, it.user_id)
+                }
+            }
+        }
     }
 }

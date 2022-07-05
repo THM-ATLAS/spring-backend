@@ -43,6 +43,11 @@ object  InvalidNotificationIDException : RuntimeException()
 // Invalid Asset ID when creating Asset
 object InvalidAssetIDException : RuntimeException()
 
+// Invalid Icon ID when creating Icon
+object InvalidIconIDException : RuntimeException()
+
+// Icon is in use and can't be deleted
+object IconInUseException : RuntimeException()
 
 /** [401] UNAUTHORIZED **/
 
@@ -137,6 +142,15 @@ object NoPermissionToDeleteNotificationException : RuntimeException()
 // User is not allowed to add a Tag to this Module
 object NoPermissionToModifyModuleTagException : RuntimeException()
 
+// User is not allowed to create this Icon
+object NoPermissionToCreateIconException : RuntimeException()
+
+// User is not allowed to delete this icon
+object  NoPermissionToDeleteIconException : RuntimeException()
+
+// User is not allowed to delete this icon
+object  NoPermissionToMarkAsReadException : RuntimeException()
+
 /** [404] NOT FOUND **/
 
 // Accessed Page doesn't exist
@@ -172,6 +186,8 @@ object NotificationNotFoundException : RuntimeException()
 // Asset ID doesn't exist
 object AssetNotFoundException : RuntimeException()
 
+// Icon ID doesn't exist
+object IconNotFoundException : RuntimeException()
 
 /** [422] UNPROCESSABLE ENTITY **/
 
@@ -186,6 +202,9 @@ object SubmissionAlreadyExistsException: RuntimeException()
 
 // Username is reserved for LDAP users
 object ReservedLdapUsernameException : RuntimeException()
+
+// Password does not meet the required criteria
+object BadPasswordException : RuntimeException()
 
 
 

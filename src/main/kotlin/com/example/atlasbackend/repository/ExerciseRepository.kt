@@ -22,3 +22,4 @@ interface ExerciseRepository: CrudRepository<Exercise, Int> {
     @Query("SELECT module_id FROM exercise WHERE exercise_id = :id")
     fun getModuleByIDExercise(@Param("id") id: Int): Int
 }
+
