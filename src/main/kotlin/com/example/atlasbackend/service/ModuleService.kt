@@ -95,7 +95,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         // Error Catching
         if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
         if (userRep.existsById(modUser.user_id).not()) throw UserNotFoundException
-        if (roleRep.getRolesByUser(modUser.user_id).size <= 1 && roleRep.getRolesByUser(modUser.user_id)[0].role_id == 1) throw UserCannotBeAddedToModuleException
+        if (roleRep.getRolesByUser(modUser.user_id).size <= 1 && roleRep.getRolesByUser(modUser.user_id)[0].role_id == 5) throw UserCannotBeAddedToModuleException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
             modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id != 2 } &&   // Check for teacher
             user.user_id != modUser.user_id)   // Check for self
