@@ -5,5 +5,5 @@ import org.springframework.data.relational.core.mapping.Table
 
 
 @Table("submission_free")
-data class FreeSubmission(@Id val submission_id: Int, val content: String): SubmissionTemplate() {
+data class FreeSubmission(@Id var submission_id: Int, val content: String): SubmissionTemplate("free") {
 }

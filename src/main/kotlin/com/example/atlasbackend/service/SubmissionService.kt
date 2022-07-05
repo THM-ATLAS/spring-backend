@@ -103,8 +103,6 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
         return ret.toList()
     }
 
-    //TODO: Eine Abgabe verändern können
-
     fun editSubmission(user: AtlasUser, s: Submission): Submission {
         // Error Catching
         if (!subRep.existsById(s.submission_id)) throw SubmissionNotFoundException
@@ -182,17 +180,25 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
             throw SubmissionAlreadyExistsException
         }
 
+        val submission = subRep.save(s)
+        submission.content = s.content
         if (exRep.findById(s.exercise_id).get().type_id != s.type) throw WrongSubmissionTypeException
         when (s.type) {
             1 -> {
                 if (s.content !is FreeSubmission) throw WrongSubmissionTypeException
-                freeSubRep.save(s.content as FreeSubmission)
+                if ((s.content as FreeSubmission).submission_id != 0) throw InvalidSubmissionIDException
+                (s.content as FreeSubmission).submission_id = submission.submission_id
+                freeSubRep.save(submission.content as FreeSubmission)
             }
             2 -> {
                 if (s.content !is CodeSubmission) throw WrongSubmissionTypeException
-                codeSubRepo.save(s.content as CodeSubmission)
+                if ((s.content as CodeSubmission).submission_id != 0) throw InvalidSubmissionIDException
+                (s.content as CodeSubmission).submission_id = submission.submission_id
+                codeSubRepo.save(submission.content as CodeSubmission)
             }
             3 -> {
+                (s.content as McSubmission).submission_id = submission.submission_id
+                if ((s.content as McSubmission).submission_id != 0) throw InvalidSubmissionIDException
                 val answers: MutableList<SubmissionMcAnswer> = arrayListOf()
                 (s.content as McSubmission).questions!!.forEach { _ ->
                     answers.forEach { a ->
@@ -205,6 +211,8 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
             }
             4 -> {
                 if (s.content !is FileSubmission) throw WrongSubmissionTypeException
+                if ((s.content as FileSubmission).submission_id != 0) throw InvalidSubmissionIDException
+                (s.content as FileSubmission).submission_id = submission.submission_id
                 fileSubRepo.save(s.content as FileSubmission)
             }
         }
