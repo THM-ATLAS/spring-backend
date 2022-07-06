@@ -124,9 +124,12 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
             2 -> codeSubRepo.save(CodeSubmission(s.submission_id, (newSubmissionContent as CodeSubmission).content, newSubmissionContent.language))
             3 -> {
                 val answers: MutableList<SubmissionMcAnswer> = arrayListOf()
-                (newSubmissionContent as McSubmission).questions!!.forEach { _ ->
-                    answers.forEach { a ->
-                        answers.add(a)
+                (newSubmissionContent as McSubmission).questions!!.forEach {
+                    if (it.exercise_id != s.exercise_id) throw QuestionDoesNotBelongToExerciseException
+                    it.answers!!.forEach { a ->
+                        if (a.question_id != it.question_id) throw AnswerDoesNotBelongToQuestionException
+                        a.question_id = it.question_id
+                        answers.add(SubmissionMcAnswer(s.submission_id, a.answer_id, a.marked))
                     }
                 }
                 answers.forEach {
@@ -150,6 +153,7 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
 
         // Functionality
         val updatedSubmission = Submission(sr.submission_id, s.exercise_id, s.user_id, s.upload_time, sr.grade, user.user_id, sr.comment, s.type)
+
         subRep.save(updatedSubmission)
 
         // Notification
@@ -203,13 +207,26 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
                 val answers: MutableList<SubmissionMcAnswer> = arrayListOf()
                 (s.content as McSubmission).questions!!.forEach {
                     it.exercise_id = s.exercise_id
-                    if (it.question_id != 0) throw InvalidQuestionIDException
-                    mcQuestionRep.save(it)
+                    if (mcQuestionRep.existsById(it.question_id).not()) {
+                        subRep.deleteById(s.submission_id)
+                        throw QuestionNotFoundException
+                    }
+                    val question = mcQuestionRep.findById(it.question_id).get()
+                    if (question.exercise_id != s.exercise_id) {
+                        subRep.deleteById(s.submission_id)
+                        throw QuestionDoesNotBelongToExerciseException
+                    }
                     it.answers!!.forEach { a ->
-                        if (a.answer_id != 0) throw InvalidAnswerIDException
+                        if (mcAnswerRep.existsById(a.answer_id).not()) {
+                            subRep.deleteById(s.submission_id)
+                            throw AnswerNotFoundException
+                        }
                         a.question_id = it.question_id
-                        val ans = mcAnswerRep.save(a)
-                        answers.add(SubmissionMcAnswer(s.submission_id, ans.answer_id, ans.marked))
+                        if (a.question_id != it.question_id) {
+                            subRep.deleteById(s.submission_id)
+                            throw AnswerDoesNotBelongToQuestionException
+                        }
+                        answers.add(SubmissionMcAnswer(s.submission_id, a.answer_id, a.marked))
                     }
                 }
                 answers.forEach {

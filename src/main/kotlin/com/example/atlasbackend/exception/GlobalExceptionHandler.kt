@@ -449,7 +449,23 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
     }
 
+    @ExceptionHandler(value = [QuestionDoesNotBelongToExerciseException::class])
+    fun exception(exception: QuestionDoesNotBelongToExerciseException): ResponseEntity<ApiError> {
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "QuestionDoesNotBelongToExerciseException", "Question given to a wrong task")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
 
+    @ExceptionHandler(value = [AnswerDoesNotBelongToQuestionException::class])
+    fun exception(exception: AnswerDoesNotBelongToQuestionException): ResponseEntity<ApiError> {
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "AnswerDoesNotBelongToQuestionException", "Answer was given to a false question")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
+
+    @ExceptionHandler(value = [ExerciseMustIncludeMcSchemeException::class])
+    fun exception(exception: ExerciseMustIncludeMcSchemeException): ResponseEntity<ApiError> {
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "ExerciseMustIncludeMcSchemeException", "Exercises with mc type must include a mc scheme")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
 
     /***** [5xx] SERVER ERRORS *****/
 

@@ -10,7 +10,18 @@ import java.sql.Timestamp
 
 
 @Service
-class ExerciseService(val mcaRepo: McAnswerRepository, val mcqRepo: McQuestionRepository, val ratRep: RatingRepository, val exRep: ExerciseRepository, val modRep: ModuleRepository, val userRep: UserRepository, val exTyRep: ExerciseTypeRepository, val tagRep: TagRepository,var notifRep: NotificationRepository) {
+class ExerciseService(val mcaRepo: McAnswerRepository,
+                      val mcqRepo: McQuestionRepository,
+                      val ratRep: RatingRepository,
+                      val exRep: ExerciseRepository,
+                      val modRep: ModuleRepository,
+                      val userRep: UserRepository,
+                      val exTyRep: ExerciseTypeRepository,
+                      val tagRep: TagRepository,
+                      var notifRep: NotificationRepository,
+                      var mcQuestionRep: McQuestionRepository,
+                      var mcAnswerRep: McAnswerRepository
+              ) {
 
     fun loadExercises(@AuthenticationPrincipal user: AtlasUser): List<ExerciseRet> {
 
@@ -104,7 +115,20 @@ class ExerciseService(val mcaRepo: McAnswerRepository, val mcqRepo: McQuestionRe
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
             modRep.getModuleRoleByUser(user.user_id, e.module_id).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
             throw NoPermissionToEditExerciseException
-
+        if (e.type_id == 3) {
+            val content = e.mc
+            if (content == null) throw ExerciseMustIncludeMcSchemeException
+            content.questions!!.forEach {
+                it.exercise_id = e.exercise_id
+                if (it.question_id != 0) throw InvalidQuestionIDException
+                mcQuestionRep.save(it)
+                it.answers!!.forEach { a ->
+                    if (a.answer_id != 0) throw InvalidAnswerIDException
+                    a.question_id = it.question_id
+                    val ans = mcAnswerRep.save(a)
+                }
+            }
+        }
         // Functionality
         exRep.save(e)
         // Notification
@@ -115,6 +139,25 @@ class ExerciseService(val mcaRepo: McAnswerRepository, val mcqRepo: McQuestionRe
         }
         return ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
     }
+
+    /** (s.content as McSubmission).submission_id = submission.submission_id
+
+                val answers: MutableList<SubmissionMcAnswer> = arrayListOf()
+                (s.content as McSubmission).questions!!.forEach {
+                    it.exercise_id = s.exercise_id
+                    if (it.question_id != 0) throw InvalidQuestionIDException
+                    mcQuestionRep.save(it)
+                    it.answers!!.forEach { a ->
+                        if (a.answer_id != 0) throw InvalidAnswerIDException
+                        a.question_id = it.question_id
+                        val ans = mcAnswerRep.save(a)
+                        answers.add(SubmissionMcAnswer(s.submission_id, ans.answer_id, ans.marked))
+                    }
+                }
+                answers.forEach {
+                    mcAnswerRep.addAnswersBySubmission(s.submission_id, it.answer_id, it.marked)
+                }
+     **/
 
     fun deleteExercise(@AuthenticationPrincipal user: AtlasUser, exerciseID: Int): ExerciseRet {
 

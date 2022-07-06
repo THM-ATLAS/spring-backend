@@ -198,6 +198,12 @@ object SubmissionAlreadyExistsException: RuntimeException()
 
 object WrongSubmissionTypeException: RuntimeException()
 
+object QuestionDoesNotBelongToExerciseException: RuntimeException()
+
+object AnswerDoesNotBelongToQuestionException: RuntimeException()
+
+object ExerciseMustIncludeMcSchemeException: RuntimeException()
+
 
 
 /***** [5xx] SERVER ERRORS *****/

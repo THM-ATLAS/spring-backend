@@ -11,4 +11,6 @@ data class Exercise(@Id var exercise_id: Int,
                     var title: String,
                     var content: String,
                     var description: String,
-                    @field:Column("public") var exercisePublic: Boolean)
+                    @field:Column("public") var exercisePublic: Boolean) {
+    @org.springframework.data.annotation.Transient var mc: McSubmission? = null
+}
