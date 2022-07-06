@@ -1,18 +1,12 @@
 package com.example.atlasbackend.service
 
-import com.example.atlasbackend.classes.AtlasModule
-import com.example.atlasbackend.classes.AtlasModuleRet
-import com.example.atlasbackend.classes.AtlasUser
-import com.example.atlasbackend.classes.ModuleUser
+import com.example.atlasbackend.classes.*
 import com.example.atlasbackend.exception.*
-import com.example.atlasbackend.repository.IconRepository
-import com.example.atlasbackend.repository.ModuleRepository
-import com.example.atlasbackend.repository.RoleRepository
-import com.example.atlasbackend.repository.UserRepository
+import com.example.atlasbackend.repository.*
 import org.springframework.stereotype.Service
 
 @Service
-class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, val userRep: UserRepository, val iconRep: IconRepository){
+class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, val userRep: UserRepository, val iconRep: IconRepository, val modLinkRep: ModuleLinkRepository, val modAssetRep: ModuleAssetRepository){
 
     /***** GENERAL MODULE MANAGEMENT *****/
 
@@ -188,5 +182,75 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         // Functionality
         modRep.updateUserModuleRole(modUser.module_role.role_id, modUser.user_id, moduleID)
         return ModuleUser(modUser.user_id, modRep.getModuleRoleByUser(modUser.user_id, moduleID)!!, modUser.name, modUser.username, modUser.email) // !! : should never return null
+    }
+
+    fun getModuleLinkReferrals(user: AtlasUser, moduleID: Int): List<ModuleLinkRef> {
+
+        // Error Catching
+        if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} && !modRep.getUsersByModule(moduleID).any{u -> u.user_id == user.user_id}) throw AccessDeniedException
+
+        return modLinkRep.getLinks(moduleID)
+    }
+
+    fun getModuleAssetReferrals(user: AtlasUser, moduleID: Int): List<ModuleAssetRef> {
+
+        // Error Catching
+        if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} && !modRep.getUsersByModule(moduleID).any{u -> u.user_id == user.user_id}) throw AccessDeniedException
+
+        return modAssetRep.getAssets(moduleID)
+    }
+
+    fun addModuleLinkReferral(user: AtlasUser, moduleID: Int, modRef: ModuleLinkRef): ModuleLinkRef {
+
+        // Error Catching
+        if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
+        if (modRef.module_link_id != 0) throw InvalidReferralIDException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id != 2 })   // Check for teacher
+            throw NoPermissionToModifyReferralsException
+
+        return modLinkRep.save(modRef)
+    }
+
+    fun addModuleAssetReferral(user: AtlasUser, moduleID: Int, modRef: ModuleAssetRef): ModuleAssetRef {
+
+        // Error Catching
+        if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
+        if (modRef.module_asset_id != 0) throw InvalidReferralIDException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id != 2 })   // Check for teacher
+            throw NoPermissionToModifyReferralsException
+
+        return modAssetRep.save(modRef)
+    }
+
+    fun deleteModuleLinkReferral(user: AtlasUser, moduleID: Int, referralID: Int): ModuleLinkRef {
+
+        // Error Catching
+        if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
+        if (modLinkRep.existsById(referralID).not()) throw ReferralNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id != 2 })   // Check for teacher
+            throw NoPermissionToModifyReferralsException
+
+        val modRef = modLinkRep.findById(referralID).get()
+        modLinkRep.deleteById(referralID)
+        return modRef
+    }
+
+    fun deleteModuleAssetReferral(user: AtlasUser, moduleID: Int, referralID: Int): ModuleAssetRef {
+
+        // Error Catching
+        if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
+        if (modAssetRep.existsById(referralID).not()) throw ReferralNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id != 2 })   // Check for teacher
+            throw NoPermissionToModifyReferralsException
+
+        val modRef = modAssetRep.findById(referralID).get()
+        modAssetRep.deleteById(referralID)
+        return modRef
     }
 }

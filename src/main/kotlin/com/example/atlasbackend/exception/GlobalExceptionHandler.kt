@@ -116,6 +116,13 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
+    // Invalid Referral ID when creating Referral
+    @ExceptionHandler(value = [InvalidReferralIDException::class])
+    fun exception(exception: InvalidReferralIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidReferralIDException", "Referral ID must be zero when creating a new referral of any kind")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
     /** [401] UNAUTHORIZED **/
 
     // Invalid Credentials when trying to log in
@@ -339,10 +346,17 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
-    // User is not allowed to delete this icon
+    // User is not permitted to mark this notification as read
     @ExceptionHandler(value = [NoPermissionToMarkAsReadException::class])
     fun exception(exception: NoPermissionToMarkAsReadException): ResponseEntity<ApiError> {
         val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToMarkAsReadException", "Users may only mark their own notifications as read")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not permitted to modify this referral
+    @ExceptionHandler(value = [NoPermissionToModifyReferralsException::class])
+    fun exception(exception: NoPermissionToModifyReferralsException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyReferralsException", "User is not permitted to modify this referral")
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
@@ -429,6 +443,13 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = [IconNotFoundException::class])
     fun exception(exception: IconNotFoundException): ResponseEntity<ApiError> {
         val err = ApiError(404, HttpStatus.NOT_FOUND, "IconNotFoundException", "Couldn't find requested icon.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
+    // Referral ID doesn't exist
+    @ExceptionHandler(value = [ReferralNotFoundException::class])
+    fun exception(exception: ReferralNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "ReferralNotFoundException", "Couldn't find requested referral.")
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 

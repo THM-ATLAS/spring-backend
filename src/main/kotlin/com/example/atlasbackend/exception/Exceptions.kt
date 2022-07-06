@@ -49,6 +49,9 @@ object InvalidIconIDException : RuntimeException()
 // Icon is in use and can't be deleted
 object IconInUseException : RuntimeException()
 
+// Invalid Referral ID when creating Referral
+object InvalidReferralIDException : RuntimeException()
+
 /** [401] UNAUTHORIZED **/
 
 // Invalid Credentials when trying to log in
@@ -148,8 +151,11 @@ object NoPermissionToCreateIconException : RuntimeException()
 // User is not allowed to delete this icon
 object  NoPermissionToDeleteIconException : RuntimeException()
 
-// User is not allowed to delete this icon
+// User is not permitted to mark this notification as read
 object  NoPermissionToMarkAsReadException : RuntimeException()
+
+// User is not permitted to modify this referral
+object  NoPermissionToModifyReferralsException : RuntimeException()
 
 /** [404] NOT FOUND **/
 
@@ -188,6 +194,9 @@ object AssetNotFoundException : RuntimeException()
 
 // Icon ID doesn't exist
 object IconNotFoundException : RuntimeException()
+
+// Referral ID doesn't exist
+object ReferralNotFoundException : RuntimeException()
 
 /** [422] UNPROCESSABLE ENTITY **/
 
