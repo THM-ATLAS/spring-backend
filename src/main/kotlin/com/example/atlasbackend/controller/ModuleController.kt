@@ -156,7 +156,27 @@ class ModuleController(val moduleService: ModuleService) {
     }
 
     @GetMapping("/modules/referrals/assets/{moduleID}")
-    fun getModuleAssetReferrals(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int): List<ModuleAssetRef>? {
+    fun getModuleAssetReferrals(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int): List<ModuleAssetRef> {
         return moduleService.getModuleAssetReferrals(user, moduleID)
+    }
+
+    @PostMapping("/modules/referrals/links/{moduleID}")
+    fun addModuleLinkReferral(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int, @RequestBody modRef: ModuleLinkRef): ModuleLinkRef {
+        return moduleService.addModuleLinkReferral(user, moduleID, modRef)
+    }
+
+    @PostMapping("/modules/referrals/assets/{moduleID}")
+    fun addModuleAssetReferral(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int, @RequestBody modRef: ModuleAssetRef): ModuleAssetRef {
+        return moduleService.addModuleAssetReferral(user, moduleID, modRef)
+    }
+
+    @DeleteMapping("/modules/referrals/links/{moduleID}/{referralID}")
+    fun deleteModuleLinkReferral(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int, @PathVariable referralID: Int): ModuleLinkRef {
+        return moduleService.deleteModuleLinkReferral(user, moduleID, referralID)
+    }
+
+    @DeleteMapping("/modules/referrals/assets/{moduleID}/{referralID}")
+    fun deleteModuleAssetReferral(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int, @PathVariable referralID: Int): ModuleAssetRef {
+        return moduleService.deleteModuleAssetReferral(user, moduleID, referralID)
     }
 }
