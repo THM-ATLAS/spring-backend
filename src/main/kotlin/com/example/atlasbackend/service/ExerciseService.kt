@@ -78,6 +78,23 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
         }.toList()
     }
 
+    fun loadExercisesModuleByPage(@AuthenticationPrincipal user: AtlasUser, moduleId: Int, pageSize: Int, pageNr: Int): List<ExerciseRet> {
+
+        // Error Catching
+        if (modRep.existsById(moduleId).not()) throw ModuleNotFoundException
+        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+                !modRep.getUsersByModule(moduleId).any { m -> m.user_id == user.user_id })   // Check if user in module
+            throw AccessDeniedException
+
+        // Functionality
+        val size = pageSize
+        val offset = pageSize*(pageNr-1)
+        return exRep.getExercisesByModuleByPage(moduleId, size, offset).map {  e ->
+            ExerciseRet(e.exercise_id, modRep.findById(moduleId).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+        }.toList()
+    }
+
+
     fun getExercise(@AuthenticationPrincipal user: AtlasUser, exerciseID: Int): ExerciseRet {
 
         // Error Catching
@@ -157,7 +174,6 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
         exRep.deleteById(exerciseID)
         return ret
     }
-
 
 
 

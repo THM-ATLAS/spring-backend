@@ -26,8 +26,14 @@ class ExerciseController(val exerciseService: ExerciseService) {
     fun loadExercises(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser): List<ExerciseRet> {
         return exerciseService.loadExercises(user)
     }
-    @GetMapping("/exercises/{pageSize}/{pageNr}")
-    fun loadExercisebyPage(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser,@PathVariable pageSize: Int,@PathVariable pageNr: Int): List<ExerciseRet>{
+
+    @ApiResponses(
+            value = [
+                ApiResponse(responseCode = "200", description = "OK - Returns a page all Exercises"),
+                ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
+            ])
+    @GetMapping("/exercises/pages/{pageSize}/{pageNr}")
+    fun loadExercisesByPage(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser,@PathVariable pageSize: Int,@PathVariable pageNr: Int): List<ExerciseRet>{
         return exerciseService.loadExercisesByPage(user, pageSize, pageNr)
     }
 
@@ -38,16 +44,20 @@ class ExerciseController(val exerciseService: ExerciseService) {
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/exercises/user/{userID}")
-    fun loadExercises(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable userID: Int): Set<ExerciseRet> {
+    fun loadExercisesByUser(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable userID: Int): Set<ExerciseRet> {
         return exerciseService.loadExercisesUser(user, userID)
     }
 
-    @GetMapping("/exercises/user/{userID}/{pageSize}/{pageNr}")
-    fun loadExercisesByPage(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable userID: Int,@PathVariable pageSize: Int, @PathVariable pageNr: Int): Set<ExerciseRet> {
+    @ApiResponses(
+            value = [
+                ApiResponse(responseCode = "200", description = "OK - Returns a page all Exercises of an User"),
+                ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
+            ])
+    @GetMapping("/exercises/user/{userID}/pages/{pageSize}/{pageNr}")
+    fun loadExercisesByUserByPage(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable userID: Int,@PathVariable pageSize: Int, @PathVariable pageNr: Int): Set<ExerciseRet> {
         return exerciseService.loadExercisesUserByPage(user, userID, pageSize, pageNr)
     }
-
-
 
     @ApiResponses(
             value = [
@@ -58,6 +68,17 @@ class ExerciseController(val exerciseService: ExerciseService) {
     @GetMapping("/exercises/module/{modID}")
     fun loadExercisesModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable modID: Int): List<ExerciseRet> {
         return exerciseService.loadExercisesModule(user, modID)
+    }
+
+    @ApiResponses(
+            value = [
+                ApiResponse(responseCode = "200", description = "OK - Returns a page all Exercises of a Module"),
+                ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
+            ])
+    @GetMapping("/exercises/module/{modID}/pages/{pageSize}/{pageNr}")
+    fun loadExercisesModuleByPage(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable modID: Int,@PathVariable pageSize: Int, @PathVariable pageNr: Int): List<ExerciseRet> {
+        return exerciseService.loadExercisesModuleByPage(user, modID, pageSize, pageNr)
     }
 
     @ApiResponses(

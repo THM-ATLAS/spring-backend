@@ -26,6 +26,16 @@ class UserController(val userService: UserService) {
 
     @ApiResponses(
             value = [
+                ApiResponse(responseCode = "200", description = "OK - Returns a page all Users"),
+                ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
+            ])
+    @GetMapping("/users/pages/{pageSize}/{pageNr}")
+    fun getAllUsersByPage(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser?, @PathVariable pageSize: Int, @PathVariable pageNr: Int): List<AtlasUser> {
+        return userService.getAllUsersByPage(user, pageSize, pageNr)
+    }
+
+    @ApiResponses(
+            value = [
                 ApiResponse(responseCode = "200", description = "OK - Returns logged in User")
     ])
     @GetMapping("/users/me")

@@ -29,4 +29,7 @@ interface ModuleRepository: CrudRepository<AtlasModule,Int> {
     @Query("DELETE FROM user_module_role WHERE user_id = :user AND module_id = :module")
     @Modifying
     fun removeUser(@Param("user") user: Int, @Param("module") module: Int)
+
+    @Query("SELECT * FROM module ORDER BY module_id LIMIT :size OFFSET :offset")
+    fun loadPage(@Param("size")size: Int,@Param("offset") offset: Int): List<AtlasModule>
 }

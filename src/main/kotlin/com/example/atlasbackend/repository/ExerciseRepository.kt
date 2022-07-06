@@ -33,6 +33,9 @@ interface ExerciseRepository: CrudRepository<Exercise, Int> {
         FROM exercise e JOIN user_module_role u_m_r ON e.module_id = u_m_r.module_id WHERE u_m_r.user_id = :id )
         ORDER BY exercise_id 
         LIMIT :size OFFSET :offset""")
-    fun getExercisesByUserByPage(@Param("id") userId: Int,@Param("size") size: Int,@Param("offset") offset: Int): List<Exercise>
+    fun getExercisesByUserByPage(@Param("id") userId: Int, @Param("size") size: Int, @Param("offset") offset: Int): List<Exercise>
+
+    @Query("SELECT * FROM exercise WHERE module_id = :id ORDER BY exercise_id LIMIT :size OFFSET :offset")
+    fun getExercisesByModuleByPage(@Param("id") id: Int, @Param("size") size: Int, @Param("offset") offset: Int): List<Exercise>
 }
 
