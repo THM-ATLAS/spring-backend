@@ -14,6 +14,12 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         return modRep.findAll().toList().map { m -> AtlasModuleRet(m.module_id,m.name, m.description, m.modulePublic, iconRep.findById(m.icon_id).get()) }
     }
 
+    fun loadModulesByPage(pageSize: Int, pageNr: Int): List<AtlasModuleRet> {
+        val size = pageSize
+        val offset = pageSize*(pageNr-1)
+        return modRep.loadPage(size, offset).map { m -> AtlasModuleRet(m.module_id,m.name, m.description, m.modulePublic, iconRep.findById(m.icon_id).get()) }
+    }
+
     fun getModule(moduleID: Int): AtlasModuleRet {
 
         // Error Catching

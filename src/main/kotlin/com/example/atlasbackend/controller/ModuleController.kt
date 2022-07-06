@@ -35,6 +35,15 @@ class ModuleController(val moduleService: ModuleService) {
 
     @ApiResponses(
             value = [
+                ApiResponse(responseCode = "200", description = "OK - Returns a page of All Modules")
+            ])
+    @GetMapping("/modules/pages/{pageSize}/{pageNr}")
+    fun loadModulesByPage(@PathVariable pageSize: Int, @PathVariable pageNr: Int): List<AtlasModuleRet> {
+        return moduleService.loadModulesByPage(pageSize, pageNr)
+    }
+
+    @ApiResponses(
+            value = [
                 ApiResponse(responseCode = "200", description = "OK - Returns Module with requested ID"),
                 ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))])
             ])
