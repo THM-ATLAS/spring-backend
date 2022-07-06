@@ -52,6 +52,14 @@ object  InvalidNotificationIDException : RuntimeException()
 // Invalid Asset ID when creating Asset
 object InvalidAssetIDException : RuntimeException()
 
+// Invalid Icon ID when creating Icon
+object InvalidIconIDException : RuntimeException()
+
+// Icon is in use and can't be deleted
+object IconInUseException : RuntimeException()
+
+// Invalid Referral ID when creating Referral
+object InvalidReferralIDException : RuntimeException()
 
 /** [401] UNAUTHORIZED **/
 
@@ -143,6 +151,21 @@ object NoPermissionToRemoveNotificationRelationException : RuntimeException()
 // User is not allowed to delete this Notification
 object NoPermissionToDeleteNotificationException : RuntimeException()
 
+// User is not allowed to add a Tag to this Module
+object NoPermissionToModifyModuleTagException : RuntimeException()
+
+// User is not allowed to create this Icon
+object NoPermissionToCreateIconException : RuntimeException()
+
+// User is not allowed to delete this icon
+object  NoPermissionToDeleteIconException : RuntimeException()
+
+// User is not permitted to mark this notification as read
+object  NoPermissionToMarkAsReadException : RuntimeException()
+
+// User is not permitted to modify this referral
+object  NoPermissionToModifyReferralsException : RuntimeException()
+
 /** [404] NOT FOUND **/
 
 // Accessed Page doesn't exist
@@ -186,6 +209,11 @@ object NotificationNotFoundException : RuntimeException()
 // Asset ID doesn't exist
 object AssetNotFoundException : RuntimeException()
 
+// Icon ID doesn't exist
+object IconNotFoundException : RuntimeException()
+
+// Referral ID doesn't exist
+object ReferralNotFoundException : RuntimeException()
 
 /** [422] UNPROCESSABLE ENTITY **/
 
@@ -205,6 +233,11 @@ object QuestionDoesNotBelongToExerciseException: RuntimeException()
 object AnswerDoesNotBelongToQuestionException: RuntimeException()
 
 object ExerciseMustIncludeMcSchemeException: RuntimeException()
+// Username is reserved for LDAP users
+object ReservedLdapUsernameException : RuntimeException()
+
+// Password does not meet the required criteria
+object BadPasswordException : RuntimeException()
 
 
 

@@ -1,9 +1,6 @@
 package com.example.atlasbackend.service
 
-import com.example.atlasbackend.classes.AtlasUser
-import com.example.atlasbackend.classes.Notification
-import com.example.atlasbackend.classes.NotificationRead
-import com.example.atlasbackend.classes.NotificationType
+import com.example.atlasbackend.classes.*
 import com.example.atlasbackend.exception.*
 import com.example.atlasbackend.repository.*
 import org.springframework.stereotype.Service
@@ -72,6 +69,19 @@ class NotificationService(var notifRep: NotificationRepository, var notifTyRep: 
         n.forEach { nn -> if (notifRep.countNotificationRelations(nn.notification_id) == 0) notifRep.deleteById(nn.notification_id) }
         notifRep.deleteByUser(userID)
         return n
+    }
+
+    fun markAsRead(user: AtlasUser, userID: Int, notificationID: Int): NotificationRead {
+        // Error Catching
+        if(!userRep.existsById(userID)) throw UserNotFoundException
+        if(!notifRep.existsById(notificationID)) throw NotificationNotFoundException
+        if(user.user_id != userID) throw NoPermissionToMarkAsReadException    // Check for self
+
+        // Functionality
+        notifRep.updateReadStatus(notificationID, userID, true)
+
+        val n = notifRep.findById(notificationID).get()
+        return NotificationRead(n.notification_id, n.title, n.content, n.time, notifRep.getReadStatus(userID, n.notification_id), n.type_id, n.module_id, n.exercise_id, n.submission_id)
     }
 
     fun addNotificationForAll(user: AtlasUser, n: Notification) {

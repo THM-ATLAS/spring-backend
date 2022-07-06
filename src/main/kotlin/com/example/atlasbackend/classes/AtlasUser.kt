@@ -6,12 +6,14 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
+import java.sql.Timestamp
 
 @Table("user")
 data class AtlasUser(@Id var user_id: Int,
                      var name: String,
                      private var username: String,
                      var email: String,
+                     @JsonIgnore var last_login: Timestamp?
 ): UserDetails {
 
     @org.springframework.data.annotation.Transient private var password: String = ""
