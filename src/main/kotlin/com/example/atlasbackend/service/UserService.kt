@@ -25,6 +25,19 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         return users
     }
 
+    fun getAllUsersByPage(user: AtlasUser?, pageSize: Int, pageNr: Int): List<AtlasUser> {
+        // Error Catching
+        if (user == null) throw AccessDeniedException
+        if (!user.roles.any { r -> r.role_id < 3}) throw AccessDeniedException   // Check for admin/teacher
+
+        // Functionality
+        val size = pageSize
+        val offset = pageSize*(pageNr-1)
+        val users = userRep.loadPage(size, offset).toList()
+        users.forEach { u -> u.roles = roleRep.getRolesByUser(u.user_id).toMutableList() }
+        return users
+    }
+
     fun getMe(user: AtlasUser?): AtlasUser? {
         return user
     }

@@ -20,4 +20,7 @@ interface UserRepository: CrudRepository<AtlasUser, Int> {
     @Modifying
     fun addPassword(@Param("username") username: String, @Param("password") password: String)
 
+    @Query("SELECT * FROM \"user\" ORDER BY user_id LIMIT :size OFFSET :offset")
+    fun loadPage(@Param("size")size: Int, @Param("offset") offset: Int): List<AtlasUser>
+
 }
