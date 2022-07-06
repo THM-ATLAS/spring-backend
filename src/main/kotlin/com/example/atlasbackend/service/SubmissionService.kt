@@ -186,23 +186,30 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
         when (s.type) {
             1 -> {
                 if (s.content !is FreeSubmission) throw WrongSubmissionTypeException
-                if ((s.content as FreeSubmission).submission_id != 0) throw InvalidSubmissionIDException
+                (s.content as FreeSubmission).submission_id = s.submission_id
                 (s.content as FreeSubmission).submission_id = submission.submission_id
-                freeSubRep.save(submission.content as FreeSubmission)
+                freeSubRep.insertFreeSubmission((submission.content as FreeSubmission).submission_id, (submission.content as FreeSubmission).content)
             }
             2 -> {
                 if (s.content !is CodeSubmission) throw WrongSubmissionTypeException
-                if ((s.content as CodeSubmission).submission_id != 0) throw InvalidSubmissionIDException
+                (s.content as CodeSubmission).submission_id = s.submission_id
                 (s.content as CodeSubmission).submission_id = submission.submission_id
-                codeSubRepo.save(submission.content as CodeSubmission)
+                codeSubRepo.insertCodeSubmission((s.content as CodeSubmission).submission_id, (s.content as CodeSubmission).content, (s.content as CodeSubmission).language)
             }
             3 -> {
+                //TODO: wenn die Aufgabe schon ein MC Schema hat, sollte kein neues angelegt werden, generell sollte ein neues Schema nur von Dozenten angelegt werden
                 (s.content as McSubmission).submission_id = submission.submission_id
-                if ((s.content as McSubmission).submission_id != 0) throw InvalidSubmissionIDException
+
                 val answers: MutableList<SubmissionMcAnswer> = arrayListOf()
-                (s.content as McSubmission).questions!!.forEach { _ ->
-                    answers.forEach { a ->
-                        answers.add(a)
+                (s.content as McSubmission).questions!!.forEach {
+                    it.exercise_id = s.exercise_id
+                    if (it.question_id != 0) throw InvalidQuestionIDException
+                    mcQuestionRep.save(it)
+                    it.answers!!.forEach { a ->
+                        if (a.answer_id != 0) throw InvalidAnswerIDException
+                        a.question_id = it.question_id
+                        val ans = mcAnswerRep.save(a)
+                        answers.add(SubmissionMcAnswer(s.submission_id, ans.answer_id, ans.marked))
                     }
                 }
                 answers.forEach {
@@ -211,13 +218,12 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
             }
             4 -> {
                 if (s.content !is FileSubmission) throw WrongSubmissionTypeException
-                if ((s.content as FileSubmission).submission_id != 0) throw InvalidSubmissionIDException
+                (s.content as FileSubmission).submission_id = s.submission_id
                 (s.content as FileSubmission).submission_id = submission.submission_id
                 fileSubRepo.save(s.content as FileSubmission)
             }
         }
-
-        return subRep.save(s)
+        return s
     }
 
     fun deleteSubmission(user: AtlasUser, submissionID: Int): Submission {
