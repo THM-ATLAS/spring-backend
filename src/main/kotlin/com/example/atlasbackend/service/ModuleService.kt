@@ -1,18 +1,12 @@
 package com.example.atlasbackend.service
 
-import com.example.atlasbackend.classes.AtlasModule
-import com.example.atlasbackend.classes.AtlasModuleRet
-import com.example.atlasbackend.classes.AtlasUser
-import com.example.atlasbackend.classes.ModuleUser
+import com.example.atlasbackend.classes.*
 import com.example.atlasbackend.exception.*
-import com.example.atlasbackend.repository.IconRepository
-import com.example.atlasbackend.repository.ModuleRepository
-import com.example.atlasbackend.repository.RoleRepository
-import com.example.atlasbackend.repository.UserRepository
+import com.example.atlasbackend.repository.*
 import org.springframework.stereotype.Service
 
 @Service
-class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, val userRep: UserRepository, val iconRep: IconRepository){
+class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, val userRep: UserRepository, val iconRep: IconRepository, val modLinkRep: ModuleLinkRepository, val modAssetRep: ModuleAssetRepository){
 
     /***** GENERAL MODULE MANAGEMENT *****/
 
@@ -185,5 +179,21 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         // Functionality
         modRep.updateUserModuleRole(modUser.module_role.role_id, modUser.user_id, moduleID)
         return ModuleUser(modUser.user_id, modRep.getModuleRoleByUser(modUser.user_id, moduleID)!!, modUser.name, modUser.username, modUser.email) // !! : should never return null
+    }
+
+    fun getModuleLinkReferrals(user: AtlasUser, moduleID: Int): List<ModuleLinkRef> {
+        // Error Catching
+        if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
+        if (modRep.getUsersByModule(moduleID).contains(userRep.findById(user.user_id).get()).not()) throw UserNotInModuleException
+
+        return modLinkRep.getLinks(moduleID)
+    }
+
+    fun getModuleAssetReferrals(user: AtlasUser, moduleID: Int): List<ModuleAssetRef> {
+        // Error Catching
+        if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
+        if (modRep.getUsersByModule(moduleID).contains(userRep.findById(user.user_id).get()).not()) throw UserNotInModuleException
+
+        return modAssetRep.getAssets(moduleID)
     }
 }

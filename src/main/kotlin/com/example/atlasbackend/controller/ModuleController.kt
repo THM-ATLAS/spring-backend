@@ -149,4 +149,14 @@ class ModuleController(val moduleService: ModuleService) {
     fun editUserModuleRoles(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody modUser: ModuleUser, @PathVariable moduleID: Int): ModuleUser {
         return moduleService.editModuleRoles(user, modUser, moduleID)
     }
+
+    @GetMapping("/modules/referrals/links/{moduleID}")
+    fun getModuleLinkReferrals(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int): List<ModuleLinkRef> {
+        return moduleService.getModuleLinkReferrals(user, moduleID)
+    }
+
+    @GetMapping("/modules/referrals/assets/{moduleID}")
+    fun getModuleAssetReferrals(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int): List<ModuleAssetRef>? {
+        return moduleService.getModuleAssetReferrals(user, moduleID)
+    }
 }
