@@ -188,7 +188,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
 
         // Error Catching
         if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
-        if (!user.roles.any { r -> r.role_id == 1} && !modRep.getUsersByModule(moduleID).any{u -> u.user_id == user.user_id}) throw UserNotInModuleException
+        if (!user.roles.any { r -> r.role_id == 1} && !modRep.getUsersByModule(moduleID).any{u -> u.user_id == user.user_id}) throw AccessDeniedException
 
         return modLinkRep.getLinks(moduleID)
     }
@@ -197,7 +197,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
 
         // Error Catching
         if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
-        if (!user.roles.any { r -> r.role_id == 1} && !modRep.getUsersByModule(moduleID).any{u -> u.user_id == user.user_id}) throw UserNotInModuleException
+        if (!user.roles.any { r -> r.role_id == 1} && !modRep.getUsersByModule(moduleID).any{u -> u.user_id == user.user_id}) throw AccessDeniedException
 
         return modAssetRep.getAssets(moduleID)
     }
