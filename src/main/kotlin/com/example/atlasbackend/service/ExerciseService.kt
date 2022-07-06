@@ -10,13 +10,11 @@ import java.sql.Timestamp
 
 
 @Service
-class ExerciseService(val mcaRepo: McAnswerRepository,
-                      val mcqRepo: McQuestionRepository,
+class ExerciseService(val subTyRep: SubmissionTypeRepository,
                       val ratRep: RatingRepository,
                       val exRep: ExerciseRepository,
                       val modRep: ModuleRepository,
                       val userRep: UserRepository,
-                      val exTyRep: ExerciseTypeRepository,
                       val tagRep: TagRepository,
                       var notifRep: NotificationRepository,
                       var mcQuestionRep: McQuestionRepository,
@@ -30,7 +28,7 @@ class ExerciseService(val mcaRepo: McAnswerRepository,
 
         // Functionality
         return exRep.findAll().map {  e ->
-            ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+            ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), e.type_id, tagRep.getExerciseTags(e.exercise_id))
         }.toList()
     }
 
@@ -44,7 +42,7 @@ class ExerciseService(val mcaRepo: McAnswerRepository,
 
         // Functionality
         return exRep.getExercisesByUser(userId).map {  e ->
-            ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+            ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), e.type_id, tagRep.getExerciseTags(e.exercise_id))
         }.toSet()
     }
 
@@ -58,7 +56,7 @@ class ExerciseService(val mcaRepo: McAnswerRepository,
 
         // Functionality
         return exRep.getExercisesByModule(moduleId).map {  e ->
-            ExerciseRet(e.exercise_id, modRep.findById(moduleId).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+            ExerciseRet(e.exercise_id, modRep.findById(moduleId).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), e.type_id, tagRep.getExerciseTags(e.exercise_id))
         }.toList()
     }
 
@@ -72,18 +70,12 @@ class ExerciseService(val mcaRepo: McAnswerRepository,
 
         // Functionality
         val e = exRep.findById(exerciseID).get()
-        return ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+        return ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), e.type_id, tagRep.getExerciseTags(e.exercise_id))
     }
 
-    fun getExerciseTypes(@AuthenticationPrincipal user: AtlasUser): List<ExerciseType> {
-
-        // Error Catching
-        if (!user.roles.any { r -> r.role_id == 1}) throw AccessDeniedException   // Check for admin
-
+    fun getExerciseTypes(@AuthenticationPrincipal user: AtlasUser): List<SubmissionType> {
         // Functionality
-        return exTyRep.findAll().map {  et ->
-            ExerciseType(et.type_id, et.name)
-        }.toList()
+        return subTyRep.findAll().toList()
     }
 
     fun updateExercise(@AuthenticationPrincipal user: AtlasUser, e: ExerciseRet): ExerciseRet {
@@ -95,7 +87,7 @@ class ExerciseService(val mcaRepo: McAnswerRepository,
             throw NoPermissionToEditExerciseException
 
         // Functionality
-        val updatedExercise = Exercise(e.exercise_id, e.module.module_id, exTyRep.getExerciseTypeID(e.type), e.title, e.content, e.description, e.exercisePublic)
+        val updatedExercise = Exercise(e.exercise_id, e.module.module_id, e.type, e.title, e.content, e.description, e.exercisePublic)
         exRep.save(updatedExercise)
         // Notification
         val notification = Notification(0,e.title,"", Timestamp(System.currentTimeMillis()),2,e.module.module_id,e.exercise_id,null)
@@ -115,49 +107,30 @@ class ExerciseService(val mcaRepo: McAnswerRepository,
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
             modRep.getModuleRoleByUser(user.user_id, e.module_id).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
             throw NoPermissionToEditExerciseException
+
+        val ex = exRep.save(e)
         if (e.type_id == 3) {
-            val content = e.mc
-            if (content == null) throw ExerciseMustIncludeMcSchemeException
-            content.questions!!.forEach {
-                it.exercise_id = e.exercise_id
+            val content = e.mc ?: throw ExerciseMustIncludeMcSchemeException
+            content.forEach {
+                it.exercise_id = ex.exercise_id
                 if (it.question_id != 0) throw InvalidQuestionIDException
                 mcQuestionRep.save(it)
                 it.answers!!.forEach { a ->
                     if (a.answer_id != 0) throw InvalidAnswerIDException
                     a.question_id = it.question_id
-                    val ans = mcAnswerRep.save(a)
+                    mcAnswerRep.save(a)
                 }
             }
         }
         // Functionality
-        exRep.save(e)
         // Notification
         val notification = Notification(0,e.title,"", Timestamp(System.currentTimeMillis()),1,e.module_id,e.exercise_id,null)
         notifRep.save(notification)
         modRep.getUsersByModule(e.module_id).forEach {u ->
             notifRep.addNotificationByUser(u.user_id,notification.notification_id)
         }
-        return ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+        return ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), e.type_id, tagRep.getExerciseTags(e.exercise_id))
     }
-
-    /** (s.content as McSubmission).submission_id = submission.submission_id
-
-                val answers: MutableList<SubmissionMcAnswer> = arrayListOf()
-                (s.content as McSubmission).questions!!.forEach {
-                    it.exercise_id = s.exercise_id
-                    if (it.question_id != 0) throw InvalidQuestionIDException
-                    mcQuestionRep.save(it)
-                    it.answers!!.forEach { a ->
-                        if (a.answer_id != 0) throw InvalidAnswerIDException
-                        a.question_id = it.question_id
-                        val ans = mcAnswerRep.save(a)
-                        answers.add(SubmissionMcAnswer(s.submission_id, ans.answer_id, ans.marked))
-                    }
-                }
-                answers.forEach {
-                    mcAnswerRep.addAnswersBySubmission(s.submission_id, it.answer_id, it.marked)
-                }
-     **/
 
     fun deleteExercise(@AuthenticationPrincipal user: AtlasUser, exerciseID: Int): ExerciseRet {
 
@@ -169,7 +142,15 @@ class ExerciseService(val mcaRepo: McAnswerRepository,
 
         // Functionality
         val e = exRep.findById(exerciseID).get()
-        val ret = ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+        if (e.type_id == 3) {
+            mcQuestionRep.getMcForExercise(exerciseID).forEach {
+                it.answers!!.forEach {  a ->
+                    mcAnswerRep.deleteById(a.answer_id)
+                }
+                mcQuestionRep.deleteById(it.question_id)
+            }
+        }
+        val ret = ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), e.type_id, tagRep.getExerciseTags(e.exercise_id))
         exRep.deleteById(exerciseID)
         return ret
     }

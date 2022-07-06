@@ -335,6 +335,12 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 
+    @ExceptionHandler(value = [LanguageNotFoundException::class])
+    fun exception(exception: LanguageNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "LanguageNotFoundException", "Couldn't find requested programming language.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
     // Exercise ID doesn't exist
     @ExceptionHandler(value = [ExerciseNotFoundException::class])
     fun exception(exception: ExerciseNotFoundException): ResponseEntity<ApiError> {

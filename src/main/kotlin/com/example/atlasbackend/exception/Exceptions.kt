@@ -148,6 +148,8 @@ object NoPermissionToDeleteNotificationException : RuntimeException()
 // Accessed Page doesn't exist
 object PageNotFoundException : RuntimeException()
 
+object LanguageNotFoundException: RuntimeException()
+
 // Exercise ID doesn't exist
 object ExerciseNotFoundException : RuntimeException()
 

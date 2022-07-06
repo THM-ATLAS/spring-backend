@@ -57,7 +57,7 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
 
     fun getUserSubmissionForExercise(user: AtlasUser, exerciseID: Int): Submission {
         //TODO: Berechtigungen
-        //TODO: Fehlerbehandlung
+        if (exRep.existsById(exerciseID).not()) throw ExerciseNotFoundException
         var ret = subRep.getExerciseSubmissionForUser(user.user_id, exerciseID)
 
         if (ret == null) {
@@ -74,7 +74,7 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
                         ret.content = mc
                 }
                 4 -> ret.content = FileSubmission(ret.submission_id, "")
-                else -> throw InvalidSubmissionIDException
+                else -> throw InvalidSubmissionTypeIDException
             }
         } else {
             ret.content = getSubmissionContent(ret.submission_id)
@@ -84,7 +84,8 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
     }
 
     fun getUserSubmissions(user: AtlasUser, subUserID: Int): List<Submission> {
-
+        //TODO: Berechtigungen prüfen
+        if (userRep.existsById(subUserID).not()) throw UserNotFoundException
         val ret = subRep.getSubmissionsByUser(subUserID)
 
         ret.forEach {
@@ -95,6 +96,8 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
     }
 
     fun getExerciseSubmissions(user: AtlasUser, exerciseID: Int): List<Submission> {
+        if (exRep.existsById(exerciseID).not()) throw  ExerciseNotFoundException
+        //TODO: Berechtigungen prüfen
         val ret = subRep.getSubmissionsByExercise(exerciseID)
 
         ret.forEach {
@@ -137,6 +140,7 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
                 }
             }
             4 -> fileSubRepo.save(FileSubmission(s.submission_id, (newSubmissionContent as FileSubmission).file))
+            else -> throw InvalidSubmissionTypeIDException
         }
         subRep.save(updatedSubmission)
         return getSubmission(user, s.submission_id)
@@ -271,8 +275,7 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
     }
 
     fun getLanguage(user: AtlasUser, langId: Int): Language {
-        //TODO: Berechtigungen
-        //TODO: Fehlerbehandlung
+        if (langRepo.existsById(langId).not()) throw LanguageNotFoundException
         return langRepo.findById(langId).get()
     }
 
