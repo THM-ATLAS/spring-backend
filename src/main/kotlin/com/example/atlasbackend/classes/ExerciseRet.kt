@@ -8,4 +8,6 @@ data class ExerciseRet(var exercise_id: Int,
                        var exercisePublic: Boolean,
                        var avgRating: Float?,
                        var type: Int,
-                       var tags :List<Tag>)
+                       var tags :List<Tag>) {
+    @org.springframework.data.annotation.Transient var mc: List<MultipleChoiceQuestion>? = null
+}

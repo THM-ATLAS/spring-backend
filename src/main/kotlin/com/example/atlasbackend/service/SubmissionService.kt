@@ -188,19 +188,18 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
             throw SubmissionAlreadyExistsException
         }
 
+        if (exRep.findById(s.exercise_id).get().type_id != s.type) throw WrongSubmissionTypeException
         val submission = subRep.save(s)
         submission.content = s.content
-        if (exRep.findById(s.exercise_id).get().type_id != s.type) throw WrongSubmissionTypeException
+
         when (s.type) {
             1 -> {
                 if (s.content !is FreeSubmission) throw WrongSubmissionTypeException
-                (s.content as FreeSubmission).submission_id = s.submission_id
                 (s.content as FreeSubmission).submission_id = submission.submission_id
                 freeSubRep.insertFreeSubmission((submission.content as FreeSubmission).submission_id, (submission.content as FreeSubmission).content)
             }
             2 -> {
                 if (s.content !is CodeSubmission) throw WrongSubmissionTypeException
-                (s.content as CodeSubmission).submission_id = s.submission_id
                 (s.content as CodeSubmission).submission_id = submission.submission_id
                 codeSubRepo.insertCodeSubmission((s.content as CodeSubmission).submission_id, (s.content as CodeSubmission).content, (s.content as CodeSubmission).language)
             }
@@ -239,7 +238,6 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
             }
             4 -> {
                 if (s.content !is FileSubmission) throw WrongSubmissionTypeException
-                (s.content as FileSubmission).submission_id = s.submission_id
                 (s.content as FileSubmission).submission_id = submission.submission_id
                 fileSubRepo.save(s.content as FileSubmission)
             }

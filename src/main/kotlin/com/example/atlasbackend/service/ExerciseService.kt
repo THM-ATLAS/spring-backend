@@ -130,6 +130,59 @@ class ExerciseService(val subTyRep: SubmissionTypeRepository,
 
         // Functionality
         val updatedExercise = Exercise(e.exercise_id, e.module.module_id, e.type, e.title, e.content, e.description, e.exercisePublic)
+        updatedExercise.mc = e.mc
+        if (updatedExercise.type_id == 3 && updatedExercise.mc != null) {
+            val oldQuestions = mcQuestionRep.getMcForExercise(updatedExercise.exercise_id)
+            oldQuestions.filter {
+                updatedExercise.mc!!.contains(it).not()
+            }.forEach {
+                if (it.exercise_id != updatedExercise.exercise_id) throw QuestionDoesNotBelongToExerciseException
+                it.answers!!.forEach { a ->
+                    if (a.question_id != it.question_id) throw AnswerDoesNotBelongToQuestionException
+                    mcAnswerRep.deleteById(a.answer_id)
+                }
+                mcQuestionRep.deleteById(it.question_id)
+            }
+            updatedExercise.mc = updatedExercise.mc!!.filter {
+                oldQuestions.contains(it).not()
+            }
+            updatedExercise.mc!!.forEach {
+                if (it.question_id != 0) throw InvalidQuestionIDException
+                it.exercise_id = updatedExercise.exercise_id
+                it.answers!!.forEach { a ->
+                    if (a.answer_id != 0) throw InvalidAnswerIDException
+                    a.question_id = it.question_id
+                    mcAnswerRep.save(a)
+
+                }
+                mcQuestionRep.save(it)
+            }
+            updatedExercise.mc!!.forEach {
+                if (mcQuestionRep.existsById(it.question_id).not()) throw QuestionNotFoundException
+                val oldQuestion = mcQuestionRep.findById(it.question_id).get()
+                if (oldQuestion.exercise_id != updatedExercise.exercise_id) throw QuestionDoesNotBelongToExerciseException
+                val oldAnswers = mcAnswerRep.getAnswersForQuestion(it.question_id)
+                oldAnswers.filter { a ->
+                    it.answers!!.contains(a).not()
+                }.forEach { a ->
+                    mcAnswerRep.deleteById(a.answer_id)
+                }
+                it.answers!!.filter { a ->
+                    oldAnswers.contains(a).not()
+                }.forEach { a ->
+                    if (a.answer_id != 0) throw InvalidAnswerIDException
+                    a.question_id = it.question_id
+                    mcAnswerRep.save(a)
+                }
+                it.answers!!.forEach { a ->
+                    if (mcAnswerRep.existsById(a.answer_id).not()) throw AnswerNotFoundException
+                    val oldAnswer = mcAnswerRep.findById(a.answer_id).get()
+                    if (oldAnswer.question_id != it.question_id) throw AnswerDoesNotBelongToQuestionException
+                    mcAnswerRep.save(a)
+                }
+                mcQuestionRep.save(it)
+            }
+        }
         exRep.save(updatedExercise)
         // Notification
         val notification = Notification(0,e.title,"", Timestamp(System.currentTimeMillis()),2,e.module.module_id,e.exercise_id,null)
@@ -196,7 +249,4 @@ class ExerciseService(val subTyRep: SubmissionTypeRepository,
         exRep.deleteById(exerciseID)
         return ret
     }
-
-
-
 }
