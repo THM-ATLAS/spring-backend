@@ -111,7 +111,7 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
             !Regex("[a-z]+").containsMatchIn(newUser.password) ||
             !Regex("[A-Z]+").containsMatchIn(newUser.password)
         ) throw BadPasswordException
-        if( newUser.roles.any { r -> r.role_id < 5 } && !user.roles.any { r -> r.role_id == 1}) throw NoPermissionToModifyUserRolesException  // If any role above guest is present check for admin
+        //Keine Berechtigungen, sonst kann man sich nicht registrieren
 
         // Functionality
         var atlasUser = AtlasUser(newUser.user_id, newUser.name, newUser.username, newUser.email, null)
