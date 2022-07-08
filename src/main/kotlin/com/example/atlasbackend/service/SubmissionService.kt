@@ -8,23 +8,24 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 
 @Service
-class SubmissionService(val fileSubRepo: FileSubmissionRepository,
-                        val freeSubRep: FreeSubmissionRepository,
-                        val subRep: SubmissionRepository,
-                        val exRep: ExerciseRepository,
-                        val langRepo: LanguageRepository,
-                        val notifRep: NotificationRepository,
-                        val userRep: UserRepository,
-                        val modRep: ModuleRepository,
-                        val codeSubRepo: CodeSubmissionRepository,
-                        val mcQuestionRep: McQuestionRepository,
-                        val mcAnswerRep: McAnswerRepository
+class SubmissionService(
+    val fileSubRepo: FileSubmissionRepository,
+    val freeSubRep: FreeSubmissionRepository,
+    val subRep: SubmissionRepository,
+    val exRep: ExerciseRepository,
+    val langRepo: LanguageRepository,
+    val notifRep: NotificationRepository,
+    val userRep: UserRepository,
+    val modRep: ModuleRepository,
+    val codeSubRepo: CodeSubmissionRepository,
+    val mcQuestionRep: McQuestionRepository,
+    val mcAnswerRep: McAnswerRepository
 ) {
 
     fun getAllSubmissions(user: AtlasUser): List<Submission> {
 
         // Error Catching
-        if (!user.roles.any { r -> r.role_id == 1}) throw AccessDeniedException    // Check for admin
+        if (!user.roles.any { r -> r.role_id == 1 }) throw AccessDeniedException    // Check for admin
 
         val ret = subRep.findAll()
         ret.forEach {
@@ -61,19 +62,28 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
         var ret = subRep.getExerciseSubmissionForUser(user.user_id, exerciseID)
 
         if (ret == null) {
-            ret = Submission(0, exerciseID, user.user_id, Timestamp.valueOf(LocalDateTime.now()), null, null, null, exRep.findById(exerciseID).get().type_id)
+            ret = Submission(
+                0,
+                exerciseID,
+                user.user_id,
+                Timestamp.valueOf(LocalDateTime.now()),
+                null,
+                null,
+                null,
+                exRep.findById(exerciseID).get().type_id
+            )
             when (exRep.findById(exerciseID).get().type_id) {
                 1 -> ret.content = FreeSubmission(ret.submission_id, "")
                 2 -> ret.content = CodeSubmission(ret.submission_id, "", 1)
                 3 -> {
-                        val mc = McSubmission(ret.submission_id)
-                        mc.questions = mcQuestionRep.getMcForExercise(ret.exercise_id)
-                        mc.questions!!.forEach {
-                            it.answers = mcAnswerRep.getAnswersForQuestion(it.question_id)
-                        }
-                        ret.content = mc
+                    val mc = McSubmission(ret.submission_id)
+                    mc.questions = mcQuestionRep.getMcForExercise(ret.exercise_id)
+                    mc.questions!!.forEach {
+                        it.answers = mcAnswerRep.getAnswersForQuestion(it.question_id)
+                    }
+                    ret.content = mc
                 }
-                4 -> ret.content = FileSubmission(ret.submission_id, "")
+                4 -> ret.content = FileSubmission(ret.submission_id, null)
                 else -> throw InvalidSubmissionTypeIDException
             }
         } else {
@@ -96,7 +106,7 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
     }
 
     fun getExerciseSubmissions(user: AtlasUser, exerciseID: Int): List<Submission> {
-        if (exRep.existsById(exerciseID).not()) throw  ExerciseNotFoundException
+        if (exRep.existsById(exerciseID).not()) throw ExerciseNotFoundException
         //TODO: Berechtigungen prüfen
         val ret = subRep.getSubmissionsByExercise(exerciseID)
 
@@ -111,20 +121,44 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
         if (!subRep.existsById(s.submission_id)) throw SubmissionNotFoundException
         if (!exRep.existsById(s.exercise_id)) throw ExerciseNotFoundException
         if (!userRep.existsById(s.user_id)) throw UserNotFoundException
-        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
+        if (!user.roles.any { r -> r.role_id == 1 } &&   // Check for admin
             user.user_id != s.user_id)   // Check for self
             throw NoPermissionToEditSubmissionException
 
         // Functionality
         val oldSub = getSubmission(user, s.submission_id)
-        var updatedSubmission = Submission(s.submission_id, s.exercise_id, s.user_id, s.upload_time, s.grade, s.teacher_id, s.comment, s.type)
+        var updatedSubmission = Submission(
+            s.submission_id,
+            s.exercise_id,
+            s.user_id,
+            s.upload_time,
+            s.grade,
+            s.teacher_id,
+            s.comment,
+            s.type
+        )
         val newSubmissionContent = s.content
-        if(user.user_id == s.user_id && !user.roles.any { r -> r.role_id == 1}) {     // User can't edit his own grade, unless admin
-            updatedSubmission = Submission(s.submission_id, oldSub.exercise_id, oldSub.user_id, s.upload_time, oldSub.grade, oldSub.teacher_id, oldSub.comment, oldSub.type)
+        if (user.user_id == s.user_id && !user.roles.any { r -> r.role_id == 1 }) {     // User can't edit his own grade, unless admin
+            updatedSubmission = Submission(
+                s.submission_id,
+                oldSub.exercise_id,
+                oldSub.user_id,
+                s.upload_time,
+                oldSub.grade,
+                oldSub.teacher_id,
+                oldSub.comment,
+                oldSub.type
+            )
         }
         when (s.type) {
             1 -> freeSubRep.save(FreeSubmission(s.submission_id, (newSubmissionContent as FreeSubmission).content))
-            2 -> codeSubRepo.save(CodeSubmission(s.submission_id, (newSubmissionContent as CodeSubmission).content, newSubmissionContent.language))
+            2 -> codeSubRepo.save(
+                CodeSubmission(
+                    s.submission_id,
+                    (newSubmissionContent as CodeSubmission).content,
+                    newSubmissionContent.language
+                )
+            )
             3 -> {
                 val answers: MutableList<SubmissionMcAnswer> = arrayListOf()
                 (newSubmissionContent as McSubmission).questions!!.forEach {
@@ -151,20 +185,39 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
         // Error Catching
         if (!subRep.existsById(sr.submission_id)) throw SubmissionNotFoundException
         val s = getSubmission(user, sr.submission_id)
-        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, exRep.getModuleByExercise(s.exercise_id).module_id).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
+        if (!user.roles.any { r -> r.role_id == 1 } &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, exRep.getModuleByExercise(s.exercise_id).module_id)
+                .let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
             throw NoPermissionToEditSubmissionException
 
         // Functionality
-        val updatedSubmission = Submission(sr.submission_id, s.exercise_id, s.user_id, s.upload_time, sr.grade, user.user_id, sr.comment, s.type)
+        val updatedSubmission = Submission(
+            sr.submission_id,
+            s.exercise_id,
+            s.user_id,
+            s.upload_time,
+            sr.grade,
+            user.user_id,
+            sr.comment,
+            s.type
+        )
 
         subRep.save(updatedSubmission)
 
         // Notification
-        val notification = Notification(0,exRep.findById(updatedSubmission.exercise_id).get().title,"", Timestamp(System.currentTimeMillis()),3,exRep.findById(s.exercise_id).get().module_id,s.exercise_id,s.submission_id)
+        val notification = Notification(
+            0,
+            exRep.findById(updatedSubmission.exercise_id).get().title,
+            "",
+            Timestamp(System.currentTimeMillis()),
+            3,
+            exRep.findById(s.exercise_id).get().module_id,
+            s.exercise_id,
+            s.submission_id
+        )
         notifRep.save(notification)
-        notifRep.addNotificationByUser(s.user_id,notification.notification_id)
-
+        notifRep.addNotificationByUser(s.user_id, notification.notification_id)
+        updatedSubmission.content = getSubmissionContent(updatedSubmission.submission_id)
         return updatedSubmission
     }
 
@@ -196,12 +249,19 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
             1 -> {
                 if (s.content !is FreeSubmission) throw WrongSubmissionTypeException
                 (s.content as FreeSubmission).submission_id = submission.submission_id
-                freeSubRep.insertFreeSubmission((submission.content as FreeSubmission).submission_id, (submission.content as FreeSubmission).content)
+                freeSubRep.insertFreeSubmission(
+                    (submission.content as FreeSubmission).submission_id,
+                    (submission.content as FreeSubmission).content
+                )
             }
             2 -> {
                 if (s.content !is CodeSubmission) throw WrongSubmissionTypeException
                 (s.content as CodeSubmission).submission_id = submission.submission_id
-                codeSubRepo.insertCodeSubmission((s.content as CodeSubmission).submission_id, (s.content as CodeSubmission).content, (s.content as CodeSubmission).language)
+                codeSubRepo.insertCodeSubmission(
+                    (s.content as CodeSubmission).submission_id,
+                    (s.content as CodeSubmission).content,
+                    (s.content as CodeSubmission).language
+                )
             }
             3 -> {
                 //TODO: wenn die Aufgabe schon ein MC Schema hat, sollte kein neues angelegt werden, generell sollte ein neues Schema nur von Dozenten angelegt werden
@@ -249,8 +309,9 @@ class SubmissionService(val fileSubRepo: FileSubmissionRepository,
         // Error Catching
         if (!subRep.existsById(submissionID)) throw SubmissionNotFoundException
         val s = getSubmission(user, submissionID)
-        if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, exRep.getModuleByExercise(s.exercise_id).module_id).let { mru -> mru == null || mru.role_id > 3 } &&   // Check for tutor/teacher
+        if (!user.roles.any { r -> r.role_id == 1 } &&   // Check for admin
+            modRep.getModuleRoleByUser(user.user_id, exRep.getModuleByExercise(s.exercise_id).module_id)
+                .let { mru -> mru == null || mru.role_id > 3 } &&   // Check for tutor/teacher
             user.user_id != s.user_id)   // Check for self
             throw NoPermissionToDeleteSubmissionException
 

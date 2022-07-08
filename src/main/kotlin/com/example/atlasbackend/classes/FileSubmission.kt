@@ -5,5 +5,5 @@ import org.springframework.data.relational.core.mapping.Table
 
 
 @Table("submission_file")
-data class FileSubmission(@Id var submission_id: Int, val file: String): SubmissionTemplate("file") {
+data class FileSubmission(@Id var submission_id: Int, val file: Int?): SubmissionTemplate("file") {
 }

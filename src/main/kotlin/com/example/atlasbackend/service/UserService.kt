@@ -94,7 +94,7 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         return atlasUser
     }
 
-    fun addUser(user: AtlasUser, newUser: AtlasUser): AtlasUser {
+    fun addUser(newUser: AtlasUser): AtlasUser {
 
         // Error Catching
         if (newUser.user_id != 0) throw InvalidUserIDException
@@ -142,7 +142,7 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
 
         // Functionality
         newUsers.forEach { u ->
-            userRet.add(addUser(user, u))
+            userRet.add(addUser(u))
         }
 
         return userRet
