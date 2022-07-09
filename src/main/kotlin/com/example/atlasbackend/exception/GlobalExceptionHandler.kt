@@ -102,7 +102,26 @@ class GlobalExceptionHandler {
         val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidAssetIDException", "Asset ID must be zero when creating a new asset.")
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
+    // Invalid Icon ID when creating Icon
+    @ExceptionHandler(value = [InvalidIconIDException::class])
+    fun exception(exception: InvalidIconIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidIconIDException", "icon ID must be zero when creating a new icon.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
 
+    // Icon is in use and can't be deleted
+    @ExceptionHandler(value = [IconInUseException::class])
+    fun exception(exception: IconInUseException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "IconInUseException", "icon can't be deleted until it isn't used anymore.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
+    // Invalid Referral ID when creating Referral
+    @ExceptionHandler(value = [InvalidReferralIDException::class])
+    fun exception(exception: InvalidReferralIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidReferralIDException", "Referral ID must be zero when creating a new referral of any kind")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
 
     /** [401] UNAUTHORIZED **/
 
@@ -307,6 +326,39 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
     }
 
+    @ExceptionHandler(value = [NoPermissionToModifyModuleTagException::class])
+    fun exception(exception: NoPermissionToModifyModuleTagException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyModuleTagException", "User is not allowed to add a Tag to this Module")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to create this Icon
+    @ExceptionHandler(value = [NoPermissionToCreateIconException::class])
+    fun exception(exception: NoPermissionToCreateIconException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToCreateIconException", "Only Admins can create new Icons")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not allowed to delete this icon
+    @ExceptionHandler(value = [NoPermissionToDeleteIconException::class])
+    fun exception(exception: NoPermissionToDeleteIconException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToDeleteIconException", "Only Admins can delete new Icons")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not permitted to mark this notification as read
+    @ExceptionHandler(value = [NoPermissionToMarkAsReadException::class])
+    fun exception(exception: NoPermissionToMarkAsReadException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToMarkAsReadException", "Users may only mark their own notifications as read")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
+
+    // User is not permitted to modify this referral
+    @ExceptionHandler(value = [NoPermissionToModifyReferralsException::class])
+    fun exception(exception: NoPermissionToModifyReferralsException): ResponseEntity<ApiError> {
+        val err = ApiError(403, HttpStatus.FORBIDDEN, "NoPermissionToModifyReferralsException", "User is not permitted to modify this referral")
+        return ResponseEntity<ApiError>(err, HttpStatus.FORBIDDEN)
+    }
 
     /** [404] NOT FOUND **/
 
@@ -387,6 +439,19 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 
+    // Icon ID doesn't exist
+    @ExceptionHandler(value = [IconNotFoundException::class])
+    fun exception(exception: IconNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "IconNotFoundException", "Couldn't find requested icon.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
+    // Referral ID doesn't exist
+    @ExceptionHandler(value = [ReferralNotFoundException::class])
+    fun exception(exception: ReferralNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "ReferralNotFoundException", "Couldn't find requested referral.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
 
     /** [422] UNPROCESSABLE ENTITY **/
 
@@ -414,7 +479,14 @@ class GlobalExceptionHandler {
     // Username is reserved for LDAP users
     @ExceptionHandler(value = [ReservedLdapUsernameException::class])
     fun exception(exception: ReservedLdapUsernameException): ResponseEntity<ApiError> {
-        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "The chosen username is reserved for LDAP users")
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "The submitted username is reserved for LDAP users")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
+
+    // Password does not meet the required criteria
+    @ExceptionHandler(value = [BadPasswordException::class])
+    fun exception(exception: BadPasswordException): ResponseEntity<ApiError> {
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "UnprocessableEntityException", "The submitted password does not meet the required criteria")
         return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
     }
 

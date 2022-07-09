@@ -11,13 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/")
@@ -75,6 +69,17 @@ class NotificationController(var notificationService: NotificationService) {
     @PostMapping("notifications/module")
     fun postNotificationForModule(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @RequestBody notification: Notification){
         return notificationService.addNotificationForModule(user,notification)
+    }
+
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "OK - Sets a notification as read"),
+            ApiResponse(responseCode = "404", description = "UserNotFoundException || NotificationNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+            ApiResponse(responseCode = "403", description = "NoPermissionToMarkAsReadException", content = [Content(schema = Schema(hidden = true))])
+        ])
+    @PutMapping("notifications/user/{notificationID}/{userID}")
+    fun markNotificationRead(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @PathVariable notificationID: Int, @PathVariable userID: Int): NotificationRead {
+        return notificationService.markAsRead(user, userID, notificationID)
     }
 
     @ApiResponses(

@@ -2,6 +2,7 @@ package com.example.atlasbackend.security
 
 import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.exception.InvalidCredentialsException
+import com.example.atlasbackend.repository.RoleRepository
 import com.example.atlasbackend.repository.SettingsRepository
 import org.springframework.ldap.core.AttributesMapper
 import org.springframework.ldap.core.LdapTemplate
@@ -12,10 +13,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
+import java.sql.Timestamp
+import java.time.LocalDateTime
 
 @Component
 class LDAPAuthenticationManager(
     val userDetailsService: UserDetailsService,
+    val roleRepo: RoleRepository,
     val setRepo: SettingsRepository,
 ) : AuthenticationManager {
     var newUser = false
@@ -40,7 +44,7 @@ class LDAPAuthenticationManager(
         var atlasUser = userDetailsService.loadUserByUsername(user) as AtlasUser?
         if (atlasUser == null) {
             newUser = true
-            atlasUser = AtlasUser(0, "", "", "")
+            atlasUser = AtlasUser(0, "", "", "", Timestamp.valueOf(LocalDateTime.now()))
         }
 
         initLdap().search(
@@ -95,8 +99,12 @@ class LDAPAuthenticationManager(
         }
 
         var user = getUserProperties(username)
+        user.last_login = Timestamp.valueOf(LocalDateTime.now())
         user = userDetailsService.userRepository.save(user)
-        if (newUser) setRepo.createSettings(user.user_id)
+        if (newUser) {
+            setRepo.createSettings(user.user_id)
+            roleRepo.giveRole(user.user_id, 4)
+        }
         newUser = false
 
         val ret = AtlasAuthentication(user)

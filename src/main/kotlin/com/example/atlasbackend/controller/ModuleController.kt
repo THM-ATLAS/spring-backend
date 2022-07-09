@@ -1,8 +1,6 @@
 package com.example.atlasbackend.controller
 
-import com.example.atlasbackend.classes.AtlasModule
-import com.example.atlasbackend.classes.AtlasUser
-import com.example.atlasbackend.classes.ModuleUser
+import com.example.atlasbackend.classes.*
 import com.example.atlasbackend.service.ModuleService
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -31,8 +29,17 @@ class ModuleController(val moduleService: ModuleService) {
                 ApiResponse(responseCode = "200", description = "OK - Returns All Modules")
             ])
     @GetMapping("/modules")
-    fun loadModules(): List<AtlasModule> {
+    fun loadModules(): List<AtlasModuleRet> {
         return moduleService.loadModules()
+    }
+
+    @ApiResponses(
+            value = [
+                ApiResponse(responseCode = "200", description = "OK - Returns a page of All Modules")
+            ])
+    @GetMapping("/modules/pages/{pageSize}/{pageNr}")
+    fun loadModulesByPage(@PathVariable pageSize: Int, @PathVariable pageNr: Int): List<AtlasModuleRet> {
+        return moduleService.loadModulesByPage(pageSize, pageNr)
     }
 
     @ApiResponses(
@@ -41,29 +48,30 @@ class ModuleController(val moduleService: ModuleService) {
                 ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/modules/{moduleID}")
-    fun getModule(@PathVariable moduleID: Int): AtlasModule {
+    fun getModule(@PathVariable moduleID: Int): AtlasModuleRet {
         return moduleService.getModule(moduleID)
     }
 
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Edits Module "),
-                ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "404", description = "ModuleNotFoundException || IconNotFoundException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "NoPermissionToEditModuleException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PutMapping("/modules")
-    fun editModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: AtlasModule): AtlasModule {
+    fun editModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: AtlasModuleRet): AtlasModuleRet {
         return moduleService.updateModule(user, body)
     }
 
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Creates Module "),
+                ApiResponse(responseCode = "404", description = "IconNotFoundException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "400", description = "InvalidModuleIDException - Module ID must be 0", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))]),
             ])
     @PostMapping("/modules")
-    fun postModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody module: AtlasModule): AtlasModule{
+    fun postModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody module: AtlasModuleRet): AtlasModuleRet{
         return moduleService.createModule(user, module)
     }
 
@@ -74,7 +82,7 @@ class ModuleController(val moduleService: ModuleService) {
                 ApiResponse(responseCode = "403", description = "NoPermissionToDeleteModuleException", content = [Content(schema = Schema(hidden = true))])
             ])
     @DeleteMapping("/modules/{moduleID}")
-    fun deleteModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int): AtlasModule {
+    fun deleteModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int): AtlasModuleRet {
         return moduleService.deleteModule(user, moduleID)
     }
 
@@ -149,5 +157,73 @@ class ModuleController(val moduleService: ModuleService) {
     @PutMapping("/modules/users/{moduleID}")
     fun editUserModuleRoles(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody modUser: ModuleUser, @PathVariable moduleID: Int): ModuleUser {
         return moduleService.editModuleRoles(user, modUser, moduleID)
+    }
+
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "OK - Returns all Link referrals"),
+            ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+            ApiResponse(responseCode = "403", description = "UserNotInModuleException", content = [Content(schema = Schema(hidden = true))])
+        ])
+    @GetMapping("/modules/referrals/links/{moduleID}")
+    fun getModuleLinkReferrals(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int): List<ModuleLinkRef> {
+        return moduleService.getModuleLinkReferrals(user, moduleID)
+    }
+
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "OK - Returns all Asset referrals"),
+            ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+            ApiResponse(responseCode = "403", description = "UserNotInModuleException", content = [Content(schema = Schema(hidden = true))])
+        ])
+    @GetMapping("/modules/referrals/assets/{moduleID}")
+    fun getModuleAssetReferrals(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int): List<ModuleAssetRef> {
+        return moduleService.getModuleAssetReferrals(user, moduleID)
+    }
+
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "OK - Adds a Link referral"),
+            ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+            ApiResponse(responseCode = "400", description = "InvalidReferralIDException (Valid Ids: 2,3,4)", content = [Content(schema = Schema(hidden = true))]),
+            ApiResponse(responseCode = "403", description = "NoPermissionToModifyReferralsException", content = [Content(schema = Schema(hidden = true))])
+        ])
+    @PostMapping("/modules/referrals/links/{moduleID}")
+    fun addModuleLinkReferral(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int, @RequestBody modRef: ModuleLinkRef): ModuleLinkRef {
+        return moduleService.addModuleLinkReferral(user, moduleID, modRef)
+    }
+
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "OK - Adds an Asset referral"),
+            ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+            ApiResponse(responseCode = "400", description = "InvalidReferralIDException (Valid Ids: 2,3,4)", content = [Content(schema = Schema(hidden = true))]),
+            ApiResponse(responseCode = "403", description = "NoPermissionToModifyReferralsException", content = [Content(schema = Schema(hidden = true))])
+        ])
+    @PostMapping("/modules/referrals/assets/{moduleID}")
+    fun addModuleAssetReferral(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int, @RequestBody modRef: ModuleAssetRef): ModuleAssetRef {
+        return moduleService.addModuleAssetReferral(user, moduleID, modRef)
+    }
+
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "OK - Deletes a Link referral"),
+            ApiResponse(responseCode = "404", description = "ModuleNotFoundException || ReferralNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+            ApiResponse(responseCode = "403", description = "NoPermissionToModifyReferralsException", content = [Content(schema = Schema(hidden = true))])
+        ])
+    @DeleteMapping("/modules/referrals/links/{moduleID}/{referralID}")
+    fun deleteModuleLinkReferral(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int, @PathVariable referralID: Int): ModuleLinkRef {
+        return moduleService.deleteModuleLinkReferral(user, moduleID, referralID)
+    }
+
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "OK - Deletes an Asset referral"),
+            ApiResponse(responseCode = "404", description = "ModuleNotFoundException || ReferralNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+            ApiResponse(responseCode = "403", description = "NoPermissionToModifyReferralsException", content = [Content(schema = Schema(hidden = true))])
+        ])
+    @DeleteMapping("/modules/referrals/assets/{moduleID}/{referralID}")
+    fun deleteModuleAssetReferral(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int, @PathVariable referralID: Int): ModuleAssetRef {
+        return moduleService.deleteModuleAssetReferral(user, moduleID, referralID)
     }
 }
