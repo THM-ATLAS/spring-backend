@@ -17,7 +17,7 @@ class SecurityConfig(
             .authenticationManager(ldapAuthenticationManager)
             .addFilterAt(atlasAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
             .authorizeRequests()
-                .antMatchers("/api/users", "/api/docs", "/api/swagger-ui/**", "/api/docs/raw/**", "/login", "/css/**", "/js/**", "/fonts/**", "/*.ico").permitAll()
+                .antMatchers("/api/users", "/api/docs", "/api/swagger-ui/**", "/api/docs/raw/**", "/login", "/css/**", "/js/**", "/fonts/**", "/*.ico", "/register").permitAll()
                 .anyRequest().authenticated()
             .and()
             .formLogin()

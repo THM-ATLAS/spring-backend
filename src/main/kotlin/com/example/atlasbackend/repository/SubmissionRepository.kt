@@ -14,4 +14,7 @@ interface SubmissionRepository: CrudRepository<Submission, Int> {
 
     @Query("SELECT * FROM user_exercise_submission WHERE user_id = :id")
     fun getSubmissionsByUser(@Param("id") id: Int): List<Submission>
+
+    @Query("SELECT * FROM user_exercise_submission WHERE user_id = :user AND exercise_id = :exercise")
+    fun getExerciseSubmissionForUser(@Param("user") user_id: Int, @Param("exercise") exercise_id: Int): Submission?
 }
