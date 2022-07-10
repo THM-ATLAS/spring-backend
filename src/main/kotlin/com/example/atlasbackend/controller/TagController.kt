@@ -1,7 +1,7 @@
 package com.example.atlasbackend.controller
 
 import com.example.atlasbackend.classes.AtlasUser
-import com.example.atlasbackend.classes.ExerciseRet
+import com.example.atlasbackend.classes.Exercise
 import com.example.atlasbackend.classes.TagRet
 import com.example.atlasbackend.service.TagService
 import io.swagger.v3.oas.annotations.Parameter
@@ -75,7 +75,7 @@ class TagController(val tagService: TagService) {
                 ApiResponse(responseCode = "403", description = "NoPermissionToModifyExerciseTagsException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PostMapping("/exercises/{exerciseID}/{tagID}")
-    fun addExerciseTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable("exerciseID") exerciseID: Int, @PathVariable("tagID") tagID: Int): ExerciseRet {
+    fun addExerciseTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable("exerciseID") exerciseID: Int, @PathVariable("tagID") tagID: Int): Exercise {
         return tagService.addExerciseTag(user, exerciseID, tagID)
     }
 
@@ -97,7 +97,7 @@ class TagController(val tagService: TagService) {
                 ApiResponse(responseCode = "403", description = "NoPermissionToModifyExerciseTagsException", content = [Content(schema = Schema(hidden = true))]),
             ])
     @DeleteMapping("/exercises/{exerciseID}/{tagID}")
-    fun deleteExerciseTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable("exerciseID") exerciseID: Int, @PathVariable("tagID") tagID: Int): ExerciseRet {
+    fun deleteExerciseTag(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable("exerciseID") exerciseID: Int, @PathVariable("tagID") tagID: Int): Exercise {
         return tagService.deleteExerciseTag(user, exerciseID, tagID)
     }
 

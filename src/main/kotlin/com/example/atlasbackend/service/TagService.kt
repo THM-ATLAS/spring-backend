@@ -1,7 +1,7 @@
 package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.AtlasUser
-import com.example.atlasbackend.classes.ExerciseRet
+import com.example.atlasbackend.classes.Exercise
 import com.example.atlasbackend.classes.Tag
 import com.example.atlasbackend.classes.TagRet
 import com.example.atlasbackend.exception.*
@@ -60,7 +60,7 @@ class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val m
 
     /***** EXERCISE TAG MANAGEMENT *****/
 
-    fun addExerciseTag(user: AtlasUser, exerciseID: Int, tagID: Int): ExerciseRet {
+    fun addExerciseTag(user: AtlasUser, exerciseID: Int, tagID: Int): Exercise {
 
         // Error Catching
         if(!exRep.existsById(exerciseID)) throw ExerciseNotFoundException
@@ -72,7 +72,7 @@ class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val m
         // Functionality
         tagRep.addExerciseTag(exerciseID,tagID)
         val exercise = exRep.findById(exerciseID).get()
-        return ExerciseRet(exerciseID, modRep.findById(exercise.module_id).get(), exercise.title,exercise.content,exercise.description, exercise.exercisePublic, ratRep.averageExerciseRating(exerciseID), exercise.type_id,tagRep.getExerciseTags(exerciseID))
+        return Exercise(exerciseID,exercise.module_id ,modRep.findById(exercise.module_id).get(), exercise.type_id, exercise.title, exercise.content,exercise.description, exercise.exercisePublic, ratRep.averageExerciseRating(exerciseID),tagRep.getExerciseTags(exerciseID))
     }
 
     fun deleteTag(user: AtlasUser, tagID: Int): TagRet {
@@ -87,7 +87,7 @@ class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val m
         return TagRet(tag.tag_id, tag.name, iconRep.findById(tag.icon_id).get())
     }
 
-    fun deleteExerciseTag(user: AtlasUser, exerciseID: Int, tagID: Int): ExerciseRet {
+    fun deleteExerciseTag(user: AtlasUser, exerciseID: Int, tagID: Int): Exercise {
 
         // Error Catching
         if(!exRep.existsById(exerciseID)) throw ExerciseNotFoundException
@@ -99,7 +99,7 @@ class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val m
         // Functionality
         tagRep.removeExerciseTag(exerciseID,tagID)
         val exercise = exRep.findById(exerciseID).get()
-        return ExerciseRet(exerciseID, modRep.findById(exercise.module_id).get(), exercise.title,exercise.content,exercise.description, exercise.exercisePublic, ratRep.averageExerciseRating(exerciseID), exercise.type_id,tagRep.getExerciseTags(exerciseID))
+        return Exercise(exerciseID,exercise.module_id ,modRep.findById(exercise.module_id).get(), exercise.type_id, exercise.title, exercise.content,exercise.description, exercise.exercisePublic, ratRep.averageExerciseRating(exerciseID),tagRep.getExerciseTags(exerciseID))
     }
 
     /***** MODULE TAG MANAGEMENT *****/

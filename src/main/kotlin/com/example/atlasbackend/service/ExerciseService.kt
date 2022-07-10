@@ -21,7 +21,7 @@ class ExerciseService(val subTyRep: SubmissionTypeRepository,
                       var mcAnswerRep: McAnswerRepository
               ) {
 
-    fun loadExercises(@AuthenticationPrincipal user: AtlasUser): List<ExerciseRet> {
+    fun loadExercises(@AuthenticationPrincipal user: AtlasUser): List<Exercise> {
 
         // Error Catching
         if (!user.roles.any { r -> r.role_id == 1}) throw AccessDeniedException   // Check for admin
@@ -32,7 +32,7 @@ class ExerciseService(val subTyRep: SubmissionTypeRepository,
         }.toList()
     }
 
-    fun loadExercisesByPage(user: AtlasUser, pageSize: Int, pageNr: Int): List<ExerciseRet> {
+    fun loadExercisesByPage(user: AtlasUser, pageSize: Int, pageNr: Int): List<Exercise> {
         // Error Catching
         if (!user.roles.any { r -> r.role_id == 1}) throw AccessDeniedException   // Check for admin
 
@@ -43,29 +43,30 @@ class ExerciseService(val subTyRep: SubmissionTypeRepository,
         }.toList()
     }
 
-    private fun getMc(e: Exercise): ExerciseRet {
+    private fun getMc(e: Exercise): Exercise {
         if (e.type_id == 3) {
             e.mc = mcQuestionRep.getMcForExercise(e.exercise_id)
             e.mc!!.forEach {
                 it.answers = mcAnswerRep.getAnswersForQuestion(it.question_id)
             }
         }
-        val exRet = ExerciseRet(
+        val exercise = Exercise(
             e.exercise_id,
+            e.module_id,
             modRep.findById(e.module_id).get(),
+            e.type_id,
             e.title,
             e.content,
             e.description,
             e.exercisePublic,
             ratRep.averageExerciseRating(e.exercise_id),
-            e.type_id,
             tagRep.getExerciseTags(e.exercise_id)
         )
-        exRet.mc = e.mc
-        return exRet
+        exercise.mc = e.mc
+        return exercise
     }
 
-    fun loadExercisesUser(@AuthenticationPrincipal user: AtlasUser, @PathVariable userId: Int): Set<ExerciseRet> {
+    fun loadExercisesUser(@AuthenticationPrincipal user: AtlasUser, @PathVariable userId: Int): Set<Exercise> {
 
         // Error Catching
         if (!userRep.existsById(userId)) throw UserNotFoundException
@@ -79,7 +80,7 @@ class ExerciseService(val subTyRep: SubmissionTypeRepository,
         }.toSet()
     }
 
-    fun loadExercisesUserByPage(user: AtlasUser, userId: Int, pageSize: Int, pageNr: Int): Set<ExerciseRet> {
+    fun loadExercisesUserByPage(user: AtlasUser, userId: Int, pageSize: Int, pageNr: Int): Set<Exercise> {
         // Error Catching
         if (!userRep.existsById(userId)) throw UserNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
@@ -93,7 +94,7 @@ class ExerciseService(val subTyRep: SubmissionTypeRepository,
         }.toSet()
     }
 
-    fun loadExercisesModule(@AuthenticationPrincipal user: AtlasUser, moduleId: Int): List<ExerciseRet> {
+    fun loadExercisesModule(@AuthenticationPrincipal user: AtlasUser, moduleId: Int): List<Exercise> {
 
         // Error Catching
         if (modRep.existsById(moduleId).not()) throw ModuleNotFoundException
@@ -107,7 +108,7 @@ class ExerciseService(val subTyRep: SubmissionTypeRepository,
         }.toList()
     }
 
-    fun loadExercisesModuleByPage(@AuthenticationPrincipal user: AtlasUser, moduleId: Int, pageSize: Int, pageNr: Int): List<ExerciseRet> {
+    fun loadExercisesModuleByPage(@AuthenticationPrincipal user: AtlasUser, moduleId: Int, pageSize: Int, pageNr: Int): List<Exercise> {
 
         // Error Catching
         if (modRep.existsById(moduleId).not()) throw ModuleNotFoundException
@@ -124,7 +125,7 @@ class ExerciseService(val subTyRep: SubmissionTypeRepository,
     }
 
 
-    fun getExercise(@AuthenticationPrincipal user: AtlasUser, exerciseID: Int): ExerciseRet {
+    fun getExercise(@AuthenticationPrincipal user: AtlasUser, exerciseID: Int): Exercise {
 
         // Error Catching
         if (!exRep.existsById(exerciseID)) throw ExerciseNotFoundException
@@ -142,7 +143,7 @@ class ExerciseService(val subTyRep: SubmissionTypeRepository,
         return subTyRep.findAll().toList()
     }
 
-    fun updateExercise(@AuthenticationPrincipal user: AtlasUser, e: ExerciseRet): ExerciseRet {
+    fun updateExercise(@AuthenticationPrincipal user: AtlasUser, e: Exercise): Exercise {
 
         // Error Catching
         if (!exRep.existsById(e.exercise_id)) throw ExerciseNotFoundException
@@ -151,7 +152,7 @@ class ExerciseService(val subTyRep: SubmissionTypeRepository,
             throw NoPermissionToEditExerciseException
 
         // Functionality
-        val updatedExercise = Exercise(e.exercise_id, e.module.module_id, e.type, e.title, e.content, e.description, e.exercisePublic)
+        val updatedExercise = Exercise(e.exercise_id, e.module.module_id, modRep.findById(e.module_id).get(), e.type_id, e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), tagRep.getExerciseTags(e.exercise_id))
         updatedExercise.mc = e.mc
         if (updatedExercise.type_id == 3 && updatedExercise.mc != null) {
             val oldQuestions = mcQuestionRep.getMcForExercise(updatedExercise.exercise_id)
@@ -217,7 +218,7 @@ class ExerciseService(val subTyRep: SubmissionTypeRepository,
         return getMc(updatedExercise)
     }
 
-    fun createExercise(@AuthenticationPrincipal user: AtlasUser, e: Exercise): ExerciseRet {
+    fun createExercise(@AuthenticationPrincipal user: AtlasUser, e: Exercise): Exercise {
 
         // Error Catching
         if (e.exercise_id != 0) throw InvalidExerciseIDException
@@ -247,10 +248,10 @@ class ExerciseService(val subTyRep: SubmissionTypeRepository,
         modRep.getUsersByModule(e.module_id).forEach {u ->
             notifRep.addNotificationByUser(u.user_id,notification.notification_id)
         }
-        return ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), e.type_id, tagRep.getExerciseTags(e.exercise_id))
+        return Exercise(e.exercise_id, e.module_id, modRep.findById(e.module_id).get(), e.type_id, e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id),tagRep.getExerciseTags(e.exercise_id))
     }
 
-    fun deleteExercise(@AuthenticationPrincipal user: AtlasUser, exerciseID: Int): ExerciseRet {
+    fun deleteExercise(@AuthenticationPrincipal user: AtlasUser, exerciseID: Int): Exercise {
 
         // Error Catching
         if (!exRep.existsById(exerciseID)) throw ExerciseNotFoundException
@@ -268,7 +269,7 @@ class ExerciseService(val subTyRep: SubmissionTypeRepository,
                 mcQuestionRep.deleteById(it.question_id)
             }
         }
-        val ret = ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), e.type_id, tagRep.getExerciseTags(e.exercise_id))
+        val ret = Exercise(e.exercise_id, e.module_id, modRep.findById(e.module_id).get(), e.type_id, e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id),tagRep.getExerciseTags(e.exercise_id))
         exRep.deleteById(exerciseID)
         return ret
     }

@@ -7,10 +7,13 @@ import org.springframework.data.relational.core.mapping.Table
 @Table("exercise")
 data class Exercise(@Id var exercise_id: Int,
                     var module_id: Int,
+                    var module: AtlasModule,
                     var type_id: Int,
                     var title: String,
                     var content: String,
                     var description: String,
-                    @field:Column("public") var exercisePublic: Boolean) {
+                    @field:Column("public") var exercisePublic: Boolean,
+                    var avgRating: Float?,
+                    var tags :List<Tag>) {
     @org.springframework.data.annotation.Transient var mc: List<MultipleChoiceQuestion>? = null
 }
