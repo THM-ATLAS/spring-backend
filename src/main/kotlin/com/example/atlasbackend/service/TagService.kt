@@ -17,6 +17,14 @@ class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val m
         return tagRep.findAll().toList().map { t -> TagRet(t.tag_id, t.name, iconRep.findById(t.icon_id).get())}
     }
 
+
+    fun getAllTagsByPage(pageSize: Int, pageNr: Int): List<TagRet> {
+        // Functionality
+        val size = pageSize
+        val offset = pageSize*(pageNr-1)
+        return tagRep.loadPage(size, offset).map { t -> TagRet(t.tag_id, t.name, iconRep.findById(t.icon_id).get())}
+    }
+
     fun loadExerciseTags(exerciseID: Int): List<TagRet> {
 
         // Error Catching
