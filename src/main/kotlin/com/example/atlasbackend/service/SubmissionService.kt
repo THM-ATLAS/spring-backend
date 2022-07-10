@@ -39,6 +39,17 @@ class SubmissionService(
         return ret.toList()
     }
 
+    fun getAllSubmissionsByPage(user: AtlasUser, pageSize: Int, pageNr: Int): List<Submission> {
+        // Error Catching
+        if (!user.roles.any { r -> r.role_id == 1 }) throw AccessDeniedException    // Check for admin
+
+        val offset = pageSize*(pageNr-1)
+        val ret = subRep.loadPage(pageSize,offset)
+        ret.forEach {it.content = getSubmissionContent(it.submission_id)
+        }
+        return ret.toList()
+    }
+
     fun getSubmission(user: AtlasUser, submissionID: Int): Submission {
 
         if (subRep.existsById(submissionID).not()) throw SubmissionNotFoundException
@@ -105,10 +116,36 @@ class SubmissionService(
 
     }
 
+    fun getUserSubmissionsByPage(user: AtlasUser, subUserID: Int, pageSize: Int, pageNr: Int): List<Submission> {
+        //TODO: Berechtigungen prüfen
+        if (userRep.existsById(subUserID).not()) throw UserNotFoundException
+
+        val offset = pageSize*(pageNr-1)
+        val ret = subRep.getSubmissionsByUserByPage(subUserID,pageSize,offset)
+
+        ret.forEach {
+            it.content = getSubmissionContent(it.submission_id)
+        }
+        return ret.toList()
+    }
+
     fun getExerciseSubmissions(user: AtlasUser, exerciseID: Int): List<Submission> {
         if (exRep.existsById(exerciseID).not()) throw ExerciseNotFoundException
         //TODO: Berechtigungen prüfen
         val ret = subRep.getSubmissionsByExercise(exerciseID)
+
+        ret.forEach {
+            it.content = getSubmissionContent(it.submission_id)
+        }
+        return ret.toList()
+    }
+
+    fun getExerciseSubmissionsByPage(user: AtlasUser, exerciseID: Int, pageSize: Int, pageNr: Int): List<Submission> {
+        if (exRep.existsById(exerciseID).not()) throw ExerciseNotFoundException
+        //TODO: Berechtigungen prüfen
+
+        val offset = pageSize*(pageNr-1)
+        val ret = subRep.getSubmissionsByExerciseByPage(exerciseID, pageSize, offset)
 
         ret.forEach {
             it.content = getSubmissionContent(it.submission_id)
