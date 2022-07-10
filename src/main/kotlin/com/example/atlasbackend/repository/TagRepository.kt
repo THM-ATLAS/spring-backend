@@ -31,4 +31,7 @@ interface TagRepository: CrudRepository<Tag, Int> {
     @Query("DELETE FROM module_tag WHERE module_id = :module AND tag_id = :tag")
     @Modifying
     fun removeModuleTag(@Param("module")module: Int, @Param("tag")tag: Int)
+
+    @Query("SELECT * FROM tag ORDER BY tag_id LIMIT :size OFFSET :offset")
+    fun loadPage(@Param("size")size: Int, @Param("offset")offset: Int): List<Tag>
 }
