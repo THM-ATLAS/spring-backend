@@ -31,9 +31,8 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         if (!user.roles.any { r -> r.role_id < 3}) throw AccessDeniedException   // Check for admin/teacher
 
         // Functionality
-        val size = pageSize
         val offset = pageSize*(pageNr-1)
-        val users = userRep.loadPage(size, offset).toList()
+        val users = userRep.loadPage(pageSize, offset).toList()
         users.forEach { u -> u.roles = roleRep.getRolesByUser(u.user_id).toMutableList() }
         return users
     }
@@ -42,11 +41,10 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         return user
     }
 
-    fun getUser(user: AtlasUser, getUserID: Int): AtlasUser {
+    fun getUser(getUserID: Int): AtlasUser {
 
         // Error Catching
         if (!userRep.existsById(getUserID)) throw UserNotFoundException
-        if (!user.roles.any { r -> r.role_id < 5}) throw AccessDeniedException     // Check if not guest
 
         // Functionality
         val getUser = userRep.findById(getUserID).get()
