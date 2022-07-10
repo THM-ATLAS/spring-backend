@@ -1,9 +1,6 @@
 package com.example.atlasbackend.controller
 
-import com.example.atlasbackend.classes.AtlasUser
-import com.example.atlasbackend.classes.Exercise
-import com.example.atlasbackend.classes.ExerciseRet
-import com.example.atlasbackend.classes.ExerciseType
+import com.example.atlasbackend.classes.*
 import com.example.atlasbackend.service.ExerciseService
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -95,10 +92,9 @@ class ExerciseController(val exerciseService: ExerciseService) {
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Returns Types of Exercises "),
-                ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/exercises/types")
-    fun getExerciseTypes(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser): List<ExerciseType> {
+    fun getExerciseTypes(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser): List<SubmissionType> {
         return exerciseService.getExerciseTypes(user)
     }
 
@@ -118,7 +114,11 @@ class ExerciseController(val exerciseService: ExerciseService) {
                 ApiResponse(responseCode = "200", description = "OK - Creates Exercises"),
                 ApiResponse(responseCode = "400", description = "InvalidExerciseIDException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "403", description = "NoPermissionToEditExerciseException", content = [Content(schema = Schema(hidden = true))])
+                ApiResponse(responseCode = "403", description = "NoPermissionToEditExerciseException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "422", description = "ExerciseMustIncludeMcSchemeException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "400", description = "InvalidQuestionIDException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "400", description = "InvalidAnswerIDException", content = [Content(schema = Schema(hidden = true))]),
+
             ])
     @PostMapping("/exercises")
     fun postExercise(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody exercise: Exercise): ExerciseRet {

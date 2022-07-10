@@ -10,7 +10,16 @@ import java.sql.Timestamp
 
 
 @Service
-class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepository, val modRep: ModuleRepository, val userRep: UserRepository, val exTyRep: ExerciseTypeRepository, val tagRep: TagRepository,var notifRep: NotificationRepository) {
+class ExerciseService(val subTyRep: SubmissionTypeRepository,
+                      val ratRep: RatingRepository,
+                      val exRep: ExerciseRepository,
+                      val modRep: ModuleRepository,
+                      val userRep: UserRepository,
+                      val tagRep: TagRepository,
+                      var notifRep: NotificationRepository,
+                      var mcQuestionRep: McQuestionRepository,
+                      var mcAnswerRep: McAnswerRepository
+              ) {
 
     fun loadExercises(@AuthenticationPrincipal user: AtlasUser): List<ExerciseRet> {
 
@@ -19,7 +28,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
 
         // Functionality
         return exRep.findAll().map {  e ->
-            ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+            getMc(e)
         }.toList()
     }
 
@@ -28,11 +37,32 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
         if (!user.roles.any { r -> r.role_id == 1}) throw AccessDeniedException   // Check for admin
 
         // Functionality
-        val size = pageSize
         val offset = pageSize*(pageNr-1)
-        return exRep.loadPage(size, offset).map {  e ->
-            ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+        return exRep.loadPage(pageSize, offset).map { e ->
+            getMc(e)
         }.toList()
+    }
+
+    private fun getMc(e: Exercise): ExerciseRet {
+        if (e.type_id == 3) {
+            e.mc = mcQuestionRep.getMcForExercise(e.exercise_id)
+            e.mc!!.forEach {
+                it.answers = mcAnswerRep.getAnswersForQuestion(it.question_id)
+            }
+        }
+        val exRet = ExerciseRet(
+            e.exercise_id,
+            modRep.findById(e.module_id).get(),
+            e.title,
+            e.content,
+            e.description,
+            e.exercisePublic,
+            ratRep.averageExerciseRating(e.exercise_id),
+            e.type_id,
+            tagRep.getExerciseTags(e.exercise_id)
+        )
+        exRet.mc = e.mc
+        return exRet
     }
 
     fun loadExercisesUser(@AuthenticationPrincipal user: AtlasUser, @PathVariable userId: Int): Set<ExerciseRet> {
@@ -45,7 +75,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
 
         // Functionality
         return exRep.getExercisesByUser(userId).map {  e ->
-            ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+            getMc(e)
         }.toSet()
     }
 
@@ -57,10 +87,9 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
             throw AccessDeniedException
 
         // Functionality
-        val size = pageSize
         val offset = pageSize*(pageNr-1)
-        return exRep.getExercisesByUserByPage(userId, size, offset).map {  e ->
-            ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+        return exRep.getExercisesByUserByPage(userId, pageSize, offset).map { e ->
+            getMc(e)
         }.toSet()
     }
 
@@ -74,7 +103,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
 
         // Functionality
         return exRep.getExercisesByModule(moduleId).map {  e ->
-            ExerciseRet(e.exercise_id, modRep.findById(moduleId).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+            getMc(e)
         }.toList()
     }
 
@@ -90,7 +119,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
         val size = pageSize
         val offset = pageSize*(pageNr-1)
         return exRep.getExercisesByModuleByPage(moduleId, size, offset).map {  e ->
-            ExerciseRet(e.exercise_id, modRep.findById(moduleId).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+            getMc(e)
         }.toList()
     }
 
@@ -105,18 +134,12 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
 
         // Functionality
         val e = exRep.findById(exerciseID).get()
-        return ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+        return getMc(e)
     }
 
-    fun getExerciseTypes(@AuthenticationPrincipal user: AtlasUser): List<ExerciseType> {
-
-        // Error Catching
-        if (!user.roles.any { r -> r.role_id == 1}) throw AccessDeniedException   // Check for admin
-
+    fun getExerciseTypes(@AuthenticationPrincipal user: AtlasUser): List<SubmissionType> {
         // Functionality
-        return exTyRep.findAll().map {  et ->
-            ExerciseType(et.type_id, et.name)
-        }.toList()
+        return subTyRep.findAll().toList()
     }
 
     fun updateExercise(@AuthenticationPrincipal user: AtlasUser, e: ExerciseRet): ExerciseRet {
@@ -128,7 +151,61 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
             throw NoPermissionToEditExerciseException
 
         // Functionality
-        val updatedExercise = Exercise(e.exercise_id, e.module.module_id, exTyRep.getExerciseTypeID(e.type), e.title, e.content, e.description, e.exercisePublic)
+        val updatedExercise = Exercise(e.exercise_id, e.module.module_id, e.type, e.title, e.content, e.description, e.exercisePublic)
+        updatedExercise.mc = e.mc
+        if (updatedExercise.type_id == 3 && updatedExercise.mc != null) {
+            val oldQuestions = mcQuestionRep.getMcForExercise(updatedExercise.exercise_id)
+            oldQuestions.filter {
+                !updatedExercise.mc!!.map(MultipleChoiceQuestion::question_id).contains(it.question_id)
+            }.forEach {
+                it.answers = mcAnswerRep.getAnswersForQuestion(it.question_id)
+                if (it.exercise_id != updatedExercise.exercise_id) throw QuestionDoesNotBelongToExerciseException
+                it.answers!!.forEach { a ->
+                    if (a.question_id != it.question_id) throw AnswerDoesNotBelongToQuestionException
+                    mcAnswerRep.deleteById(a.answer_id)
+                }
+                mcQuestionRep.deleteById(it.question_id)
+            }
+            updatedExercise.mc!!.filter {
+                !oldQuestions.map(MultipleChoiceQuestion::question_id).contains(it.question_id)
+            }.forEach {
+                if (it.question_id != 0) throw InvalidQuestionIDException
+                mcQuestionRep.save(it)
+                it.exercise_id = updatedExercise.exercise_id
+                it.answers!!.forEach { a ->
+                    if (a.answer_id != 0) throw InvalidAnswerIDException
+                    a.question_id = it.question_id
+                    mcAnswerRep.save(a)
+
+                }
+                mcQuestionRep.save(it)
+            }
+            updatedExercise.mc!!.forEach {
+                if (mcQuestionRep.existsById(it.question_id).not()) throw QuestionNotFoundException
+                val oldQuestion = mcQuestionRep.findById(it.question_id).get()
+                if (oldQuestion.exercise_id != updatedExercise.exercise_id) throw QuestionDoesNotBelongToExerciseException
+                val oldAnswers = mcAnswerRep.getAnswersForQuestion(it.question_id)
+                oldAnswers.filter { a ->
+                    !it.answers!!.map(MultipleChoiceAnswer::answer_id).contains(a.answer_id)
+                }.forEach { a ->
+                    mcAnswerRep.deleteById(a.answer_id)
+                }
+                it.answers!!.filter { a ->
+                    !oldAnswers.map(MultipleChoiceAnswer::answer_id).contains(a.answer_id)
+                }.forEach { a ->
+                    if (a.answer_id != 0) throw InvalidAnswerIDException
+                    a.question_id = it.question_id
+                    mcAnswerRep.save(a)
+                }
+                it.answers!!.forEach { a ->
+                    if (mcAnswerRep.existsById(a.answer_id).not()) throw AnswerNotFoundException
+                    val oldAnswer = mcAnswerRep.findById(a.answer_id).get()
+                    if (oldAnswer.question_id != it.question_id) throw AnswerDoesNotBelongToQuestionException
+                    mcAnswerRep.save(a)
+                }
+                mcQuestionRep.save(it)
+            }
+        }
         exRep.save(updatedExercise)
         // Notification
         val notification = Notification(0,e.title,"", Timestamp(System.currentTimeMillis()),2,e.module.module_id,e.exercise_id,null)
@@ -137,7 +214,7 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
             notifRep.addNotificationByUser(u.user_id,notification.notification_id)
         }
 
-        return ExerciseRet(e.exercise_id, modRep.findById(e.module.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), e.type, tagRep.getExerciseTags(e.exercise_id))
+        return getMc(updatedExercise)
     }
 
     fun createExercise(@AuthenticationPrincipal user: AtlasUser, e: Exercise): ExerciseRet {
@@ -149,15 +226,28 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
             modRep.getModuleRoleByUser(user.user_id, e.module_id).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
             throw NoPermissionToEditExerciseException
 
-        // Functionality
         val ex = exRep.save(e)
+        if (e.type_id == 3) {
+            val content = e.mc ?: throw ExerciseMustIncludeMcSchemeException
+            content.forEach {
+                it.exercise_id = ex.exercise_id
+                if (it.question_id != 0) throw InvalidQuestionIDException
+                mcQuestionRep.save(it)
+                it.answers!!.forEach { a ->
+                    if (a.answer_id != 0) throw InvalidAnswerIDException
+                    a.question_id = it.question_id
+                    mcAnswerRep.save(a)
+                }
+            }
+        }
+        // Functionality
         // Notification
         val notification = Notification(0,e.title,"", Timestamp(System.currentTimeMillis()),1,e.module_id,e.exercise_id,null)
         notifRep.save(notification)
         modRep.getUsersByModule(e.module_id).forEach {u ->
             notifRep.addNotificationByUser(u.user_id,notification.notification_id)
         }
-        return ExerciseRet(ex.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+        return ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), e.type_id, tagRep.getExerciseTags(e.exercise_id))
     }
 
     fun deleteExercise(@AuthenticationPrincipal user: AtlasUser, exerciseID: Int): ExerciseRet {
@@ -170,11 +260,16 @@ class ExerciseService(val ratRep: RatingRepository, val exRep: ExerciseRepositor
 
         // Functionality
         val e = exRep.findById(exerciseID).get()
-        val ret = ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), exTyRep.getExerciseTypeName(e.type_id), tagRep.getExerciseTags(e.exercise_id))
+        if (e.type_id == 3) {
+            mcQuestionRep.getMcForExercise(exerciseID).forEach {
+                it.answers!!.forEach {  a ->
+                    mcAnswerRep.deleteById(a.answer_id)
+                }
+                mcQuestionRep.deleteById(it.question_id)
+            }
+        }
+        val ret = ExerciseRet(e.exercise_id, modRep.findById(e.module_id).get(), e.title, e.content, e.description, e.exercisePublic, ratRep.averageExerciseRating(e.exercise_id), e.type_id, tagRep.getExerciseTags(e.exercise_id))
         exRep.deleteById(exerciseID)
         return ret
     }
-
-
-
 }

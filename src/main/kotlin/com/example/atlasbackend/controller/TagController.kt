@@ -2,7 +2,6 @@ package com.example.atlasbackend.controller
 
 import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.classes.ExerciseRet
-import com.example.atlasbackend.classes.Tag
 import com.example.atlasbackend.classes.TagRet
 import com.example.atlasbackend.service.TagService
 import io.swagger.v3.oas.annotations.Parameter
@@ -25,6 +24,15 @@ class TagController(val tagService: TagService) {
     @GetMapping("/tags")
     fun getAllTags(): List<TagRet>{
         return tagService.getAllTags()
+    }
+
+    @ApiResponses(
+            value = [
+                ApiResponse(responseCode = "200", description = "OK - Returns a page of All tags")
+            ])
+    @GetMapping("/tags/pages/{pageSize}/{pageNr}")
+    fun getAllTagsByPage(@PathVariable pageSize: Int, @PathVariable pageNr: Int): List<TagRet>{
+        return tagService.getAllTagsByPage(pageSize,pageNr)
     }
 
     @ApiResponses(

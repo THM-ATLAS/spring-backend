@@ -2,6 +2,8 @@ package com.example.atlasbackend.repository
 
 import com.example.atlasbackend.classes.AtlasModule
 import com.example.atlasbackend.classes.Exercise
+import com.example.atlasbackend.classes.MultipleChoiceAnswer
+import com.example.atlasbackend.classes.MultipleChoiceQuestion
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
@@ -37,5 +39,6 @@ interface ExerciseRepository: CrudRepository<Exercise, Int> {
 
     @Query("SELECT * FROM exercise WHERE module_id = :id ORDER BY exercise_id LIMIT :size OFFSET :offset")
     fun getExercisesByModuleByPage(@Param("id") id: Int, @Param("size") size: Int, @Param("offset") offset: Int): List<Exercise>
+
 }
 
