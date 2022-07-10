@@ -96,7 +96,7 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         return atlasUser
     }
 
-    fun addUser(user: AtlasUser, newUser: AtlasUser): AtlasUser {
+    fun addUser(newUser: AtlasUser): AtlasUser {
 
         // Error Catching
         if (newUser.user_id != 0) throw InvalidUserIDException
@@ -113,7 +113,7 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
             !Regex("[a-z]+").containsMatchIn(newUser.password) ||
             !Regex("[A-Z]+").containsMatchIn(newUser.password)
         ) throw BadPasswordException
-        if( newUser.roles.any { r -> r.role_id < 5 } && !user.roles.any { r -> r.role_id == 1}) throw NoPermissionToModifyUserRolesException  // If any role above guest is present check for admin
+        //Keine Berechtigungen, sonst kann man sich nicht registrieren
 
         // Functionality
         var atlasUser = AtlasUser(newUser.user_id, newUser.name, newUser.username, newUser.email, newUser.userSettings,null)
@@ -144,7 +144,7 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
 
         // Functionality
         newUsers.forEach { u ->
-            userRet.add(addUser(user, u))
+            userRet.add(addUser(u))
         }
 
         return userRet

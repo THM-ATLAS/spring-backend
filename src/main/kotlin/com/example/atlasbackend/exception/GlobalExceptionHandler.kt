@@ -42,7 +42,13 @@ class GlobalExceptionHandler {
     // Invalid Exercise ID when creating exercise
     @ExceptionHandler(value = [InvalidExerciseIDException::class])
     fun exception(exception: InvalidExerciseIDException): ResponseEntity<ApiError> {
-        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidExerciseIDException", "Exercise ID must be zero when creating new exercise.")
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidExerciseIDException", "Exercise ID must be zero when creating new exercise, or has to be a multiple choice exercise when requesting Multiple Choice questions.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(value = [InvalidSubmissionTypeIDException::class])
+    fun exception(exception: InvalidSubmissionTypeIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidSubmissionTypeIDException", "Submission Type ID must be between 1 and 4")
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
@@ -106,6 +112,18 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = [InvalidIconIDException::class])
     fun exception(exception: InvalidIconIDException): ResponseEntity<ApiError> {
         val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidIconIDException", "icon ID must be zero when creating a new icon.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(value = [InvalidQuestionIDException::class])
+    fun exception(exception: InvalidQuestionIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidQuestionIDException", "Question ID must be zero when creating a new question.")
+        return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(value = [InvalidAnswerIDException::class])
+    fun exception(exception: InvalidAnswerIDException): ResponseEntity<ApiError> {
+        val err = ApiError(400, HttpStatus.BAD_REQUEST, "InvalidAnswerIDException", "Answer ID must be zero when creating a new answer.")
         return ResponseEntity<ApiError>(err, HttpStatus.BAD_REQUEST)
     }
 
@@ -369,6 +387,12 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 
+    @ExceptionHandler(value = [LanguageNotFoundException::class])
+    fun exception(exception: LanguageNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "LanguageNotFoundException", "Couldn't find requested programming language.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
     // Exercise ID doesn't exist
     @ExceptionHandler(value = [ExerciseNotFoundException::class])
     fun exception(exception: ExerciseNotFoundException): ResponseEntity<ApiError> {
@@ -394,6 +418,20 @@ class GlobalExceptionHandler {
     @ExceptionHandler(value = [SubmissionNotFoundException::class])
     fun exception(exception: SubmissionNotFoundException): ResponseEntity<ApiError> {
         val err = ApiError(404, HttpStatus.NOT_FOUND, "SubmissionNotFoundException", "Couldn't find requested submission.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
+    // Question ID doesn't exist
+    @ExceptionHandler(value = [QuestionNotFoundException::class])
+    fun exception(exception: QuestionNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "QuestionNotFoundException", "Couldn't find requested question.")
+        return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
+    }
+
+    // Answer ID doesn't exist
+    @ExceptionHandler(value = [AnswerNotFoundException::class])
+    fun exception(exception: AnswerNotFoundException): ResponseEntity<ApiError> {
+        val err = ApiError(404, HttpStatus.NOT_FOUND, "AnswerNotFoundException", "Couldn't find requested answer.")
         return ResponseEntity<ApiError>(err, HttpStatus.NOT_FOUND)
     }
 
@@ -476,6 +514,11 @@ class GlobalExceptionHandler {
         return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
     }
 
+    @ExceptionHandler(value = [WrongSubmissionTypeException::class])
+    fun exception(exception: WrongSubmissionTypeException): ResponseEntity<ApiError> {
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "WrongSubmissionTypeException", "Exercise Type and submission types have to match. The submission type given inside the submission and the actually given type have to match")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
     // Username is reserved for LDAP users
     @ExceptionHandler(value = [ReservedLdapUsernameException::class])
     fun exception(exception: ReservedLdapUsernameException): ResponseEntity<ApiError> {
@@ -491,6 +534,23 @@ class GlobalExceptionHandler {
     }
 
 
+    @ExceptionHandler(value = [QuestionDoesNotBelongToExerciseException::class])
+    fun exception(exception: QuestionDoesNotBelongToExerciseException): ResponseEntity<ApiError> {
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "QuestionDoesNotBelongToExerciseException", "Question given to a wrong task")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
+
+    @ExceptionHandler(value = [AnswerDoesNotBelongToQuestionException::class])
+    fun exception(exception: AnswerDoesNotBelongToQuestionException): ResponseEntity<ApiError> {
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "AnswerDoesNotBelongToQuestionException", "Answer was given to a false question")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
+
+    @ExceptionHandler(value = [ExerciseMustIncludeMcSchemeException::class])
+    fun exception(exception: ExerciseMustIncludeMcSchemeException): ResponseEntity<ApiError> {
+        val err = ApiError(422, HttpStatus.UNPROCESSABLE_ENTITY, "ExerciseMustIncludeMcSchemeException", "Exercises with mc type must include a mc scheme")
+        return ResponseEntity<ApiError>(err, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
 
     /***** [5xx] SERVER ERRORS *****/
 

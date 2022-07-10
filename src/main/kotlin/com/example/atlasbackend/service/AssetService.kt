@@ -53,6 +53,7 @@ class AssetService(val assetRepository: AssetRepository) {
     fun addAsset(asset: AssetBase64): AssetBase64 {
         if(asset.asset_id != 0) throw InvalidAssetIDException
 
+
         return AssetBase64(assetRepository.save(Asset(asset.asset_id, Base64.getDecoder().decode(asset.asset), asset.public, asset.filename)).asset_id, asset.asset, asset.public, asset.filename)
     }
 
