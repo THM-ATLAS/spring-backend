@@ -75,8 +75,8 @@ class UserController(val userService: UserService) {
                 ApiResponse(responseCode = "422", description = "BadPasswordException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PostMapping("/users")
-    fun addUser(@Parameter(hidden = true) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: AtlasUser): AtlasUser {
-        return userService.addUser(user, body)
+    fun addUser(@RequestBody body: AtlasUser): AtlasUser {
+        return userService.addUser(body)
     }
 
     @ApiResponses(

@@ -22,6 +22,15 @@ object InvalidExerciseIDException : RuntimeException()
 // Invalid Module ID when creating module
 object InvalidModuleIDException : RuntimeException()
 
+//Invalid Submission Type given for an exercise
+object InvalidSubmissionTypeIDException : RuntimeException()
+
+//Invalid Question ID when creating question
+object InvalidQuestionIDException : RuntimeException()
+
+//Invalid Answer ID when creating question
+object InvalidAnswerIDException : RuntimeException()
+
 // Invalid User ID when creating user
 object InvalidUserIDException : RuntimeException()
 
@@ -162,11 +171,19 @@ object  NoPermissionToModifyReferralsException : RuntimeException()
 // Accessed Page doesn't exist
 object PageNotFoundException : RuntimeException()
 
+object LanguageNotFoundException: RuntimeException()
+
 // Exercise ID doesn't exist
 object ExerciseNotFoundException : RuntimeException()
 
 // Module ID doesn't exist
 object ModuleNotFoundException : RuntimeException()
+
+// Question ID doesn't exist
+object QuestionNotFoundException : RuntimeException()
+
+// Answer ID doesn't exist
+object AnswerNotFoundException : RuntimeException()
 
 // User ID doesn't exist
 object UserNotFoundException : RuntimeException()
@@ -209,6 +226,13 @@ object UserAlreadyExistsException : RuntimeException()
 // User already submitted to that exercise
 object SubmissionAlreadyExistsException: RuntimeException()
 
+object WrongSubmissionTypeException: RuntimeException()
+
+object QuestionDoesNotBelongToExerciseException: RuntimeException()
+
+object AnswerDoesNotBelongToQuestionException: RuntimeException()
+
+object ExerciseMustIncludeMcSchemeException: RuntimeException()
 // Username is reserved for LDAP users
 object ReservedLdapUsernameException : RuntimeException()
 
