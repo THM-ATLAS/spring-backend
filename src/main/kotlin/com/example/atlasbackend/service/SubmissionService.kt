@@ -45,13 +45,7 @@ class SubmissionService(
 
         val offset = pageSize*(pageNr-1)
         val ret = subRep.loadPage(pageSize,offset)
-        ret.forEach {
-            when (subRep.findById(it.submission_id).get().type) {
-                1 -> it.content = getFreeSubmission(it.submission_id)
-                2 -> it.content = getCodeSubmission(it.submission_id)
-                3 -> it.content = getMcSubmission(it.submission_id)
-                4 -> it.content = getFileSubmission(it.submission_id)
-            }
+        ret.forEach {it.content = getSubmissionContent(it.submission_id)
         }
         return ret.toList()
     }
