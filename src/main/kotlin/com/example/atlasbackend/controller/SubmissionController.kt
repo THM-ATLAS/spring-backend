@@ -29,6 +29,16 @@ class SubmissionController(val submissionService: SubmissionService) {
 
     @ApiResponses(
             value = [
+                ApiResponse(responseCode = "200", description = "OK - Returns a page of all Submission"),
+                ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
+            ])
+    @GetMapping("/submissions/pages/{pageSize}/{pageNr}")
+    fun getAllSubmissionsByPage(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable pageSize: Int, @PathVariable pageNr: Int): List<Submission> {
+        return submissionService.getAllSubmissionsByPage(user, pageSize, pageNr)
+    }
+
+    @ApiResponses(
+            value = [
                 ApiResponse(responseCode = "200", description = "OK - Returns all Submission of an Exercise "),
                 ApiResponse(responseCode = "404", description = "ExerciseNotFoundException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
@@ -40,6 +50,17 @@ class SubmissionController(val submissionService: SubmissionService) {
 
     @ApiResponses(
             value = [
+                ApiResponse(responseCode = "200", description = "OK - Returns all Submission of an Exercise "),
+                ApiResponse(responseCode = "404", description = "ExerciseNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
+            ])
+    @GetMapping("/exercises/{exerciseID}/submissions/pages/{pageSize}/{pageNr}")
+    fun getExerciseSubmissionsByPage(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable exerciseID: Int, @PathVariable pageSize: Int, @PathVariable pageNr: Int): List<Submission> {
+        return submissionService.getExerciseSubmissionsByPage(user, exerciseID, pageSize, pageNr)
+    }
+
+    @ApiResponses(
+            value = [
                 ApiResponse(responseCode = "200", description = "OK - Returns all Submission of an User "),
                 ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
@@ -47,6 +68,17 @@ class SubmissionController(val submissionService: SubmissionService) {
     @GetMapping("/users/{subUserID}/submissions")
     fun getUserSubmissions(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable subUserID: Int): List<Submission> {
         return submissionService.getUserSubmissions(user, subUserID)
+    }
+
+    @ApiResponses(
+            value = [
+                ApiResponse(responseCode = "200", description = "OK - Returns all Submission of an User "),
+                ApiResponse(responseCode = "404", description = "UserNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
+            ])
+    @GetMapping("/users/{subUserID}/submissions/pages/{pageSize}/{pageNr}")
+    fun getUserSubmissionsByPage(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable subUserID: Int, @PathVariable pageSize: Int, @PathVariable pageNr: Int): List<Submission> {
+        return submissionService.getUserSubmissionsByPage(user, subUserID,pageSize, pageNr)
     }
 
     @ApiResponses(
