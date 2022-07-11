@@ -1,6 +1,7 @@
 package com.example.atlasbackend.controller
 
 import com.example.atlasbackend.classes.AssetBase64
+import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.service.AssetService
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.core.io.Resource
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -28,7 +30,7 @@ class AssetController(val assetService: AssetService) {
             ApiResponse(responseCode = "404", description = "AssetNotFoundException", content = [Content(schema = Schema(hidden = true))])
         ])
     @GetMapping("/assets/{id}/view")
-    fun viewAsset(@PathVariable id: Int): ResponseEntity<Resource> {
+    fun viewAsset(@AuthenticationPrincipal user: AtlasUser, @PathVariable id: Int): ResponseEntity<Resource> {
         return assetService.viewAsset(id)
     }
 
@@ -39,7 +41,7 @@ class AssetController(val assetService: AssetService) {
             ApiResponse(responseCode = "404", description = "AssetNotFoundException", content = [Content(schema = Schema(hidden = true))])
         ])
     @GetMapping("/assets/{id}/download")
-    fun downloadAsset(@PathVariable id: Int): ResponseEntity<Resource> {
+    fun downloadAsset(@AuthenticationPrincipal user: AtlasUser, @PathVariable id: Int): ResponseEntity<Resource> {
         return assetService.downloadAsset(id)
     }
 
@@ -50,7 +52,7 @@ class AssetController(val assetService: AssetService) {
             ApiResponse(responseCode = "404", description = "AssetNotFoundException", content = [Content(schema = Schema(hidden = true))])
         ])
     @GetMapping("/assets/{id}")
-    fun getAsset(@PathVariable id: Int): AssetBase64 {
+    fun getAsset(@AuthenticationPrincipal user: AtlasUser, @PathVariable id: Int): AssetBase64 {
         return assetService.getAsset(id)
     }
 
@@ -73,7 +75,7 @@ class AssetController(val assetService: AssetService) {
             ApiResponse(responseCode = "404", description = "AssetNotFoundException", content = [Content(schema = Schema(hidden = true))])
         ])
     @PutMapping("/assets/")
-    fun editAsset(@RequestBody asset: AssetBase64): AssetBase64 {
+    fun editAsset(@AuthenticationPrincipal user: AtlasUser, @RequestBody asset: AssetBase64): AssetBase64 {
         return assetService.editAsset(asset)
     }
 
@@ -84,7 +86,7 @@ class AssetController(val assetService: AssetService) {
             ApiResponse(responseCode = "404", description = "AssetNotFoundException", content = [Content(schema = Schema(hidden = true))])
         ])
     @DeleteMapping("/assets/{id}")
-    fun delAsset(@PathVariable id: Int): AssetBase64 {
+    fun delAsset(@AuthenticationPrincipal user: AtlasUser, @PathVariable id: Int): AssetBase64 {
         return assetService.delAsset(id)
     }
 }

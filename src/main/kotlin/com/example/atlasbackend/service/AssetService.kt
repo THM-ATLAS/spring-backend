@@ -2,9 +2,11 @@ package com.example.atlasbackend.service
 
 import com.example.atlasbackend.classes.Asset
 import com.example.atlasbackend.classes.AssetBase64
+import com.example.atlasbackend.classes.AtlasUser
 import com.example.atlasbackend.exception.AssetNotFoundException
 import com.example.atlasbackend.exception.InvalidAssetIDException
 import com.example.atlasbackend.repository.AssetRepository
+import com.example.atlasbackend.repository.ModuleRepository
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.core.io.Resource
 import org.springframework.http.ContentDisposition
@@ -15,10 +17,13 @@ import org.springframework.stereotype.Service
 import java.util.Base64
 
 @Service
-class AssetService(val assetRepository: AssetRepository) {
+class AssetService(val assetRepository: AssetRepository, val moduleRepository: ModuleRepository) {
 
     fun viewAsset(id: Int): ResponseEntity<Resource> {
         if(!assetRepository.existsById(id)) throw AssetNotFoundException
+        val permittedUserList: MutableList<AtlasUser> = mutableListOf()
+        val test = assetRepository.getReferralsFromAsset(id).forEach { moduleRef -> permittedUserList.addAll(moduleRepository.getUsersByModule(moduleRef.module_id)) }
+        //if(assetRepository.getUserFromSubmissionAsset(id))
 
         val file = assetRepository.findById(id).get()
         val resource = ByteArrayResource(file.asset)
