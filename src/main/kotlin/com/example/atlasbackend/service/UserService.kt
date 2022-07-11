@@ -82,6 +82,8 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
             atlasUser.name = editUser.name
             atlasUser.username = editUser.username
             atlasUser.email = editUser.email
+            atlasUser.userSettings = editUser.userSettings
+
 
         if(editUser.password != "") {
             userRep.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(editUser.password))
@@ -112,7 +114,7 @@ class UserService(val userRep: UserRepository, val roleRep: RoleRepository, val 
         //Keine Berechtigungen, sonst kann man sich nicht registrieren
 
         // Functionality
-        var atlasUser = AtlasUser(newUser.user_id, newUser.name, newUser.username, newUser.email, null)
+        var atlasUser = AtlasUser(newUser.user_id, newUser.name, newUser.username, newUser.email, newUser.userSettings,null)
         atlasUser = userRep.save(atlasUser)
         userRep.addPassword(atlasUser.username, BCryptPasswordEncoder().encode(newUser.password))
 

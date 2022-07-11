@@ -13,7 +13,9 @@ data class AtlasUser(@Id var user_id: Int,
                      var name: String,
                      private var username: String,
                      var email: String,
+                     var userSettings:UserSettings,
                      @JsonIgnore var last_login: Timestamp?
+
 ): UserDetails {
 
     @org.springframework.data.annotation.Transient private var password: String = ""
