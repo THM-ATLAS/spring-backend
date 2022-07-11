@@ -9,12 +9,20 @@ import com.example.atlasbackend.repository.*
 import org.springframework.stereotype.Service
 
 @Service
-class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val modRep: ModuleRepository, val ratRep: RatingRepository, val exTyRep: ExerciseTypeRepository, val iconRep: IconRepository) {
+class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val modRep: ModuleRepository, val ratRep: RatingRepository, val iconRep: IconRepository) {
 
     /***** GENERAL TAG MANAGEMENT *****/
 
     fun getAllTags(): List<TagRet>{
         return tagRep.findAll().toList().map { t -> TagRet(t.tag_id, t.name, iconRep.findById(t.icon_id).get())}
+    }
+
+
+    fun getAllTagsByPage(pageSize: Int, pageNr: Int): List<TagRet> {
+        // Functionality
+        val size = pageSize
+        val offset = pageSize*(pageNr-1)
+        return tagRep.loadPage(size, offset).map { t -> TagRet(t.tag_id, t.name, iconRep.findById(t.icon_id).get())}
     }
 
     fun loadExerciseTags(exerciseID: Int): List<TagRet> {
@@ -64,7 +72,7 @@ class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val m
         // Functionality
         tagRep.addExerciseTag(exerciseID,tagID)
         val exercise = exRep.findById(exerciseID).get()
-        return ExerciseRet(exerciseID, modRep.findById(exercise.module_id).get(), exercise.title,exercise.content,exercise.description, exercise.exercisePublic, ratRep.averageExerciseRating(exerciseID), exTyRep.getExerciseTypeName(exercise.type_id),tagRep.getExerciseTags(exerciseID))
+        return ExerciseRet(exerciseID, modRep.findById(exercise.module_id).get(), exercise.title,exercise.content,exercise.description, exercise.exercisePublic, ratRep.averageExerciseRating(exerciseID), exercise.type_id,tagRep.getExerciseTags(exerciseID))
     }
 
     fun deleteTag(user: AtlasUser, tagID: Int): TagRet {
@@ -91,7 +99,7 @@ class TagService(val tagRep: TagRepository, val exRep: ExerciseRepository, val m
         // Functionality
         tagRep.removeExerciseTag(exerciseID,tagID)
         val exercise = exRep.findById(exerciseID).get()
-        return ExerciseRet(exerciseID, modRep.findById(exercise.module_id).get(), exercise.title,exercise.content,exercise.description, exercise.exercisePublic, ratRep.averageExerciseRating(exerciseID), exTyRep.getExerciseTypeName(exercise.type_id),tagRep.getExerciseTags(exerciseID))
+        return ExerciseRet(exerciseID, modRep.findById(exercise.module_id).get(), exercise.title,exercise.content,exercise.description, exercise.exercisePublic, ratRep.averageExerciseRating(exerciseID), exercise.type_id,tagRep.getExerciseTags(exerciseID))
     }
 
     /***** MODULE TAG MANAGEMENT *****/

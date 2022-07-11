@@ -12,13 +12,12 @@ class IconService(var iconRep: IconRepository){
         return iconRep.findAll().toList()
     }
 
-    fun createIcon(user: AtlasUser, icon: AtlasIcon): List<AtlasIcon> {
+    fun createIcon(user: AtlasUser, icon: AtlasIcon): AtlasIcon {
         // Error Catching
         if(icon.icon_id != 0) throw InvalidIconIDException
         if (!user.roles.any { r -> r.role_id == 1}) throw NoPermissionToCreateIconException // Check for admin
 
-        iconRep.save(icon)
-        return iconRep.findAll().toList()
+        return iconRep.save(icon)
     }
 
     fun deleteIcon(user: AtlasUser, icon_id: Int): List<AtlasIcon> {
