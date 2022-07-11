@@ -10,23 +10,37 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
 
     /***** GENERAL MODULE MANAGEMENT *****/
 
-    fun loadModules(): List<AtlasModuleRet> {
-        return modRep.findAll().toList().map { m -> AtlasModuleRet(m.module_id,m.name, m.description, m.modulePublic, iconRep.findById(m.icon_id).get()) }
+    fun loadModules(user: AtlasUser): List<AtlasModuleRet> {
+        var allModules = modRep.findAll().toList().map { m -> AtlasModuleRet(m.module_id,m.name, m.description, m.modulePublic, iconRep.findById(m.icon_id).get()) }
+
+        if (user.roles.all { r -> r.role_id >= 5  }) {     // Check if guest
+            allModules = allModules.filter { m -> m.modulePublic == true }
+        }
+
+        return allModules
     }
 
-    fun loadModulesByPage(pageSize: Int, pageNr: Int): List<AtlasModuleRet> {
-        val size = pageSize
+    fun loadModulesByPage(user: AtlasUser, pageSize: Int, pageNr: Int): List<AtlasModuleRet> {
         val offset = pageSize*(pageNr-1)
-        return modRep.loadPage(size, offset).map { m -> AtlasModuleRet(m.module_id,m.name, m.description, m.modulePublic, iconRep.findById(m.icon_id).get()) }
+        var pageModules = modRep.loadPage(pageSize, offset).map { m -> AtlasModuleRet(m.module_id,m.name, m.description, m.modulePublic, iconRep.findById(m.icon_id).get()) }
+
+        if (user.roles.all { r -> r.role_id >= 5  }) {     // Check if guest
+            pageModules = pageModules.filter { m -> m.modulePublic == true }
+        }
+
+        return pageModules
     }
 
-    fun getModule(moduleID: Int): AtlasModuleRet {
+    fun getModule(user: AtlasUser, moduleID: Int): AtlasModuleRet {
+        val m = modRep.findById(moduleID).get()
 
         // Error Catching
         if (!modRep.existsById(moduleID)) throw ModuleNotFoundException
+        if (user.roles.all { r -> r.role_id >= 5  } &&   // Check for guest
+            m.modulePublic == false)
+            throw AccessDeniedException
 
         // Functionality
-        val m = modRep.findById(moduleID).get()
         return AtlasModuleRet (m.module_id, m.name, m.description, m.modulePublic, iconRep.findById(m.icon_id).get())
     }
 
@@ -81,7 +95,8 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         // Error Catching
         if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
+            modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id > 3 } &&
+            modRep.findById(moduleID).get().modulePublic!!.not()) // Check for tutor/teacher
             throw AccessDeniedException
 
         // Functionality
@@ -188,7 +203,8 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
 
         // Error Catching
         if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
-        if (!user.roles.any { r -> r.role_id == 1} && !modRep.getUsersByModule(moduleID).any{u -> u.user_id == user.user_id}) throw AccessDeniedException
+        if (!user.roles.any { r -> r.role_id == 1} && !modRep.getUsersByModule(moduleID).any{u -> u.user_id == user.user_id} &&
+            modRep.findById(moduleID).get().modulePublic!!.not()) throw AccessDeniedException
 
         return modLinkRep.getLinks(moduleID)
     }
@@ -197,7 +213,10 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
 
         // Error Catching
         if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
-        if (!user.roles.any { r -> r.role_id == 1} && !modRep.getUsersByModule(moduleID).any{u -> u.user_id == user.user_id}) throw AccessDeniedException
+        if (!user.roles.any { r -> r.role_id == 1} &&
+            !modRep.getUsersByModule(moduleID).any{u -> u.user_id == user.user_id} &&
+            modRep.findById(moduleID).get().modulePublic!!.not())
+            throw AccessDeniedException
 
         return modAssetRep.getAssets(moduleID)
     }

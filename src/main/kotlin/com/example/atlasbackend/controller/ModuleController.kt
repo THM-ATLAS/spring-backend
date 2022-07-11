@@ -29,8 +29,8 @@ class ModuleController(val moduleService: ModuleService) {
                 ApiResponse(responseCode = "200", description = "OK - Returns All Modules")
             ])
     @GetMapping("/modules")
-    fun loadModules(): List<AtlasModuleRet> {
-        return moduleService.loadModules()
+    fun loadModules(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser): List<AtlasModuleRet> {
+        return moduleService.loadModules(user)
     }
 
     @ApiResponses(
@@ -38,8 +38,8 @@ class ModuleController(val moduleService: ModuleService) {
                 ApiResponse(responseCode = "200", description = "OK - Returns a page of All Modules")
             ])
     @GetMapping("/modules/pages/{pageSize}/{pageNr}")
-    fun loadModulesByPage(@PathVariable pageSize: Int, @PathVariable pageNr: Int): List<AtlasModuleRet> {
-        return moduleService.loadModulesByPage(pageSize, pageNr)
+    fun loadModulesByPage(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable pageSize: Int, @PathVariable pageNr: Int): List<AtlasModuleRet> {
+        return moduleService.loadModulesByPage(user, pageSize, pageNr)
     }
 
     @ApiResponses(
@@ -48,8 +48,8 @@ class ModuleController(val moduleService: ModuleService) {
                 ApiResponse(responseCode = "404", description = "ModuleNotFoundException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/modules/{moduleID}")
-    fun getModule(@PathVariable moduleID: Int): AtlasModuleRet {
-        return moduleService.getModule(moduleID)
+    fun getModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable moduleID: Int): AtlasModuleRet {
+        return moduleService.getModule(user, moduleID)
     }
 
     @ApiResponses(

@@ -98,7 +98,8 @@ class ExerciseService(val subTyRep: SubmissionTypeRepository,
         // Error Catching
         if (modRep.existsById(moduleId).not()) throw ModuleNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            !modRep.getUsersByModule(moduleId).any { m -> m.user_id == user.user_id })   // Check if user in module
+            !modRep.getUsersByModule(moduleId).any { m -> m.user_id == user.user_id } &&
+            modRep.findById(moduleId).get().modulePublic!!.not())   // Check if user in module
             throw AccessDeniedException
 
         // Functionality
