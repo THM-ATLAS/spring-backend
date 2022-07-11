@@ -20,7 +20,7 @@ class ExerciseController(val exerciseService: ExerciseService) {
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/exercises")
-    fun loadExercises(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser): List<ExerciseRet> {
+    fun loadExercises(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser): List<Exercise> {
         return exerciseService.loadExercises(user)
     }
 
@@ -30,7 +30,7 @@ class ExerciseController(val exerciseService: ExerciseService) {
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/exercises/pages/{pageSize}/{pageNr}")
-    fun loadExercisesByPage(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser,@PathVariable pageSize: Int,@PathVariable pageNr: Int): List<ExerciseRet>{
+    fun loadExercisesByPage(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser,@PathVariable pageSize: Int,@PathVariable pageNr: Int): List<Exercise>{
         return exerciseService.loadExercisesByPage(user, pageSize, pageNr)
     }
 
@@ -41,7 +41,7 @@ class ExerciseController(val exerciseService: ExerciseService) {
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/exercises/user/{userID}")
-    fun loadExercisesByUser(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable userID: Int): Set<ExerciseRet> {
+    fun loadExercisesByUser(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable userID: Int): Set<Exercise> {
         return exerciseService.loadExercisesUser(user, userID)
     }
 
@@ -52,7 +52,7 @@ class ExerciseController(val exerciseService: ExerciseService) {
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/exercises/user/{userID}/pages/{pageSize}/{pageNr}")
-    fun loadExercisesByUserByPage(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable userID: Int,@PathVariable pageSize: Int, @PathVariable pageNr: Int): Set<ExerciseRet> {
+    fun loadExercisesByUserByPage(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable userID: Int,@PathVariable pageSize: Int, @PathVariable pageNr: Int): Set<Exercise> {
         return exerciseService.loadExercisesUserByPage(user, userID, pageSize, pageNr)
     }
 
@@ -63,7 +63,7 @@ class ExerciseController(val exerciseService: ExerciseService) {
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/exercises/module/{modID}")
-    fun loadExercisesModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable modID: Int): List<ExerciseRet> {
+    fun loadExercisesModule(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable modID: Int): List<Exercise> {
         return exerciseService.loadExercisesModule(user, modID)
     }
 
@@ -74,7 +74,7 @@ class ExerciseController(val exerciseService: ExerciseService) {
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/exercises/module/{modID}/pages/{pageSize}/{pageNr}")
-    fun loadExercisesModuleByPage(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable modID: Int,@PathVariable pageSize: Int, @PathVariable pageNr: Int): List<ExerciseRet> {
+    fun loadExercisesModuleByPage(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable modID: Int,@PathVariable pageSize: Int, @PathVariable pageNr: Int): List<Exercise> {
         return exerciseService.loadExercisesModuleByPage(user, modID, pageSize, pageNr)
     }
 
@@ -85,7 +85,7 @@ class ExerciseController(val exerciseService: ExerciseService) {
                 ApiResponse(responseCode = "403", description = "AccessDeniedException", content = [Content(schema = Schema(hidden = true))])
             ])
     @GetMapping("/exercises/{exerciseID}")
-    fun getExercise(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable exerciseID: Int): ExerciseRet {
+    fun getExercise(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable exerciseID: Int): Exercise {
         return exerciseService.getExercise(user, exerciseID)
     }
 
@@ -105,7 +105,7 @@ class ExerciseController(val exerciseService: ExerciseService) {
                 ApiResponse(responseCode = "403", description = "NoPermissionToEditExerciseException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PutMapping("/exercises")
-    fun editExercise(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: ExerciseRet): ExerciseRet {
+    fun editExercise(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: Exercise ): Exercise {
         return exerciseService.updateExercise(user, body)
     }
 
@@ -121,7 +121,7 @@ class ExerciseController(val exerciseService: ExerciseService) {
 
             ])
     @PostMapping("/exercises")
-    fun postExercise(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody exercise: Exercise): ExerciseRet {
+    fun postExercise(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody exercise: Exercise): Exercise {
         return exerciseService.createExercise(user, exercise)
     }
 
@@ -132,7 +132,7 @@ class ExerciseController(val exerciseService: ExerciseService) {
                 ApiResponse(responseCode = "403", description = "NoPermissionToDeleteExerciseException", content = [Content(schema = Schema(hidden = true))])
             ])
     @DeleteMapping("/exercises/{exerciseID}")
-    fun deleteExercise(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable exerciseID: Int): ExerciseRet {
+    fun deleteExercise(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable exerciseID: Int): Exercise {
         return exerciseService.deleteExercise(user, exerciseID)
     }
 }
