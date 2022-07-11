@@ -112,8 +112,8 @@ class SubmissionController(val submissionService: SubmissionService) {
                 ApiResponse(responseCode = "200", description = "OK - Edits Submission "),
                 ApiResponse(responseCode = "404", description = "SubmissionNotFoundException || ExerciseNotFoundException || UserNotFoundException", content = [Content(schema = Schema(hidden = true))]),
                 ApiResponse(responseCode = "403", description = "NoPermissionToEditExerciseException", content = [Content(schema = Schema(hidden = true))]),
-                ApiResponse(responseCode = "400", description = "InvalidSubmissionTypeIDException", content = [Content(schema = Schema(hidden = true))])
-
+                ApiResponse(responseCode = "400", description = "InvalidSubmissionTypeIDException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "422", description = "QuestionDoesNotBelongToExerciseException || AnswerDoesNotBelongToQuestionException", content = [Content(schema = Schema(hidden = true))])
     ])
     @PutMapping("/submissions")
     fun editSubmission(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: Submission): Submission {
@@ -122,15 +122,25 @@ class SubmissionController(val submissionService: SubmissionService) {
 
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "OK - Edits Submission "),
+            ApiResponse(responseCode = "200", description = "OK - Edits Submission-Grade "),
             ApiResponse(responseCode = "404", description = "SubmissionNotFoundException", content = [Content(schema = Schema(hidden = true))]),
             ApiResponse(responseCode = "403", description = "NoPermissionToEditExerciseException", content = [Content(schema = Schema(hidden = true))]),
-            ApiResponse(responseCode = "422", description = "QuestionDoesNotBelongToExerciseException || AnswerDoesNotBelongToQuestionException", content = [Content(schema = Schema(hidden = true))])
-
         ])
     @PutMapping("/submissions/grade")
     fun editSubmissionRating(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody body: SubmissionGrade): Submission {
         return submissionService.editSubmissionGrade(user, body)
+    }
+
+    @ApiResponses(
+            value = [
+                ApiResponse(responseCode = "200", description = "OK - Deletes Submission-Grade "),
+                ApiResponse(responseCode = "404", description = "SubmissionNotFoundException", content = [Content(schema = Schema(hidden = true))]),
+                ApiResponse(responseCode = "403", description = "NoPermissionToEditExerciseException", content = [Content(schema = Schema(hidden = true))]),
+
+            ])
+    @DeleteMapping("/submissions/grade/{submissionID}")
+    fun deleteSubmissionRating(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable submissionID: Int): Submission {
+        return submissionService.deleteSubmissionGrade(user, submissionID)
     }
 
     @ApiResponses(
