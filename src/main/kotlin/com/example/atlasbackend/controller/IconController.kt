@@ -32,7 +32,7 @@ class IconController (val iconService: IconService){
                 ApiResponse(responseCode = "403", description = "NoPermissionToCreateIconException", content = [Content(schema = Schema(hidden = true))])
             ])
     @PostMapping("/icons")
-    fun createIcon(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody icon: AtlasIcon): List<AtlasIcon>{
+    fun createIcon(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @RequestBody icon: AtlasIcon): AtlasIcon {
         return iconService.createIcon(user,icon)
     }
 
