@@ -10,7 +10,7 @@ data class Exercise(@Id var exercise_id: Int,
                     var type_id: Int,
                     var title: String,
                     var content: String,
-                    var description: String,
+                    var description: String?,
                     @field:Column("public") var exercisePublic: Boolean) {
     @org.springframework.data.annotation.Transient var mc: List<MultipleChoiceQuestion>? = null
 }
