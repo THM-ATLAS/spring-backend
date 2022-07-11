@@ -133,6 +133,11 @@ class SubmissionController(val submissionService: SubmissionService) {
         return submissionService.editSubmissionGrade(user, body)
     }
 
+    @DeleteMapping("/submissions/grade/{submissionID}")
+    fun deleteSubmissionRating(@Parameter(hidden = true ) @AuthenticationPrincipal user: AtlasUser, @PathVariable submissionID: Int): Submission {
+        return submissionService.deleteSubmissionGrade(user, submissionID)
+    }
+
     @ApiResponses(
             value = [
                 ApiResponse(responseCode = "200", description = "OK - Creates Submission "),

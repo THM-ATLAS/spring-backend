@@ -258,6 +258,46 @@ class SubmissionService(
         return updatedSubmission
     }
 
+    fun deleteSubmissionGrade(user: AtlasUser, submissionID: Int): Submission {
+        // Error Catching
+        if (!subRep.existsById(submissionID)) throw SubmissionNotFoundException
+        val s = getSubmission(user, submissionID)
+        if (!user.roles.any { r -> r.role_id == 1 } &&   // Check for admin
+                modRep.getModuleRoleByUser(user.user_id, exRep.getModuleByExercise(s.exercise_id).module_id)
+                        .let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
+            throw NoPermissionToEditSubmissionException
+
+        // Functionality
+        val updatedSubmission = Submission(
+                submissionID,
+                s.exercise_id,
+                s.user_id,
+                s.upload_time,
+                null,
+                null,
+                null,
+                s.type
+        )
+
+        subRep.save(updatedSubmission)
+
+        // Notification
+        val notification = Notification(
+                0,
+                exRep.findById(updatedSubmission.exercise_id).get().title,
+                "",
+                Timestamp(System.currentTimeMillis()),
+                3,
+                exRep.findById(s.exercise_id).get().module_id,
+                s.exercise_id,
+                s.submission_id
+        )
+        notifRep.save(notification)
+        notifRep.addNotificationByUser(s.user_id, notification.notification_id)
+        updatedSubmission.content = getSubmissionContent(updatedSubmission.submission_id)
+        return updatedSubmission
+    }
+
     fun postSubmission(user: AtlasUser, s: Submission): Submission {
 
         // Error Catching
