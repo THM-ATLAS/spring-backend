@@ -13,7 +13,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
     fun loadModules(user: AtlasUser): List<AtlasModuleRet> {
         var allModules = modRep.findAll().toList().map { m -> AtlasModuleRet(m.module_id,m.name, m.description, m.modulePublic, iconRep.findById(m.icon_id).get()) }
 
-        if (user.roles.first().role_id == 5) {     // Check if guest
+        if (user.roles.all { r -> r.role_id >= 5  }) {     // Check if guest
             allModules = allModules.filter { m -> m.modulePublic == true }
         }
 
@@ -24,7 +24,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         val offset = pageSize*(pageNr-1)
         var pageModules = modRep.loadPage(pageSize, offset).map { m -> AtlasModuleRet(m.module_id,m.name, m.description, m.modulePublic, iconRep.findById(m.icon_id).get()) }
 
-        if (user.roles.first().role_id == 5) {     // Check if guest
+        if (user.roles.all { r -> r.role_id >= 5  }) {     // Check if guest
             pageModules = pageModules.filter { m -> m.modulePublic == true }
         }
 
@@ -36,7 +36,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
 
         // Error Catching
         if (!modRep.existsById(moduleID)) throw ModuleNotFoundException
-        if (user.roles.first().role_id == 5 &&   // Check for guest
+        if (user.roles.all { r -> r.role_id >= 5  } &&   // Check for guest
             m.modulePublic == false)
             throw AccessDeniedException
 
