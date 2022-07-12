@@ -69,7 +69,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         if(module.modulePublic == null) module.modulePublic = false // Accept NULL value, but convert to false
         val m = modRep.save(AtlasModule(module.module_id, module.name, module.description, module.modulePublic,module.icon.icon_id))
 
-        modRep.addUser(user.user_id,module.module_id,2) // when creating a module u should be added as teacher
+        modRep.addUser(user.user_id, m.module_id,2) // when creating a module u should be added as teacher
         return AtlasModuleRet(m.module_id, m.name, m.description, m.modulePublic, iconRep.findById(m.icon_id).get())
     }
 
@@ -95,7 +95,8 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         // Error Catching
         if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
         if (!user.roles.any { r -> r.role_id == 1} &&   // Check for admin
-            modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id > 3 })   // Check for tutor/teacher
+            modRep.getModuleRoleByUser(user.user_id, moduleID).let { mru -> mru == null || mru.role_id > 3 } &&
+            modRep.findById(moduleID).get().modulePublic!!.not()) // Check for tutor/teacher
             throw AccessDeniedException
 
         // Functionality
@@ -202,7 +203,8 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
 
         // Error Catching
         if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
-        if (!user.roles.any { r -> r.role_id == 1} && !modRep.getUsersByModule(moduleID).any{u -> u.user_id == user.user_id}) throw AccessDeniedException
+        if (!user.roles.any { r -> r.role_id == 1} && !modRep.getUsersByModule(moduleID).any{u -> u.user_id == user.user_id} &&
+            modRep.findById(moduleID).get().modulePublic!!.not()) throw AccessDeniedException
 
         return modLinkRep.getLinks(moduleID)
     }
@@ -211,7 +213,10 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
 
         // Error Catching
         if (modRep.existsById(moduleID).not()) throw ModuleNotFoundException
-        if (!user.roles.any { r -> r.role_id == 1} && !modRep.getUsersByModule(moduleID).any{u -> u.user_id == user.user_id}) throw AccessDeniedException
+        if (!user.roles.any { r -> r.role_id == 1} &&
+            !modRep.getUsersByModule(moduleID).any{u -> u.user_id == user.user_id} &&
+            modRep.findById(moduleID).get().modulePublic!!.not())
+            throw AccessDeniedException
 
         return modAssetRep.getAssets(moduleID)
     }

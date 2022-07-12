@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param
 @Repository
 interface NotificationRepository:CrudRepository<Notification,Int> {
 
-    @Query("SELECT * FROM notification n JOIN user_notification un ON n.notification_id = un.notification_id WHERE un.user_id = :user")
+    @Query("SELECT n.* FROM notification n JOIN user_notification un ON n.notification_id = un.notification_id WHERE un.user_id = :user")
     fun getNotificationsByUser(@Param("user") user_id:Int): List<Notification>
 
     @Query("SELECT user_id FROM user_notification WHERE notification_id = :notification")
