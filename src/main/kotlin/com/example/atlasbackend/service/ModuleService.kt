@@ -69,7 +69,7 @@ class ModuleService(val modRep: ModuleRepository, val roleRep: RoleRepository, v
         if(module.modulePublic == null) module.modulePublic = false // Accept NULL value, but convert to false
         val m = modRep.save(AtlasModule(module.module_id, module.name, module.description, module.modulePublic,module.icon.icon_id))
 
-        modRep.addUser(user.user_id,module.module_id,2) // when creating a module u should be added as teacher
+        modRep.addUser(user.user_id, m.module_id,2) // when creating a module u should be added as teacher
         return AtlasModuleRet(m.module_id, m.name, m.description, m.modulePublic, iconRep.findById(m.icon_id).get())
     }
 
